@@ -1,3 +1,17 @@
+*.avi
 *.o
 *.so
 *~
+*.xml
+*.cmake
+*.make
+*.txt
+*.cbp
+*.internal
+*.log
+
+*.stips
+*.stip
+*.bow
+
+archives/*
