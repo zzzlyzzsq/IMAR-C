@@ -1,7 +1,7 @@
-CC=g++ -O3
-all: libkmeans
-libkmeans: KM_ANN.o KMeans.o KMterm.o KMrand.o KCutil.o KCtree.o KMdata.o KMcenters.o KMfilterCenters.o KMlocal.o
-	$(CC) -shared -o libkmeans.so KM_ANN.o KMeans.o KMterm.o KMrand.o KCutil.o KCtree.o KMdata.o KMcenters.o KMfilterCenters.o KMlocal.o
+CC=g++ -O3 
+all: libkmeans.so
+libkmeans.so: KM_ANN.o KMeans.o KMterm.o KMrand.o KCutil.o KCtree.o KMdata.o KMcenters.o KMfilterCenters.o KMlocal.o
+	$(CC) -shared -o $@ $^ -L/home/noox/Documentos/programmation/c++/IMAR-C/lib -lstdc++ 
 KM_ANN.o: KM_ANN.cpp KM_ANN.h
 	$(CC) -Wall -c -fPIC -Wall -DASSERT KM_ANN.cpp
 KMeans.o: KMeans.h
