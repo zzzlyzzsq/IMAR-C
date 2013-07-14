@@ -7,7 +7,9 @@ The robot must be capable of recognizing certain human activities. To go farther
 * ask to the person to confirm its activity;
 * make a decision with regard to the probability of the activity.
 
-## Activities (for the moment it had to be learn in a 2-second video)
+## Activities
+For the moment the activities had to be recorded in a 2-second video 
+(our video analysis programm is too long).
 	- applaud
 	- fall
 	- walk
