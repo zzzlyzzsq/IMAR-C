@@ -43,7 +43,7 @@ std::string integration(std::string video, std::string means, std::string model)
   execTime.end = times(&execTime.send);
   printTime(&execTime);
 
-  std::cout << "Creating the BOW histogram..."  << std::endl;
+  qiLogInfo("Integration") << "Creating the BOW histogram..."  << std::endl;
   struct svm_problem svmProblem = computeBOW(0,dataPts,ctrs);
 
   /*std::cout << "Creating te BOW histogram..."  << std::endl;
@@ -105,13 +105,13 @@ std::string integration(std::string video, std::string means, std::string model)
     idActivity++;
   }
 */
-  std::cout << "Importing the SVM model..."  << std::endl;
+  qiLogInfo("Integration") << "Importing the SVM model..."  << std::endl;
   struct svm_model* pSvmModel = svm_load_model(model.c_str());
 
-  std::cout << "Predicting activity..." << std::endl;
+  qiLogInfo("Integration") << "Predicting activity..." << std::endl;
   execTime.begin = times(&execTime.sbegin);
   int label = svm_predict(pSvmModel,svmProblem.x[0]);
-  cout << "Label predicted: " << label << endl;
+  qiLogInfo("Integration") << "Label predicted: " << label << endl;
   execTime.end = times(&execTime.send);
   printTime(&execTime);
 

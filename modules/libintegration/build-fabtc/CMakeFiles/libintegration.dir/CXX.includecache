@@ -264,7 +264,27 @@ cmath
 
 ../../../include/svm.h
 
-../../../include/tactil.h
+/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/main.cpp
+signal.h
+-
+boost/shared_ptr.hpp
+-
+alcommon/albroker.h
+-
+alcommon/almodule.h
+-
+alcommon/albrokermanager.h
+-
+alcommon/altoolsmain.h
+-
+tactil.h
+/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/tactil.h
+
+/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/tactil.cpp
+tactil.h
+/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/tactil.h
+
+/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/tactil.h
 string
 -
 boost/shared_ptr.hpp
@@ -296,11 +316,7 @@ alproxies/almotionproxy.h
 alproxies/alvideorecorderproxy.h
 -
 integration.h
-../../../include/integration.h
-
-/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/tactil.cpp
-tactil.h
-/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/tactil.h
+/home/noox/Documentos/programmation/c++/IMAR-C/modules/libintegration/integration.h
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/_G_config.h
 bits/types.h
@@ -328,6 +344,12 @@ boost/smart_ptr/enable_shared_from_this.hpp
 boost/noncopyable.hpp
 -
 qi/macro.hpp
+-
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/alcommon/albrokermanager.h
+vector
+-
+boost/shared_ptr.hpp
 -
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/alcommon/alfunctor.h
@@ -412,6 +434,12 @@ alcommon/alproxy.hxx
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/alcommon/alproxy.hxx
 alcommon/detail/alpcall.h
+-
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/alcommon/altoolsmain.h
+boost/shared_ptr.hpp
+-
+boost/function/function_fwd.hpp
 -
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/alcommon/detail/alfunctorwithoutreturn.h
@@ -618,6 +646,10 @@ posix_types_64.h
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/asm/posix_types_64.h
 
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/asm/sigcontext.h
+linux/types.h
+-
+
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/asm/types.h
 asm-generic/types.h
 -
@@ -708,7 +740,23 @@ bits/local_lim.h
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/setjmp.h
 
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/sigaction.h
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/sigcontext.h
+asm/sigcontext.h
+-
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/siginfo.h
+bits/wordsize.h
+-
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/signum.h
+
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/sigset.h
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/sigstack.h
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/sigthread.h
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/bits/stat.h
 
@@ -9624,6 +9672,34 @@ time.h
 bits/sched.h
 -
 
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/signal.h
+features.h
+-
+bits/sigset.h
+-
+bits/types.h
+-
+bits/signum.h
+-
+time.h
+-
+bits/siginfo.h
+-
+bits/sigaction.h
+-
+bits/sigcontext.h
+-
+stddef.h
+-
+bits/sigstack.h
+-
+sys/ucontext.h
+-
+bits/pthreadtypes.h
+-
+bits/sigthread.h
+-
+
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/stdint.h
 features.h
 -
@@ -9782,6 +9858,14 @@ sys/select.h
 sys/sysmacros.h
 -
 bits/pthreadtypes.h
+-
+
+/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/sys/ucontext.h
+features.h
+-
+signal.h
+-
+bits/sigcontext.h
 -
 
 /home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/linux64-nao-atom-cross-toolchain-1.14.3/sysroot/usr/include/tbb/../serial/tbb/parallel_for.h
