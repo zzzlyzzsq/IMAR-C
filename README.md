@@ -9,6 +9,7 @@ The robot must be capable of recognizing certain human activities. To go farther
 
 ## Activities
 For the moment the activities had to be recorded in a 2-second video (our video analysis programm is too long):
+
 	- applaud
 	- fall
 	- walk
