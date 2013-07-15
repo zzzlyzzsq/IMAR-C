@@ -16,4 +16,5 @@
 
 archives/*
 
-!CMakeLists.txt 
+# Exceptions
+!CMakeLists.txt
