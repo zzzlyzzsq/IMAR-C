@@ -7,6 +7,9 @@ EXEC		= actmngt
 
 # Sources files
 
+# Source code directory
+SRCDIRS 	= ../src
+
 # Include directories
 INCLUDEDIRS 	= ../include ../include/kmlocal ../include/densetrack
 
@@ -21,13 +24,13 @@ $(EXEC): main.o naomngt.o naokmeans.o naosvm.o naodensetrack.o
 	$(CC) -Wall -o $@  $^ -L../lib $(LDFLAGS)
 main.o: main.cpp 
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naomngt.o: naomngt.cpp 
+naomngt.o: $(SRCDIRS)/naomngt.cpp 
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naokmeans.o: naokmeans.cpp
+naokmeans.o: $(SRCDIRS)/naokmeans.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naosvm.o: naosvm.cpp
+naosvm.o: $(SRCDIRS)/naosvm.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naodensetrack.o: naodensetrack.cpp
+naodensetrack.o: $(SRCDIRS)/naodensetrack.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
 clean:
 	rm -f *~

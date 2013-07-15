@@ -1,19 +1,38 @@
-CC=g++
-all: main
-INCLUDE_DIRS=-I../include \
--I../include/kmlocal \
--I../include/densetrack
-main: main.o naokmeans.o naosvm.o naodensetrack.o
-	$(CC) -Wall -o main $^ -L../lib -lkmeans -lsvm -ldensetrack
-main.o:	main.c naokmeans.h naosvm.h naodensetrack.h
-	$(CC) -Wall -o $@ -c $< $(INCLUDE_DIRS)
-naosvm.o: naosvm.cpp naosvm.h
-	$(CC) -Wall -o $@ -c $< $(INCLUDE_DIRS)
-naokmeans.o: naokmeans.cpp naokmeans.h 
-	$(CC) -Wall -o $@ -c $< $(INCLUDE_DIRS)
-naodensetrack.o: naodensetrack.cpp naodensetrack.h 
-	$(CC) -Wall -o $@ -c $< $(INCLUDE_DIRS)
+# Configuration #
+# Compilator
+CC		= g++
+
+# Executables to build 
+EXEC		= main
+
+# Sources files
+
+# Source code directory
+SRCDIRS 	= ../src
+
+# Include directories
+INCLUDEDIRS 	= ../include ../include/kmlocal ../include/densetrack
+
+# Compilation and link flags
+CFLAGS 		= $(patsubst %,-I%,$(subst :, ,$(INCLUDEDIRS)))
+LDFLAGS 	= -lsvm -lkmeans -ldensetrack
+
+.PHONY: clean cleanall
+
+all: $(EXEC)
+$(EXEC): main.o naomngt.o naokmeans.o naosvm.o naodensetrack.o
+	$(CC) -Wall -o $@  $^ -L../lib $(LDFLAGS)
+main.o: main.c
+	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+naomngt.o: $(SRCDIRS)/naomngt.cpp 
+	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+naokmeans.o: $(SRCDIRS)/naokmeans.cpp
+	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+naosvm.o: $(SRCDIRS)/naosvm.cpp
+	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+naodensetrack.o: $(SRCDIRS)/naodensetrack.cpp
+	$(CC) -Wall -o $@ -c $< $(CFLAGS)
 clean:
 	rm -f *~
 cleanall: clean
-	rm -f *.o main
+	rm -f *.o $(EXEC)
