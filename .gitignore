@@ -16,5 +16,8 @@
 
 archives/*
 
+# Documentation
+refman.pdf
+
 # Exceptions
 !CMakeLists.txt
