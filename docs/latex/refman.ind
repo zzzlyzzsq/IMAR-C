@@ -1,0 +1,52 @@
+\begin{theindex}
+
+  \item {/home/noox/Documentos/programmation/c++/IMAR-\/C/src/naodensetrack.cpp}, 
+		\hyperpage{3}
+  \item {/home/noox/Documentos/programmation/c++/IMAR-\/C/src/naokmeans.cpp}, 
+		\hyperpage{5}
+  \item {/home/noox/Documentos/programmation/c++/IMAR-\/C/src/naosvm.cpp}, 
+		\hyperpage{8}
+
+  \indexspace
+
+  \item {exportCenters}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
+  \item {extractSTIPs}
+    \subitem {naodensetrack.cpp}, \hyperpage{4}
+
+  \indexspace
+
+  \item {importCenters}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
+  \item {importSTIPs}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
+
+  \indexspace
+
+  \item {kmIvanAlgorithm}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
+
+  \indexspace
+
+  \item {naodensetrack.cpp}
+    \subitem {extractSTIPs}, \hyperpage{4}
+  \item {naokmeans.cpp}
+    \subitem {exportCenters}, \hyperpage{6}
+    \subitem {importCenters}, \hyperpage{6}
+    \subitem {importSTIPs}, \hyperpage{6}
+    \subitem {kmIvanAlgorithm}, \hyperpage{6}
+  \item {naosvm.cpp}
+    \subitem {nrOfLines}, \hyperpage{8}
+    \subitem {printProbability}, \hyperpage{9}
+    \subitem {printProblem}, \hyperpage{9}
+  \item {nrOfLines}
+    \subitem {naosvm.cpp}, \hyperpage{8}
+
+  \indexspace
+
+  \item {printProbability}
+    \subitem {naosvm.cpp}, \hyperpage{9}
+  \item {printProblem}
+    \subitem {naosvm.cpp}, \hyperpage{9}
+
+\end{theindex}

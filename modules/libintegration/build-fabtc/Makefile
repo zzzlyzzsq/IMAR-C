@@ -157,77 +157,173 @@ libintegration/preinstall:
 	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/preinstall
 .PHONY : libintegration/preinstall
 
-IplImagePyramid.o: IplImagePyramid.cpp.o
-.PHONY : IplImagePyramid.o
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.o: home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.o
 
 # target to build an object file
-IplImagePyramid.cpp.o:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/IplImagePyramid.cpp.o
-.PHONY : IplImagePyramid.cpp.o
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.o:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.o
 
-IplImagePyramid.i: IplImagePyramid.cpp.i
-.PHONY : IplImagePyramid.i
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.i: home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.i
 
 # target to preprocess a source file
-IplImagePyramid.cpp.i:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/IplImagePyramid.cpp.i
-.PHONY : IplImagePyramid.cpp.i
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.i:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.i
 
-IplImagePyramid.s: IplImagePyramid.cpp.s
-.PHONY : IplImagePyramid.s
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.s: home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.s
 
 # target to generate assembly for a file
-IplImagePyramid.cpp.s:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/IplImagePyramid.cpp.s
-.PHONY : IplImagePyramid.cpp.s
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.s:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.cpp.s
 
-IplImageWrapper.o: IplImageWrapper.cpp.o
-.PHONY : IplImageWrapper.o
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.o: home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.o
 
 # target to build an object file
-IplImageWrapper.cpp.o:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/IplImageWrapper.cpp.o
-.PHONY : IplImageWrapper.cpp.o
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.o:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.o
 
-IplImageWrapper.i: IplImageWrapper.cpp.i
-.PHONY : IplImageWrapper.i
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.i: home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.i
 
 # target to preprocess a source file
-IplImageWrapper.cpp.i:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/IplImageWrapper.cpp.i
-.PHONY : IplImageWrapper.cpp.i
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.i:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.i
 
-IplImageWrapper.s: IplImageWrapper.cpp.s
-.PHONY : IplImageWrapper.s
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.s: home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.s
 
 # target to generate assembly for a file
-IplImageWrapper.cpp.s:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/IplImageWrapper.cpp.s
-.PHONY : IplImageWrapper.cpp.s
+home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.s:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.cpp.s
 
-integration.o: integration.cpp.o
-.PHONY : integration.o
+home/noox/Documentos/programmation/c++/IMAR-C/src/integration.o: home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/integration.o
 
 # target to build an object file
-integration.cpp.o:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/integration.cpp.o
-.PHONY : integration.cpp.o
+home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.o:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.o
 
-integration.i: integration.cpp.i
-.PHONY : integration.i
+home/noox/Documentos/programmation/c++/IMAR-C/src/integration.i: home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/integration.i
 
 # target to preprocess a source file
-integration.cpp.i:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/integration.cpp.i
-.PHONY : integration.cpp.i
+home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.i:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.i
 
-integration.s: integration.cpp.s
-.PHONY : integration.s
+home/noox/Documentos/programmation/c++/IMAR-C/src/integration.s: home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/integration.s
 
 # target to generate assembly for a file
-integration.cpp.s:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/integration.cpp.s
-.PHONY : integration.cpp.s
+home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.s:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/integration.cpp.s
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.o: home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.o
+
+# target to build an object file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.o:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.o
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.i: home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.i
+
+# target to preprocess a source file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.i:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.i
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.s: home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.s
+
+# target to generate assembly for a file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.s:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.cpp.s
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.o: home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.o
+
+# target to build an object file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.o:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.o
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.i: home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.i
+
+# target to preprocess a source file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.i:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.i
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.s: home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.s
+
+# target to generate assembly for a file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.s:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp.s
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.o: home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.o
+
+# target to build an object file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.o:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.o
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.i: home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.i
+
+# target to preprocess a source file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.i:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.i
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.s: home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.s
+
+# target to generate assembly for a file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.s:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.cpp.s
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.o: home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.o
+
+# target to build an object file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.o:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.o
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.o
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.i: home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.i
+
+# target to preprocess a source file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.i:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.i
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.i
+
+home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.s: home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.s
+
+# target to generate assembly for a file
+home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.s:
+	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.s
+.PHONY : home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.cpp.s
 
 main.o: main.cpp.o
 .PHONY : main.o
@@ -252,102 +348,6 @@ main.s: main.cpp.s
 main.cpp.s:
 	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/main.cpp.s
 .PHONY : main.cpp.s
-
-naodensetrack.o: naodensetrack.cpp.o
-.PHONY : naodensetrack.o
-
-# target to build an object file
-naodensetrack.cpp.o:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naodensetrack.cpp.o
-.PHONY : naodensetrack.cpp.o
-
-naodensetrack.i: naodensetrack.cpp.i
-.PHONY : naodensetrack.i
-
-# target to preprocess a source file
-naodensetrack.cpp.i:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naodensetrack.cpp.i
-.PHONY : naodensetrack.cpp.i
-
-naodensetrack.s: naodensetrack.cpp.s
-.PHONY : naodensetrack.s
-
-# target to generate assembly for a file
-naodensetrack.cpp.s:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naodensetrack.cpp.s
-.PHONY : naodensetrack.cpp.s
-
-naokmeans.o: naokmeans.cpp.o
-.PHONY : naokmeans.o
-
-# target to build an object file
-naokmeans.cpp.o:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naokmeans.cpp.o
-.PHONY : naokmeans.cpp.o
-
-naokmeans.i: naokmeans.cpp.i
-.PHONY : naokmeans.i
-
-# target to preprocess a source file
-naokmeans.cpp.i:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naokmeans.cpp.i
-.PHONY : naokmeans.cpp.i
-
-naokmeans.s: naokmeans.cpp.s
-.PHONY : naokmeans.s
-
-# target to generate assembly for a file
-naokmeans.cpp.s:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naokmeans.cpp.s
-.PHONY : naokmeans.cpp.s
-
-naomngt.o: naomngt.cpp.o
-.PHONY : naomngt.o
-
-# target to build an object file
-naomngt.cpp.o:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naomngt.cpp.o
-.PHONY : naomngt.cpp.o
-
-naomngt.i: naomngt.cpp.i
-.PHONY : naomngt.i
-
-# target to preprocess a source file
-naomngt.cpp.i:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naomngt.cpp.i
-.PHONY : naomngt.cpp.i
-
-naomngt.s: naomngt.cpp.s
-.PHONY : naomngt.s
-
-# target to generate assembly for a file
-naomngt.cpp.s:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naomngt.cpp.s
-.PHONY : naomngt.cpp.s
-
-naosvm.o: naosvm.cpp.o
-.PHONY : naosvm.o
-
-# target to build an object file
-naosvm.cpp.o:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naosvm.cpp.o
-.PHONY : naosvm.cpp.o
-
-naosvm.i: naosvm.cpp.i
-.PHONY : naosvm.i
-
-# target to preprocess a source file
-naosvm.cpp.i:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naosvm.cpp.i
-.PHONY : naosvm.cpp.i
-
-naosvm.s: naosvm.cpp.s
-.PHONY : naosvm.s
-
-# target to generate assembly for a file
-naosvm.cpp.s:
-	$(MAKE) -f CMakeFiles/libintegration.dir/build.make CMakeFiles/libintegration.dir/naosvm.cpp.s
-.PHONY : naosvm.cpp.s
 
 tactil.o: tactil.cpp.o
 .PHONY : tactil.o
@@ -386,30 +386,30 @@ help:
 	@echo "... libintegration"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... IplImagePyramid.o"
-	@echo "... IplImagePyramid.i"
-	@echo "... IplImagePyramid.s"
-	@echo "... IplImageWrapper.o"
-	@echo "... IplImageWrapper.i"
-	@echo "... IplImageWrapper.s"
-	@echo "... integration.o"
-	@echo "... integration.i"
-	@echo "... integration.s"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.o"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.i"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/IplImagePyramid.s"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.o"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.i"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/IplImageWrapper.s"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/integration.o"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/integration.i"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/integration.s"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.o"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.i"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naodensetrack.s"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.o"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.i"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.s"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.o"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.i"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naomngt.s"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.o"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.i"
+	@echo "... home/noox/Documentos/programmation/c++/IMAR-C/src/naosvm.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... naodensetrack.o"
-	@echo "... naodensetrack.i"
-	@echo "... naodensetrack.s"
-	@echo "... naokmeans.o"
-	@echo "... naokmeans.i"
-	@echo "... naokmeans.s"
-	@echo "... naomngt.o"
-	@echo "... naomngt.i"
-	@echo "... naomngt.s"
-	@echo "... naosvm.o"
-	@echo "... naosvm.i"
-	@echo "... naosvm.s"
 	@echo "... tactil.o"
 	@echo "... tactil.i"
 	@echo "... tactil.s"

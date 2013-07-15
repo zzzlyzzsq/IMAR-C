@@ -6,7 +6,8 @@ CC		= gcc
 EXEC		= bow2bow0
 
 # Sources files
-
+# Source code directory 
+SRCDIR		= ../../src
 # Include directories
 INCLUDEDIRS 	= ../../include ../../include/kmlocal
 
@@ -21,9 +22,9 @@ $(EXEC): main.o naokmeans.o naosvm.o
 	$(CC) -Wall -o $@  $^ -L../../lib $(LDFLAGS)
 main.o: main.cpp 
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naokmeans.o: naokmeans.cpp
+naokmeans.o: $(SRCDIR)/naokmeans.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naosvm.o: naosvm.cpp
+naosvm.o: $(SRCDIR)/naosvm.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
 clean:
 	rm -f *~

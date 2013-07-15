@@ -1,4 +1,4 @@
-CC=g++ -O3
+CC=g++
 all: libsvm.so
 libsvm.so: svm.o
 	$(CC) -Wall -shared svm.o -o libsvm.so

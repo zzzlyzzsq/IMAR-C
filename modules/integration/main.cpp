@@ -6,21 +6,10 @@
 #include "naosvm.h"
 #include "naokmeans.h"
 #include "naodensetrack.h"
-
+#include "integration.h"
 #include "Box.h"
 #include <iostream>
 #include <fstream>
-
-#include <sys/times.h>
-typedef struct tms sTms;
-typedef struct{
-  int begin,end;
-  sTms sbegin, send;
-}exec_time;
-void printTime(exec_time *tmps){
-  int top = sysconf(_SC_CLK_TCK); // number of tips per seconds
-  std::cout << "[" << (tmps->end - tmps->begin)/top << "s]" <<std::endl;
-}
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-CC=g++ -O3 
+CC=g++ -O3 -m32
 all: libkmeans.so
 libkmeans.so: KM_ANN.o KMeans.o KMterm.o KMrand.o KCutil.o KCtree.o KMdata.o KMcenters.o KMfilterCenters.o KMlocal.o
 	$(CC) -shared -o $@ $^ -L/home/noox/Documentos/programmation/c++/IMAR-C/lib -lstdc++ 
