@@ -248,6 +248,30 @@ void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCen
     randomVector = NULL;
   }
 }
-
-
+/**
+ * \fn void createTrainingMeans(std::string stipFile, int dim, int maxPts, int k, std::string meansFile)
+ * \brief Import HOG and HOF from a file and compute KMeans algorithm to create
+ * the file training.means.
+ * 
+ * \param[in] stipFile The file containing the STIPs.
+ * \param[in] dim Points and centers's dimension.
+ * \param[in] maxPts The maximum number of data we can compute
+ * \param[in] k The number of centers
+ * \param[out] meansFile The file in wich we will save the KMeans centers.
+ */
+void createTrainingMeans(std::string stipFile,
+			 int dim,
+			 int maxPts,
+			 int k,
+			 std::string meansFile){
+  KMdata dataPts(dim,maxPts);
+  int nPts = importSTIPs(stipFile, dim, maxPts, &dataPts);
+  dataPts.setNPts(nPts);
+  dataPts.buildKcTree();
   
+  KMfilterCenters ctrs(k, dataPts);  
+  int ic = 3;
+  
+  kmIvanAlgorithm(ic, dim, dataPts, k, ctrs);
+  exportCenters(meansFile, dim, k, ctrs);
+}

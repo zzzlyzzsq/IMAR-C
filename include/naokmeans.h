@@ -18,4 +18,9 @@ void exportSTIPs(std::string stip, int dim, const KMdata& dataPts);
 void importCenters(std::string centers, int dim, int k, KMfilterCenters* ctrs);
 void exportCenters(std::string centers, int dim, int k, KMfilterCenters ctrs);
 void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCenters& ctrs);
+void createTrainingMeans(std::string stipFile,
+			 int dim,
+			 int maxPts,
+			 int k,
+			 std::string meansFile);
 #endif

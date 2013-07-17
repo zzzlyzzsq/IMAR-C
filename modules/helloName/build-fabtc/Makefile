@@ -108,16 +108,6 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
-# Special rule for the target test
-test:
-	@echo "Running tests..."
-	/usr/bin/ctest --force-new-ctest-process $(ARGS)
-.PHONY : test
-
-# Special rule for the target test
-test/fast: test
-.PHONY : test/fast
-
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/noox/Documentos/programmation/c++/IMAR-C/modules/helloName/build-fabtc/CMakeFiles /home/noox/Documentos/programmation/c++/IMAR-C/modules/helloName/build-fabtc/CMakeFiles/progress.marks
@@ -167,19 +157,6 @@ helloName/preinstall:
 	$(MAKE) -f CMakeFiles/helloName.dir/build.make CMakeFiles/helloName.dir/preinstall
 .PHONY : helloName/preinstall
 
-#=============================================================================
-# Target rules for targets named test_helloName
-
-# Build rule for target.
-test_helloName: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_helloName
-.PHONY : test_helloName
-
-# fast build rule for target.
-test_helloName/fast:
-	$(MAKE) -f CMakeFiles/test_helloName.dir/build.make CMakeFiles/test_helloName.dir/build
-.PHONY : test_helloName/fast
-
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -204,30 +181,6 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/helloName.dir/build.make CMakeFiles/helloName.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-test.o: test.cpp.o
-.PHONY : test.o
-
-# target to build an object file
-test.cpp.o:
-	$(MAKE) -f CMakeFiles/test_helloName.dir/build.make CMakeFiles/test_helloName.dir/test.cpp.o
-.PHONY : test.cpp.o
-
-test.i: test.cpp.i
-.PHONY : test.i
-
-# target to preprocess a source file
-test.cpp.i:
-	$(MAKE) -f CMakeFiles/test_helloName.dir/build.make CMakeFiles/test_helloName.dir/test.cpp.i
-.PHONY : test.cpp.i
-
-test.s: test.cpp.s
-.PHONY : test.s
-
-# target to generate assembly for a file
-test.cpp.s:
-	$(MAKE) -f CMakeFiles/test_helloName.dir/build.make CMakeFiles/test_helloName.dir/test.cpp.s
-.PHONY : test.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -241,14 +194,9 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... test"
-	@echo "... test_helloName"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... test.o"
-	@echo "... test.i"
-	@echo "... test.s"
 .PHONY : help
 
 

@@ -116,8 +116,8 @@ std::string integration(std::string video, std::string means, std::string model)
   int nbActivities = mapActivities("/home/nao/data/activity_recognition",&am);
 
   int i = 0;
-  while(am[i].label != label){
-      i++;
+  while(i<nbActivities && am[i].label != label){
+    i++;
   }
   std::string activity (am[i].activity);
   delete[] am;

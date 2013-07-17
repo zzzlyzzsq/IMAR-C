@@ -1,0 +1,223 @@
+\hypertarget{naomngt_8cpp}{
+\section{naomngt.cpp File Reference}
+\label{naomngt_8cpp}\index{naomngt.cpp@{naomngt.cpp}}
+}
+
+
+Set of functions permiting to manage the activity recognition BDD of Bag Of Words.  
+
+
+{\ttfamily \#include \char`\"{}naomngt.h\char`\"{}}\par
+Include dependency graph for naomngt.cpp:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=58pt]{naomngt_8cpp__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{naomngt_8cpp_a8c287d449bfefd9dd5d690c056b4744b}{
+void \hyperlink{naomngt_8cpp_a8c287d449bfefd9dd5d690c056b4744b}{listBdds} ()}
+\label{naomngt_8cpp_a8c287d449bfefd9dd5d690c056b4744b}
+
+\begin{DoxyCompactList}\small\item\em List BDDs present in the global database. \item\end{DoxyCompactList}\item 
+void \hyperlink{naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e}{listActivities} (std::string bdd)
+\begin{DoxyCompactList}\small\item\em List activities present in the specified database. \item\end{DoxyCompactList}\item 
+int \hyperlink{naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0}{mapActivities} (std::string path2bdd, activitiesMap $\ast$$\ast$am)
+\begin{DoxyCompactList}\small\item\em Fills the object activitiesMap which contain the equivalence Label-\/Activity. \item\end{DoxyCompactList}\item 
+\hypertarget{naomngt_8cpp_acc921e4909943966a8dbf2d85f31e29e}{
+int {\bfseries nbOfFiles} (std::string path)}
+\label{naomngt_8cpp_acc921e4909943966a8dbf2d85f31e29e}
+
+\item 
+\hypertarget{naomngt_8cpp_a396ba670916d96dfd1795deccf2e40ec}{
+bool {\bfseries fileExist} (std::string file, std::string folder)}
+\label{naomngt_8cpp_a396ba670916d96dfd1795deccf2e40ec}
+
+\item 
+\hypertarget{naomngt_8cpp_aee407c4eb98cc449a0faf764ea3dca33}{
+void {\bfseries addVideos} (std::string bddName, std::string activity, int nbVideos, std::string $\ast$videoPaths, int dim, int maxPts)}
+\label{naomngt_8cpp_aee407c4eb98cc449a0faf764ea3dca33}
+
+\item 
+\hypertarget{naomngt_8cpp_a9cf61eb48f9698d3dbf778239ee293fc}{
+string {\bfseries inttostring} (int int2str)}
+\label{naomngt_8cpp_a9cf61eb48f9698d3dbf778239ee293fc}
+
+\item 
+\hypertarget{naomngt_8cpp_aa0040386aa02e6e5c5b3c441ca85d56f}{
+void {\bfseries trainBdd} (std::string bddName, int dim, int maxPts, int k)}
+\label{naomngt_8cpp_aa0040386aa02e6e5c5b3c441ca85d56f}
+
+\item 
+\hypertarget{naomngt_8cpp_a9c065e9016bd437f23e8cd9d01580ebf}{
+void {\bfseries addLabel} (int label, std::string file, int k)}
+\label{naomngt_8cpp_a9c065e9016bd437f23e8cd9d01580ebf}
+
+\item 
+\hypertarget{naomngt_8cpp_a7e4b446c4f6730a426cd269fafeb39cd}{
+void {\bfseries addActivity} (std::string activityName, std::string bddName)}
+\label{naomngt_8cpp_a7e4b446c4f6730a426cd269fafeb39cd}
+
+\item 
+\hypertarget{naomngt_8cpp_a725875b0f5b8af913ad9869004c31042}{
+void {\bfseries deleteActivity} (std::string activityName, std::string bddName)}
+\label{naomngt_8cpp_a725875b0f5b8af913ad9869004c31042}
+
+\item 
+void \hyperlink{naomngt_8cpp_a5081f4d4997259563211c15b12078fbb}{addBdd} (std::string bddName)
+\begin{DoxyCompactList}\small\item\em Creates a new BDD. \item\end{DoxyCompactList}\item 
+void \hyperlink{naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773}{deleteBdd} (std::string bddName)
+\begin{DoxyCompactList}\small\item\em Deletes a BDD. \item\end{DoxyCompactList}\item 
+void \hyperlink{naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4}{emptyFolder} (std::string folder)
+\begin{DoxyCompactList}\small\item\em Deletes all files present in the folder. \item\end{DoxyCompactList}\item 
+\hypertarget{naomngt_8cpp_ad56ac995dc8fae91374c3dc9881ce3cd}{
+void {\bfseries refreshBdd} (std::string bddName, int dim, int maxPts)}
+\label{naomngt_8cpp_ad56ac995dc8fae91374c3dc9881ce3cd}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Set of functions permiting to manage the activity recognition BDD of Bag Of Words. \begin{DoxyAuthor}{Author}
+Fabien ROUALDES (institut Mines-\/Télécom) 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+17/07/2013 
+\end{DoxyDate}
+
+
+Definition in file \hyperlink{naomngt_8cpp_source}{naomngt.cpp}.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{naomngt_8cpp_a5081f4d4997259563211c15b12078fbb}{
+\index{naomngt.cpp@{naomngt.cpp}!addBdd@{addBdd}}
+\index{addBdd@{addBdd}!naomngt.cpp@{naomngt.cpp}}
+\subsubsection[{addBdd}]{\setlength{\rightskip}{0pt plus 5cm}void addBdd (std::string {\em bddName})}}
+\label{naomngt_8cpp_a5081f4d4997259563211c15b12078fbb}
+
+
+Creates a new BDD. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[\mbox{$\leftarrow$} {\em bddName}]The name of the BDD we want to create. \end{DoxyParams}
+
+
+Definition at line 494 of file naomngt.cpp.
+
+\hypertarget{naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773}{
+\index{naomngt.cpp@{naomngt.cpp}!deleteBdd@{deleteBdd}}
+\index{deleteBdd@{deleteBdd}!naomngt.cpp@{naomngt.cpp}}
+\subsubsection[{deleteBdd}]{\setlength{\rightskip}{0pt plus 5cm}void deleteBdd (std::string {\em bddName})}}
+\label{naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773}
+
+
+Deletes a BDD. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[\mbox{$\leftarrow$} {\em bddName}]The name of the bdd. \end{DoxyParams}
+
+
+Definition at line 531 of file naomngt.cpp.
+
+
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=108pt]{naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4}{
+\index{naomngt.cpp@{naomngt.cpp}!emptyFolder@{emptyFolder}}
+\index{emptyFolder@{emptyFolder}!naomngt.cpp@{naomngt.cpp}}
+\subsubsection[{emptyFolder}]{\setlength{\rightskip}{0pt plus 5cm}void emptyFolder (std::string {\em folder})}}
+\label{naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4}
+
+
+Deletes all files present in the folder. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[\mbox{$\leftarrow$} {\em folder}]The path to the folder. \end{DoxyParams}
+
+
+Definition at line 552 of file naomngt.cpp.
+
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=105pt]{naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e}{
+\index{naomngt.cpp@{naomngt.cpp}!listActivities@{listActivities}}
+\index{listActivities@{listActivities}!naomngt.cpp@{naomngt.cpp}}
+\subsubsection[{listActivities}]{\setlength{\rightskip}{0pt plus 5cm}void listActivities (std::string {\em bdd})}}
+\label{naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e}
+
+
+List activities present in the specified database. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[\mbox{$\leftarrow$} {\em bdd}]The name of the bdd. \end{DoxyParams}
+
+
+Definition at line 34 of file naomngt.cpp.
+
+
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=113pt]{naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0}{
+\index{naomngt.cpp@{naomngt.cpp}!mapActivities@{mapActivities}}
+\index{mapActivities@{mapActivities}!naomngt.cpp@{naomngt.cpp}}
+\subsubsection[{mapActivities}]{\setlength{\rightskip}{0pt plus 5cm}int mapActivities (std::string {\em path2bdd}, \/  activitiesMap $\ast$$\ast$ {\em am})}}
+\label{naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0}
+
+
+Fills the object activitiesMap which contain the equivalence Label-\/Activity. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[\mbox{$\leftarrow$} {\em path2bdd}]The path to the BDD \item[\mbox{$\leftrightarrow$} {\em am}]A pointer to an object activitiesMap. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The number of activities. 
+\end{DoxyReturn}
+
+
+Definition at line 53 of file naomngt.cpp.
+
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=113pt]{naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0_icgraph}
+\end{center}
+\end{figure}
+
+

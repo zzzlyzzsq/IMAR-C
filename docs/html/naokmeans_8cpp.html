@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>IMAR-C: /home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp File Reference</title>
+<title>IMAR-C: naokmeans.cpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -42,7 +42,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <div class="contents">
-<h1>/home/noox/Documentos/programmation/c++/IMAR-C/src/naokmeans.cpp File Reference</h1>
+<h1>naokmeans.cpp File Reference</h1>
 <p>Set of functions permiting to execute KMeans algorithms using KMlocal classes.  
 <a href="#_details">More...</a></p>
 <code>#include &quot;naokmeans.h&quot;</code><br/>
@@ -50,7 +50,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="dynheader">
 Include dependency graph for naokmeans.cpp:</div>
 <div class="dynsection">
-<div class="center"><img src="naokmeans_8cpp__incl.png" border="0" usemap="#_2home_2noox_2_documentos_2programmation_2c_09_09_2_i_m_a_r-_c_2src_2naokmeans_8cpp_map" alt=""/></div>
+<div class="center"><img src="naokmeans_8cpp__incl.png" border="0" usemap="#naokmeans_8cpp_map" alt=""/></div>
 </div>
 
 <p><a href="naokmeans_8cpp_source.html">Go to the source code of this file.</a></p>
@@ -66,6 +66,8 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>exportSTIPs</b> (std:
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Importation function saving external centers in the KMfilterCenters object. One line corresponds to one centers with its values (separeted from one space " ").  <a href="#ab24dc2206c891d1c5644ba930daa6e74"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naokmeans_8cpp.html#a1239738af8b88f74abba7ca22baaf46c">kmIvanAlgorithm</a> (int ic, int dim, const KMdata &amp;dataPts, int k, KMfilterCenters &amp;ctrs)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This is an optimized KMeans algorithm. Ivan's algorithm uses basic KMeans algorithm (here the Lloyd's one) and the idea was to initialize centers intelligently.  <a href="#a1239738af8b88f74abba7ca22baaf46c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naokmeans_8cpp.html#a42663cf0eaef4fbe479f6c031eaf4e99">createTrainingMeans</a> (std::string stipFile, int dim, int maxPts, int k, std::string meansFile)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Import HOG and HOF from a file and compute KMeans algorithm to create the file training.means.  <a href="#a42663cf0eaef4fbe479f6c031eaf4e99"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Set of functions permiting to execute KMeans algorithms using KMlocal classes. </p>
@@ -74,6 +76,74 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>exportSTIPs</b> (std:
 
 <p>Definition in file <a class="el" href="naokmeans_8cpp_source.html">naokmeans.cpp</a>.</p>
 <hr/><h2>Function Documentation</h2>
+<a class="anchor" id="a42663cf0eaef4fbe479f6c031eaf4e99"></a><!-- doxytag: member="naokmeans.cpp::createTrainingMeans" ref="a42663cf0eaef4fbe479f6c031eaf4e99" args="(std::string stipFile, int dim, int maxPts, int k, std::string meansFile)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void createTrainingMeans </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>stipFile</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>maxPts</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>meansFile</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Import HOG and HOF from a file and compute KMeans algorithm to create the file training.means. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>stipFile</em>&nbsp;</td><td>The file containing the STIPs. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>dim</em>&nbsp;</td><td>Points and centers's dimension. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>maxPts</em>&nbsp;</td><td>The maximum number of data we can compute </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>k</em>&nbsp;</td><td>The number of centers </td></tr>
+    <tr><td valign="top"><tt>[out]</tt>&nbsp;</td><td valign="top"><em>meansFile</em>&nbsp;</td><td>The file in wich we will save the KMeans centers. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="naokmeans_8cpp_source.html#l00262">262</a> of file <a class="el" href="naokmeans_8cpp_source.html">naokmeans.cpp</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dynsection">
+<div class="center"><img src="naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99_cgraph.png" border="0" usemap="#naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99_cgraph_map" alt=""></div>
+<map name="naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99_cgraph_map" id="naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99_cgraph">
+<area shape="rect" href="naokmeans_8cpp.html#a70fee2c407d3bf32b07943b8cfcb3c7e" title="Export function to save KMfilterCenters in a file. One line corresponds to one point..." alt="" coords="204,5,305,35"/><area shape="rect" href="naokmeans_8cpp.html#a4a594810a9a736a792e6b2571dfc2170" title="STIPs importation function in the format 1 point = 1 line. Each dimension are separated..." alt="" coords="208,59,301,88"/><area shape="rect" href="naokmeans_8cpp.html#a1239738af8b88f74abba7ca22baaf46c" title="This is an optimized KMeans algorithm. Ivan&#39;s algorithm uses basic KMeans algorithm..." alt="" coords="195,112,315,141"/></map>
+</div>
+</p>
+
+</div>
+</div>
 <a class="anchor" id="a70fee2c407d3bf32b07943b8cfcb3c7e"></a><!-- doxytag: member="naokmeans.cpp::exportCenters" ref="a70fee2c407d3bf32b07943b8cfcb3c7e" args="(std::string centers, int dim, int k, KMfilterCenters ctrs)" -->
 <div class="memitem">
 <div class="memproto">
@@ -123,6 +193,15 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>exportSTIPs</b> (std:
 </dl>
 
 <p>Definition at line <a class="el" href="naokmeans_8cpp_source.html#l00083">83</a> of file <a class="el" href="naokmeans_8cpp_source.html">naokmeans.cpp</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dynsection">
+<div class="center"><img src="naokmeans_8cpp_a70fee2c407d3bf32b07943b8cfcb3c7e_icgraph.png" border="0" usemap="#naokmeans_8cpp_a70fee2c407d3bf32b07943b8cfcb3c7e_icgraph_map" alt=""></div>
+<map name="naokmeans_8cpp_a70fee2c407d3bf32b07943b8cfcb3c7e_icgraph_map" id="naokmeans_8cpp_a70fee2c407d3bf32b07943b8cfcb3c7e_icgraph">
+<area shape="rect" href="naokmeans_8cpp.html#a42663cf0eaef4fbe479f6c031eaf4e99" title="Import HOG and HOF from a file and compute KMeans algorithm to create the file training..." alt="" coords="157,5,299,35"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -229,6 +308,15 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>exportSTIPs</b> (std:
 
 <p>Definition at line <a class="el" href="naokmeans_8cpp_source.html#l00023">23</a> of file <a class="el" href="naokmeans_8cpp_source.html">naokmeans.cpp</a>.</p>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dynsection">
+<div class="center"><img src="naokmeans_8cpp_a4a594810a9a736a792e6b2571dfc2170_icgraph.png" border="0" usemap="#naokmeans_8cpp_a4a594810a9a736a792e6b2571dfc2170_icgraph_map" alt=""></div>
+<map name="naokmeans_8cpp_a4a594810a9a736a792e6b2571dfc2170_icgraph_map" id="naokmeans_8cpp_a4a594810a9a736a792e6b2571dfc2170_icgraph">
+<area shape="rect" href="naokmeans_8cpp.html#a42663cf0eaef4fbe479f6c031eaf4e99" title="Import HOG and HOF from a file and compute KMeans algorithm to create the file training..." alt="" coords="147,5,288,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a1239738af8b88f74abba7ca22baaf46c"></a><!-- doxytag: member="naokmeans.cpp::kmIvanAlgorithm" ref="a1239738af8b88f74abba7ca22baaf46c" args="(int ic, int dim, const KMdata &amp;dataPts, int k, KMfilterCenters &amp;ctrs)" -->
@@ -289,6 +377,15 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>exportSTIPs</b> (std:
 
 <p>Definition at line <a class="el" href="naokmeans_8cpp_source.html#l00149">149</a> of file <a class="el" href="naokmeans_8cpp_source.html">naokmeans.cpp</a>.</p>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dynsection">
+<div class="center"><img src="naokmeans_8cpp_a1239738af8b88f74abba7ca22baaf46c_icgraph.png" border="0" usemap="#naokmeans_8cpp_a1239738af8b88f74abba7ca22baaf46c_icgraph_map" alt=""></div>
+<map name="naokmeans_8cpp_a1239738af8b88f74abba7ca22baaf46c_icgraph_map" id="naokmeans_8cpp_a1239738af8b88f74abba7ca22baaf46c_icgraph">
+<area shape="rect" href="naokmeans_8cpp.html#a42663cf0eaef4fbe479f6c031eaf4e99" title="Import HOG and HOF from a file and compute KMeans algorithm to create the file training..." alt="" coords="173,5,315,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 </div>
@@ -306,7 +403,7 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>exportSTIPs</b> (std:
 </iframe>
 </div>
 
-<hr class="footer"/><address style="text-align: right;"><small>Generated on Mon Jul 15 21:35:59 2013 for IMAR-C by&nbsp;
+<hr class="footer"/><address style="text-align: right;"><small>Generated on Wed Jul 17 16:59:01 2013 for IMAR-C by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.3 </small></address>
 </body>

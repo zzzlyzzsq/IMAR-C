@@ -1,5 +1,16 @@
+/**
+ * \file naomngt.cpp
+ * \brief Set of functions permiting to manage the activity recognition BDD of Bag Of Words.
+ * \author Fabien ROUALDES (institut Mines-Télécom)
+ * \date 17/07/2013
+ */
+
 #include "naomngt.h"
 
+/**
+ * \fn void listBdds()
+ * \brief List BDDs present in the global database.
+ */
 void listBdds(){
   DIR * repertoire = opendir("bdd");
   if (repertoire == NULL){
@@ -15,6 +26,11 @@ void listBdds(){
     closedir(repertoire);
   }
 }
+/**
+ * \fn void listActivities(std::string bdd)
+ * \brief List activities present in the specified database.
+ * \param[in] bdd The name of the bdd.
+ */
 void listActivities(std::string bdd){
   std::string path2bdd("bdd/" + bdd);   
   activitiesMap *am;
@@ -26,6 +42,14 @@ void listActivities(std::string bdd){
   }
   delete []am;
 }
+
+/**
+ * \fn int mapActivities(std::string path2bdd, activitiesMap **am)
+ * \brief Fills the object activitiesMap which contain the equivalence Label-Activity.
+ * \param[in] path2bdd The path to the BDD
+ * \param[in,out] am A pointer to an object activitiesMap.
+ * \return The number of activities.
+ */
 int mapActivities(std::string path2bdd, activitiesMap **am){
   path2bdd = path2bdd + "/mapping.txt";
   std::ifstream in(path2bdd.c_str(),ios::in);
@@ -83,6 +107,25 @@ int nbOfFiles(std::string path){
     closedir(repertoire);
   }
   return nbFiles;
+}
+bool fileExist(std::string file, std::string folder){
+  DIR * repertoire = opendir(folder.c_str());
+  if (repertoire == NULL){
+    std::cerr << "Impossible to open the directory!" << std::endl;
+  }
+  else{
+    struct dirent * ent;
+    while ( (ent = readdir(repertoire)) != NULL){
+      std::string entityName = ent->d_name;
+      if(entityName.compare(".") != 0 && entityName.compare("..") != 0){
+	if(entityName.compare(file)){
+	  return true;
+	}
+      }
+    }
+    closedir(repertoire);
+  }
+  return false;
 }
 void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int dim, int maxPts){
   std::string path2bdd("bdd/" + bddName);
@@ -143,6 +186,7 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
   // ouverture du fichier d'équivalence label <-> activités
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
+
   
   // Création du fichier concatenate.stip
   std::cout << "Creating the file concatenate.stips...";
@@ -167,7 +211,7 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
     string label = inttostring(am[i].label);
     string rep(path2bdd + "/" + label + "/stips");
     DIR * repertoire = opendir(rep.c_str());
-
+    
     if (repertoire == NULL){
       std::cerr << "Impossible to open the stips directory!" << std::endl;
     }
@@ -186,22 +230,16 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
   }
   std::cout << "Done!" << std::endl;
   
-
-
-  /*
-    KMdata dataPts(dim,maxPts);
-    std::cout << "Creating the file training.means...";
-    int nPts = importSTIPs(path2bdd + "/" + "concatenate.stips", dim, maxPts, &dataPts);
-    dataPts.setNPts(nPts);
-    dataPts.buildKcTree();
-  KMfilterCenters ctrs(k, dataPts);  
-  int ic = 3;
-  kmIvanAlgorithm(ic, dim, dataPts, k, ctrs);
-  exportCenters(path2bdd + "/" + "training.means", dim, k, ctrs);
+  // Creating the file training.means
+  std::cout << "Computing KMeans..." << std::endl;
+  createTrainingMeans(path2bdd + "/" + "concatenate.stips",
+		      dim,
+		      maxPts,
+		      k,
+		      path2bdd + "/" + "training.means");
   
   std::string cmd = "cp " + path2bdd + "/" + "training.means " + "out";
   system(cmd.c_str());
-  */
   
   // Finally we have to compute BOWs
   for(int i = 0 ; i< nbActivities ; i++){
@@ -212,26 +250,26 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
       std::cerr << "Impossible to open the stips directory!" << std::endl;
       exit(EXIT_FAILURE);
     }
-    struct dirent * ent;
-    while ( (ent = readdir(repertoire)) != NULL){
-      std::string file = ent->d_name;
-      if(file.compare(".") != 0 && file.compare("..") != 0){
-	std::string path2STIPs(path2bdd + "/" + label + "/stips/" + file);
-	
-	KMdata dataPts(dim,maxPts);
-	int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
-	dataPts.setNPts(nPts);
-	dataPts.buildKcTree();
-	
-	KMfilterCenters ctrs(k, dataPts);  
-	importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
-	struct svm_problem svmProblem = computeBOW(am[i].label, dataPts, ctrs);
-	std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");	  	exportProblem(svmProblem, path2BOW);
+      struct dirent * ent;
+      while ( (ent = readdir(repertoire)) != NULL){
+	std::string file = ent->d_name;
+	if(file.compare(".") != 0 && file.compare("..") != 0){
+	  std::string path2STIPs(path2bdd + "/" + label + "/stips/" + file);
+	  
+	  KMdata dataPts(dim,maxPts);
+	  int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
+	  dataPts.setNPts(nPts);
+	  dataPts.buildKcTree();
+	  
+	  KMfilterCenters ctrs(k, dataPts);  
+	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
+	  struct svm_problem svmProblem = computeBOW(am[i].label, dataPts, ctrs);
+	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");	  	exportProblem(svmProblem, path2BOW);
+	}
       }
-    }
-    closedir(repertoire);
+      closedir(repertoire);
   }
-
+  
   // créer la base de données svm
   
   // Création du fichier concatenate.bow
@@ -275,62 +313,29 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
   }
   std::cout << "Done!" << std::endl;
   
+  
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
-  // SVM PARAMETER
-  struct svm_parameter svmParameter;
-  svmParameter.svm_type = C_SVC;
-  svmParameter.kernel_type = RBF;
-  //  svm.degree
-  svmParameter.gamma = 1.0/k;
-  // double coef0;
+  struct svm_model* svmModel = createSvmModel(path2bdd + "/concatenate.bow",k);
   
-  /* For training only : */
-  svmParameter.cache_size = 100; // in MB
-  svmParameter.eps = 1e-3; // stopping criteria
-  svmParameter.C = 1;
-  
-  // change the penalty for some classes
-  svmParameter.nr_weight = 0;
-  svmParameter.weight_label = NULL;
-  svmParameter.weight = NULL;
-  
-  //  double nu; // for NU_SVC, ONE_CLASS, and NU_SVR
-  //  double p;	// for EPSILON_SVR 
-  
-  svmParameter.shrinking = 1;	/* use the shrinking heuristics */
-  svmParameter.probability = 1; /* do probability estimates */
-  
-  //  cross_validation = 0;
-  
-  // SVM PROBLEM
-  cout << "Importing the problem..." << std::endl;;
-  struct svm_problem svmProblem = importProblem(path2bdd + "/concatenate.bow",k);
-  
-  // SVM MODEL
-  cout << "Checking if parameters are within the feasible range of the problem..." << std::endl;
-  const  char* errorMsg = svm_check_parameter(&svmProblem,&svmParameter);
-  if(errorMsg != NULL){
-    cerr << endl << "Error:" << endl;
-    cerr << errorMsg << endl;
-    exit(EXIT_FAILURE);
-  }
-
-  struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
-  cout << "# CHECK PROBABILIY" << endl;
-  if(svm_check_probability_model(svmModel) == 1){
-    cout << "The model contains required information to do probability estimates" << endl;
-  }
-  else
-    cout << "The model does not contain required information to do probability estimates" << endl;
+  std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
   svm_save_model(fileToSaveModel.c_str(),svmModel);
-  std::string cmd = "cp " + path2bdd + "/" + "svm.model " + "out";
-  // cmd = "cp " + path2bdd + "/" + "svm.model " + "out";
+  
+  // Copying the file in the out folder
+  cmd = "cp " + path2bdd + "/" + "svm.model " + "out";
   system(cmd.c_str());
   std::cout << "Done!" <<endl;
 }
 
+/**
+ * \fn void addLabel
+ * \brief Changes the label of the Bag Of Words
+ *
+ * \param[in] label The label.
+ * \param[in] file The file containing the Bag Of Words.
+ * \param[in] k The dimension of the Bag Of Words.
+ */
 void addLabel(int label, std::string file, int k){ 
   float* bowTab = new float[k];
   int tmp;
@@ -379,6 +384,13 @@ void addLabel(int label, std::string file, int k){
   out.close();
   delete[] bowTab;
 }
+/**
+ * \fn void addActivity
+ * \brief Creates a new activity in the specified BDD.
+ *
+ * \param[in] activityName The name of the new activity.
+ * \param[in] bddName The name of the BDD.
+ */
 void addActivity(std::string activityName, std::string bddName){
   string path2bdd("bdd/" + bddName);
   
@@ -425,7 +437,7 @@ void deleteActivity(std::string activityName, std::string bddName){
   // On récupère les données des activités préexistantes
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
-  // On vérifie que la nouvelle activité existe bien
+  // Checking that the activity exists
   int i = 0;
   bool exist = false;
   int idActivity;
@@ -437,29 +449,29 @@ void deleteActivity(std::string activityName, std::string bddName){
     i++;
   }
   if (!exist){
-    std::cout << "L'activité n'existe pas !" << std::endl;
+    std::cout << "The activity does not exist!" << std::endl;
     exit(EXIT_FAILURE);
   }
   string strID = inttostring(idActivity);
-  // Suppression récursive du fichier activité
+  // Recursive deletion of the activity file
   string activityFolder(path2bdd + "/" + strID);
   string activityAVIFolder(path2bdd + "/" + strID + "/avi");
   string activityBOWFolder(path2bdd + "/" + strID + "/bow");
   string activitySTIPSFolder(path2bdd + "/" + strID + "/stips");
   // avi
-  viderDossier(activityAVIFolder);
+  emptyFolder(activityAVIFolder);
   rmdir(activityAVIFolder.c_str());
   
   // bow
-  viderDossier(activityBOWFolder);
+  emptyFolder(activityBOWFolder);
   rmdir(activityBOWFolder.c_str());
   // stips
-  viderDossier(activitySTIPSFolder);
+  emptyFolder(activitySTIPSFolder);
   rmdir(activitySTIPSFolder.c_str());
   // ACTIVITE
   rmdir(activityFolder.c_str());
   
-  // Réécritude du fichier mapping.txt
+  // Rewriting the file mapping.txt
   string file(path2bdd + "/" + "mapping.txt");
   ofstream out(file.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
   if(!out){
@@ -473,6 +485,12 @@ void deleteActivity(std::string activityName, std::string bddName){
   out.close();
   delete []am;
 }
+/**
+ * \fn void addBdd(std::string bddName)
+ * \brief Creates a new BDD.
+ *
+ * \param[in] bddName The name of the BDD we want to create.
+ */
 void addBdd(std::string bddName){
   // On vérifie que la BDD n'existe pas
   DIR * repertoire = opendir("bdd");
@@ -504,6 +522,12 @@ void addBdd(std::string bddName){
   }
   out.close();
 }
+/**
+ * \fn void deleteBdd(std::string bddName)
+ * \brief Deletes a BDD
+ *
+ * \param[in] bddName The name of the bdd.
+ */
 void deleteBdd(std::string bddName){
   string path2bdd("bdd/" + bddName);
   
@@ -516,10 +540,16 @@ void deleteBdd(std::string bddName){
     i++;
   }
   delete []am;
-  viderDossier(path2bdd);
+  emptyFolder(path2bdd);
   rmdir(path2bdd.c_str());
 }
-void viderDossier(std::string folder){
+/**
+ * \fn void emptyFolder(std::string folder)
+ * \brief Deletes all files present in the folder.
+ *
+ * \param[in] folder The path to the folder.
+ */
+void emptyFolder(std::string folder){
   DIR * repertoire = opendir(folder.c_str());
   if (repertoire == NULL){
     std::cerr << "Impossible to open the directory!" << std::endl;
@@ -536,6 +566,15 @@ void viderDossier(std::string folder){
     closedir(repertoire);
   }
 }
+
+/**
+ * \fn void refreshBdd(std::string bddName, int dim, in maxPts)
+ * \brief Deletes all files excepted videos and extracts STIPs again.
+ *
+ * \param[in] bddName The name of the BDD containing videos.
+ * \param[in] dim The STIPs dimension.
+ * \param[in] maxPts The maximum number of STIPs we can extract
+ */
 void refreshBdd(std::string bddName, int dim, int maxPts){
   std::string path2bdd("bdd/" + bddName);
 
@@ -567,14 +606,14 @@ void refreshBdd(std::string bddName, int dim, int maxPts){
     string cmd("rm " + rep + "/*"); 
     system(cmd.c_str());
   }  
-  // supression des bow
+  // Deleting BOWs
   for(int i = 0 ; i< nbActivities ; i++){
     string label = inttostring(am[i].label);
     string rep(path2bdd + "/" + label + "/bow");
     string cmd("rm " + rep + "/*"); 
     system(cmd.c_str());
   }  
-  // Calcul des STIPs de chaque vidéos
+  // Extracting STIPs for each videos
   for(int i = 0 ; i< nbActivities ; i++){
     std::string label = inttostring(am[i].label);
     std::string avipath(path2bdd + "/" + label + "/avi");

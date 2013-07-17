@@ -1,6 +1,6 @@
 # Configuration #
 # Compilator
-CC		= gcc
+CC		= g++
 
 # Executables to build 
 EXEC		= actmngt

@@ -41,7 +41,7 @@ void Tactil::init() {
   }
 
   rpp = AL::ALRobotPostureProxy(getParentBroker());
-  rpp.goToPosture("Sit",0.5f);
+  rpp.goToPosture("Crouch",0.5f);
 
   videoRecorderProxy = AL::ALVideoRecorderProxy(getParentBroker());
 
@@ -66,11 +66,19 @@ void Tactil::onFrontHeadTouched(){
 
  // std::string phraseToSay("Bonjour !");
   //ttsp.say(phraseToSay);
-  //helloAnimation();
+  //helloAnimation()
+  int duration = 2;
   videoRecorderProxy.setResolution(0); // kQQVGA ( 160 * 120 ). 0
   videoRecorderProxy.setFrameRate(10);
-  videoRecorderProxy.startRecording("/home/nao/recordings/cameras","recording-" +   nbOfFiles("/home/nao/recordings/cameras"));
-  sleep(2);
+
+  std::string videoOutput("recording-");
+ int nrVideos = nbOfFiles("/home/nao/recordings/cameras");
+ while(fileExist(videoOutput+inttostring(nrVideos),"/home/nao/recordings/cameras")){
+     nrVideos++;
+ }
+  videoOutput = videoOutput + inttostring(nrVideos);
+  videoRecorderProxy.startRecording("/home/nao/recordings/cameras",videoOutput);
+  sleep(duration);
   AL::ALValue video = videoRecorderProxy.stopRecording();
   qiLogInfo("Tactil") << "Predicting activity..." << std::endl;
   std::string activityPredicted = integration(video[1],

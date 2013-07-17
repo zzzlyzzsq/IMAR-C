@@ -1,6 +1,6 @@
 \hypertarget{naokmeans_8cpp}{
-\section{/home/noox/Documentos/programmation/c++/IMAR-\/C/src/naokmeans.cpp File Reference}
-\label{naokmeans_8cpp}\index{/home/noox/Documentos/programmation/c++/IMAR-\/C/src/naokmeans.cpp@{/home/noox/Documentos/programmation/c++/IMAR-\/C/src/naokmeans.cpp}}
+\section{naokmeans.cpp File Reference}
+\label{naokmeans_8cpp}\index{naokmeans.cpp@{naokmeans.cpp}}
 }
 
 
@@ -13,7 +13,7 @@ Include dependency graph for naokmeans.cpp:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=191pt]{naokmeans_8cpp__incl}
+\includegraphics[width=89pt]{naokmeans_8cpp__incl}
 \end{center}
 \end{figure}
 \subsection*{Functions}
@@ -31,7 +31,9 @@ void \hyperlink{naokmeans_8cpp_a70fee2c407d3bf32b07943b8cfcb3c7e}{exportCenters}
 void \hyperlink{naokmeans_8cpp_ab24dc2206c891d1c5644ba930daa6e74}{importCenters} (std::string centers, int dim, int k, KMfilterCenters $\ast$ctrs)
 \begin{DoxyCompactList}\small\item\em Importation function saving external centers in the KMfilterCenters object. One line corresponds to one centers with its values (separeted from one space \char`\"{} \char`\"{}). \item\end{DoxyCompactList}\item 
 void \hyperlink{naokmeans_8cpp_a1239738af8b88f74abba7ca22baaf46c}{kmIvanAlgorithm} (int ic, int dim, const KMdata \&dataPts, int k, KMfilterCenters \&ctrs)
-\begin{DoxyCompactList}\small\item\em This is an optimized KMeans algorithm. Ivan's algorithm uses basic KMeans algorithm (here the Lloyd's one) and the idea was to initialize centers intelligently. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em This is an optimized KMeans algorithm. Ivan's algorithm uses basic KMeans algorithm (here the Lloyd's one) and the idea was to initialize centers intelligently. \item\end{DoxyCompactList}\item 
+void \hyperlink{naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99}{createTrainingMeans} (std::string stipFile, int dim, int maxPts, int k, std::string meansFile)
+\begin{DoxyCompactList}\small\item\em Import HOG and HOF from a file and compute KMeans algorithm to create the file training.means. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -48,6 +50,33 @@ Definition in file \hyperlink{naokmeans_8cpp_source}{naokmeans.cpp}.
 
 
 \subsection{Function Documentation}
+\hypertarget{naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99}{
+\index{naokmeans.cpp@{naokmeans.cpp}!createTrainingMeans@{createTrainingMeans}}
+\index{createTrainingMeans@{createTrainingMeans}!naokmeans.cpp@{naokmeans.cpp}}
+\subsubsection[{createTrainingMeans}]{\setlength{\rightskip}{0pt plus 5cm}void createTrainingMeans (std::string {\em stipFile}, \/  int {\em dim}, \/  int {\em maxPts}, \/  int {\em k}, \/  std::string {\em meansFile})}}
+\label{naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99}
+
+
+Import HOG and HOF from a file and compute KMeans algorithm to create the file training.means. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[\mbox{$\leftarrow$} {\em stipFile}]The file containing the STIPs. \item[\mbox{$\leftarrow$} {\em dim}]Points and centers's dimension. \item[\mbox{$\leftarrow$} {\em maxPts}]The maximum number of data we can compute \item[\mbox{$\leftarrow$} {\em k}]The number of centers \item[\mbox{$\rightarrow$} {\em meansFile}]The file in wich we will save the KMeans centers. \end{DoxyParams}
+
+
+Definition at line 262 of file naokmeans.cpp.
+
+
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=138pt]{naokmeans_8cpp_a42663cf0eaef4fbe479f6c031eaf4e99_cgraph}
+\end{center}
+\end{figure}
+
+
 \hypertarget{naokmeans_8cpp_a70fee2c407d3bf32b07943b8cfcb3c7e}{
 \index{naokmeans.cpp@{naokmeans.cpp}!exportCenters@{exportCenters}}
 \index{exportCenters@{exportCenters}!naokmeans.cpp@{naokmeans.cpp}}
@@ -63,6 +92,17 @@ Export function to save KMfilterCenters in a file. One line corresponds to one p
 
 
 Definition at line 83 of file naokmeans.cpp.
+
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=132pt]{naokmeans_8cpp_a70fee2c407d3bf32b07943b8cfcb3c7e_icgraph}
+\end{center}
+\end{figure}
+
 
 \hypertarget{naokmeans_8cpp_ab24dc2206c891d1c5644ba930daa6e74}{
 \index{naokmeans.cpp@{naokmeans.cpp}!importCenters@{importCenters}}
@@ -99,6 +139,17 @@ Number of points imported.
 
 Definition at line 23 of file naokmeans.cpp.
 
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=128pt]{naokmeans_8cpp_a4a594810a9a736a792e6b2571dfc2170_icgraph}
+\end{center}
+\end{figure}
+
+
 \hypertarget{naokmeans_8cpp_a1239738af8b88f74abba7ca22baaf46c}{
 \index{naokmeans.cpp@{naokmeans.cpp}!kmIvanAlgorithm@{kmIvanAlgorithm}}
 \index{kmIvanAlgorithm@{kmIvanAlgorithm}!naokmeans.cpp@{naokmeans.cpp}}
@@ -114,4 +165,15 @@ This is an optimized KMeans algorithm. Ivan's algorithm uses basic KMeans algori
 The Ivan's algorithm is divided into 3 phases. The first phase is executed on 25 per cent of the data (randomly sampled). To begin, the centers are randomly generated. Then ic $\ast$ 4 iterations of a KMeans algorithm are executed. During the second part we cluster 50 per cent of the data using the older centroids. This step is computed ic $\ast$ 2 times. Finally, we make ic $\ast$ 1 iteration on all the data. 
 
 Definition at line 149 of file naokmeans.cpp.
+
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=138pt]{naokmeans_8cpp_a1239738af8b88f74abba7ca22baaf46c_icgraph}
+\end{center}
+\end{figure}
+
 

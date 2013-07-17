@@ -18,6 +18,7 @@
 using namespace std;
 
 // SVM prediction
+struct svm_model* createSvmModel(std::string bowFile, int k);
 void printProbability(struct svm_model* pModel, struct svm_node* nodes);
 
 // Import / Print

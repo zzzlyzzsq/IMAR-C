@@ -2,7 +2,7 @@
  * \file naosvm.cpp
  * \brief Set of functions permiting to import/ predict a svm problem, import/create a svm model
  * \author Fabien ROUALDES (institut Mines-Télécom)
- * \date 09/07/2013 
+ * \date 17/07/2013 
 */
 #include "naosvm.h" 
 
@@ -124,14 +124,17 @@ void exportProblem(struct svm_problem svmProblem, std::string file){
     bowFile << svmProblem.y[idActivity];
     int i = 0;
     while(svmProblem.x[idActivity][i].index != -1){
-	bowFile << " " << svmProblem.x[idActivity][i].index << ":" << svmProblem.x[idActivity][i].value;
-	i++;
+      bowFile << " " << svmProblem.x[idActivity][i].index << ":" << svmProblem.x[idActivity][i].value;
+      i++;
     }
     bowFile << std::endl;
     idActivity++;
   }
 }
 void exportProblemZero(struct svm_problem svmProblem, std::string file, int k){
+#ifdef DEBUG
+  std::cout << "[Entering: " << __FUNCTION__ << "...]" << std::endl;
+#endif
   int l = svmProblem.l;  
   ofstream bowFile(file.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
   if(!bowFile){
@@ -276,7 +279,7 @@ void printProblem(struct svm_problem svmProblem){
  * \param[in] fileName The file we want to count the number of lines.
  * \return The number of lines of the file.
  */
-int nrOfLines(std::string filename) {
+int nrOfLines(std::string filename){
   std::ifstream fichier(filename.c_str());
   if(!fichier){
     std::cout << "Ne peut ouvrir " << filename << std::endl;
@@ -401,5 +404,41 @@ void printNodes(struct svm_node* nodes){
     idCenter++;
   }
   cout << "(" << index << ",?)" << endl;
-}*/
+  }*/
 
+struct svm_model* createSvmModel(std::string bowFile, int k){
+  // SVM PARAMETER
+  struct svm_parameter svmParameter;
+  svmParameter.svm_type = C_SVC;
+  svmParameter.kernel_type = RBF;
+  //  svm.degree
+  svmParameter.gamma = 1.0/k;
+  // double coef0;
+  
+  /* For training only : */
+  svmParameter.cache_size = 100; // in MB
+  svmParameter.eps = 1e-3; // stopping criteria
+  svmParameter.C = 1;
+  
+  // change the penalty for some classes
+  svmParameter.nr_weight = 0;
+  svmParameter.weight_label = NULL;
+  svmParameter.weight = NULL;
+    
+  //  double nu; // for NU_SVC, ONE_CLASS, and NU_SVR
+  //  double p;	// for EPSILON_SVR 
+  
+  svmParameter.shrinking = 1;	/* use the shrinking heuristics */
+  svmParameter.probability = 0; /* do probability estimates */
+  
+  //  cross_validation = 0;
+  
+  // SVM PROBLEM
+  cout << "Importing the problem..." << std::endl;
+  struct svm_problem svmProblem = importProblem(bowFile,k);
+  struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
+  free(svmProblem.x);
+  free(svmProblem.y);
+  
+  return svmModel;
+}

@@ -33,6 +33,8 @@ void listBdds();
 void listActivities(std::string bdd);
 int mapActivities(std::string path2bdd, activitiesMap** am);
 int nbOfFiles(std::string path);
+bool fileExist(std::string file, std::string folder);
+
 void addVideos(std::string bddName,std::string activity,int nbVideos, std::string* videoPaths, int dim, int maxPts);
 std::string inttostring(int int2str);
 void trainBdd(std::string bddName, int dim, int maxPts, int k);
@@ -44,6 +46,6 @@ void addActivity(std::string activityName, std::string bddName);
 void deleteBdd(std::string bddName);
 void deleteActivity(std::string activityName, std::string bddName);
 
-void viderDossier(std::string folder);
+void emptyFolder(std::string folder);
 void refreshBdd(std::string bddName, int dim, int maxPts);
 #endif

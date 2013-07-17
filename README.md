@@ -15,10 +15,11 @@ For the moment the activities had to be recorded in a 2-second video (our video 
 	- walk
 	- sit down
 	- stand up
-	- drink coffee
+	- drink coffee (ie. drink something)
 	- read a book / newspaper (turn over a page)
 	- open / close a door
-	- put earphones	 
+	(- put earphones)
+	- write	 
 	- shake hands
 
 ## Sources:
