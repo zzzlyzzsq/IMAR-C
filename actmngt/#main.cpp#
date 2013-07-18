@@ -90,7 +90,7 @@ int main(int argc, char* argv[]){
     }
   }
   else if(function.compare("transfer") == 0){
-    if(argc != 6){
+    if(argc != 7){
       std::cerr << "Transfer: bad arguments!" << std::endl;
       return EXIT_FAILURE;
     }

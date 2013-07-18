@@ -16,6 +16,8 @@
 #include <vector>
 #include <string>
 
+#include <ftplib.h> // ftp transfer
+
 #include "naokmeans.h"
 #include "naosvm.h"
 #include "naodensetrack.h"
@@ -50,4 +52,5 @@ void deleteActivity(std::string activityName, std::string bddName);
 
 void emptyFolder(std::string folder);
 void refreshBdd(std::string bddName, int dim, int maxPts);
+void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);
 #endif

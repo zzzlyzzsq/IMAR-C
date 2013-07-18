@@ -81,6 +81,8 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naom
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes all files present in the folder.  <a href="#a168b6930ac482db87ed7cf70bf61d9b4"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#ad56ac995dc8fae91374c3dc9881ce3cd">refreshBdd</a> (std::string bddName, int dim, int maxPts)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes all files excepted videos and extracts STIPs again.  <a href="#ad56ac995dc8fae91374c3dc9881ce3cd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#ab8c91b5bbbb5fe22a841e000b3774441">transferBdd</a> (std::string bddName, std::string login, std::string robotIP, std::string password)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Transfers the file svm.model, training.means and mapping.txt on the robot Nao.  <a href="#ab8c91b5bbbb5fe22a841e000b3774441"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Set of functions permiting to manage the activity recognition BDD of Bag Of Words. </p>
@@ -621,6 +623,61 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naom
 
 </div>
 </div>
+<a class="anchor" id="ab8c91b5bbbb5fe22a841e000b3774441"></a><!-- doxytag: member="naomngt.cpp::transferBdd" ref="ab8c91b5bbbb5fe22a841e000b3774441" args="(std::string bddName, std::string login, std::string robotIP, std::string password)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void transferBdd </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>bddName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>login</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>roboIP</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>password</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Transfers the file svm.model, training.means and mapping.txt on the robot Nao. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>bddName</em>&nbsp;</td><td>The name of te BDD to transfer. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>login</em>&nbsp;</td><td>Your user name on the robot. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>robotIP</em>&nbsp;</td><td>The IP adress of the robot. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>password</em>&nbsp;</td><td>The password of the user on the robot.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Training files are sent on the robot Nao via ftp so you have to precise your username on the robot and yout password.</p>
+<p>The server ftp must be configured with the following folders: "/data" and "/data/activity_recognition".</p>
+<p>Then the program uses the library ftplib to send the training files. It sends mapping.txt, training.means and svm.model which are present in the folder "./bdd/&lt;bdd_name&gt;". </p>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00721">721</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
 </div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -636,7 +693,7 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naom
 </iframe>
 </div>
 
-<hr class="footer"/><address style="text-align: right;"><small>Generated on Thu Jul 18 12:16:55 2013 for IMAR-C by&nbsp;
+<hr class="footer"/><address style="text-align: right;"><small>Generated on Thu Jul 18 17:43:52 2013 for IMAR-C by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.3 </small></address>
 </body>

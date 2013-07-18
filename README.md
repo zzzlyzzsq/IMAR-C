@@ -26,7 +26,8 @@ For the moment the activities had to be recorded in a 2-second video (our video 
 * SVM: [http://www.csie.ntu.edu.tw/~cjlin/libsvm/](http://www.csie.ntu.edu.tw/~cjlin/libsvm/);
 * KMeans: [http://www.cs.umd.edu/~mount/Projects/KMeans/](http://www.cs.umd.edu/~mount/Projects/KMeans/);
 * STIPs: [http://lear.inrialpes.fr/people/wang/dense_trajectories](http://lear.inrialpes.fr/people/wang/dense_trajectories);
-* NAO sofwares: [https://developer.aldebaran-robotics.com/home/](https://developer.aldebaran-robotics.com/home/).
+* NAO sofwares: [https://developer.aldebaran-robotics.com/home/](https://developer.aldebaran-robotics.com/home/);
+* FTP connection: [http://nbpfaus.net/~pfau/ftplib/](http://nbpfaus.net/~pfau/ftplib/).
 
 ## Members:
 HUILON He and ROUALDES Fabien (Institut Mines-Télécom)

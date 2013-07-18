@@ -697,3 +697,57 @@ void refreshBdd(std::string bddName, int dim, int maxPts){
   }
   delete []am;
 }
+
+/**
+ * \fn void transferBdd(std::string bddName, std::string login, std::string roboIP, std::string password)
+ * \brief Transfers the file svm.model, training.means and mapping.txt on the robot Nao.
+ * 
+ * \param[in] bddName The name of te BDD to transfer.
+ * \param[in] login Your user name on the robot.
+ * \param[in] robotIP The IP adress of the robot.
+ * \param[in] password The password of the user on the robot.
+ *
+ * Training files are sent on the robot Nao via ftp so you have
+ * to precise your username on the robot and yout password. 
+ *
+ * The server ftp must be configured with the following folders:
+ * "/data" and "/data/activity_recognition".
+ * 
+ * Then the program uses the library ftplib to send the training files.
+ * It sends mapping.txt, training.means and svm.model which are present 
+ * in the folder "./bdd/<bdd_name>".
+ *
+ */
+void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password){
+  netbuf* nControl = NULL;
+  
+  if(FtpConnect(robotIP.c_str(), &nControl) != 1){
+    perror("Impossible to connect to the ftp server!\n");
+    exit(EXIT_FAILURE);
+  }
+  if(FtpLogin(login.c_str(),password.c_str(),nControl) != 1){
+    perror("Impossible to log to the ftp server!\n");
+    exit(EXIT_FAILURE);
+  }
+  
+  std::string path2bdd("bdd/" + bddName);
+  std::string remoteFolder("/data/activity_recognition");
+  
+  std::string meansFile(path2bdd + "/" + "training.means");
+  std::string rMeansFile(remoteFolder + "/" + "training.means");
+  
+  std::string svmFile(path2bdd + "/" + "svm.model");
+  std::string rSvmFile(remoteFolder + "/" + "svm.model");
+  
+  std::string mappingFile(path2bdd + "/" + "mapping.txt");
+  std::string rMappingFile(remoteFolder + "/" + "mapping.txt");
+  
+  if(FtpPut(meansFile.c_str(),rMeansFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
+     FtpPut(svmFile.c_str(),rSvmFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
+     FtpPut(mappingFile.c_str(),rMappingFile.c_str(),FTPLIB_ASCII,nControl) != 1
+     ){
+    perror("Impossible to write on the robot!\n");
+    return exit(EXIT_FAILURE);
+  }
+  FtpQuit(nControl); 
+}

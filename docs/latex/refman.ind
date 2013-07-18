@@ -1,229 +1,134 @@
 \begin{theindex}
 
-  \item {activitiesMap}, \hyperpage{9}
   \item {addActivity}
-    \subitem {naomngt.cpp}, \hyperpage{86}
-    \subitem {naomngt.h}, \hyperpage{91}
+    \subitem {naomngt.cpp}, \hyperpage{9}
   \item {addBdd}
-    \subitem {naomngt.cpp}, \hyperpage{86}
-    \subitem {naomngt.h}, \hyperpage{91}
+    \subitem {naomngt.cpp}, \hyperpage{9}
   \item {addLabel}
-    \subitem {naomngt.cpp}, \hyperpage{86}
-    \subitem {naomngt.h}, \hyperpage{92}
+    \subitem {naomngt.cpp}, \hyperpage{9}
   \item {addVideos}
-    \subitem {naomngt.cpp}, \hyperpage{86}
-    \subitem {naomngt.h}, \hyperpage{92}
+    \subitem {naomngt.cpp}, \hyperpage{10}
 
   \indexspace
 
-  \item {Box}, \hyperpage{10}
-
-  \indexspace
-
-  \item {Cache}, \hyperpage{20}
+  \item {computeBOW}
+    \subitem {naosvm.cpp}, \hyperpage{15}
+  \item {createSvmModel}
+    \subitem {naosvm.cpp}, \hyperpage{15}
   \item {createTrainingMeans}
-    \subitem {naokmeans.cpp}, \hyperpage{79}
-    \subitem {naokmeans.h}, \hyperpage{82}
+    \subitem {naokmeans.cpp}, \hyperpage{5}
 
   \indexspace
 
-  \item {decision\_\discretionary {-}{}{}function}, \hyperpage{21}
   \item {deleteActivity}
-    \subitem {naomngt.cpp}, \hyperpage{87}
-    \subitem {naomngt.h}, \hyperpage{92}
+    \subitem {naomngt.cpp}, \hyperpage{10}
   \item {deleteBdd}
-    \subitem {naomngt.cpp}, \hyperpage{87}
-    \subitem {naomngt.h}, \hyperpage{92}
-  \item {DescInfo}, \hyperpage{22}
-  \item {DescMat}, \hyperpage{23}
+    \subitem {naomngt.cpp}, \hyperpage{10}
 
   \indexspace
 
   \item {emptyFolder}
-    \subitem {naomngt.cpp}, \hyperpage{87}
-    \subitem {naomngt.h}, \hyperpage{93}
-  \item {exec\_\discretionary {-}{}{}time}, \hyperpage{24}
+    \subitem {naomngt.cpp}, \hyperpage{10}
   \item {exportCenters}
-    \subitem {naokmeans.cpp}, \hyperpage{80}
-    \subitem {naokmeans.h}, \hyperpage{83}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
+  \item {exportProblem}
+    \subitem {naosvm.cpp}, \hyperpage{15}
+  \item {exportProblemZero}
+    \subitem {naosvm.cpp}, \hyperpage{15}
+  \item {exportSTIPs}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
   \item {extractSTIPs}
-    \subitem {naodensetrack.cpp}, \hyperpage{78}
+    \subitem {naodensetrack.cpp}, \hyperpage{4}
 
   \indexspace
 
   \item {fileExist}
-    \subitem {naomngt.cpp}, \hyperpage{87}
-    \subitem {naomngt.h}, \hyperpage{93}
-
-  \indexspace
-
-  \item {getImage}
-    \subitem {IplImagePyramid}, \hyperpage{28}
-  \item {getIndex}
-    \subitem {IplImagePyramid}, \hyperpage{29}
+    \subitem {naomngt.cpp}, \hyperpage{10}
 
   \indexspace
 
   \item {importCenters}
-    \subitem {naokmeans.cpp}, \hyperpage{80}
-    \subitem {naokmeans.h}, \hyperpage{83}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
+  \item {importProblem}
+    \subitem {naosvm.cpp}, \hyperpage{16}
   \item {importSTIPs}
-    \subitem {naokmeans.cpp}, \hyperpage{80}
-    \subitem {naokmeans.h}, \hyperpage{83}
-  \item {init}
-    \subitem {Tactil}, \hyperpage{73}
+    \subitem {naokmeans.cpp}, \hyperpage{6}
   \item {inttostring}
-    \subitem {naomngt.cpp}, \hyperpage{88}
-    \subitem {naomngt.h}, \hyperpage{93}
-  \item {IplImagePyramid}, \hyperpage{25}
-    \subitem {getImage}, \hyperpage{28}
-    \subitem {getIndex}, \hyperpage{29}
-    \subitem {IplImagePyramid}, \hyperpage{27, 28}
-    \subitem {rebuild}, \hyperpage{29, 30}
-  \item {IplImageWrapper}, \hyperpage{31}
+    \subitem {naomngt.cpp}, \hyperpage{11}
 
   \indexspace
 
-  \item {KCleaf}, \hyperpage{34}
-  \item {KCnode}, \hyperpage{35}
-  \item {KCsplit}, \hyperpage{37}
-  \item {KCtree}, \hyperpage{38}
-  \item {Kernel}, \hyperpage{39}
-  \item {KMcenters}, \hyperpage{40}
-  \item {KMdata}, \hyperpage{42}
-  \item {KMfilterCenters}, \hyperpage{43}
   \item {kmIvanAlgorithm}
-    \subitem {naokmeans.cpp}, \hyperpage{81}
-    \subitem {naokmeans.h}, \hyperpage{84}
-  \item {KMlocal}, \hyperpage{45}
-  \item {KMlocalEZ\_\discretionary {-}{}{}Hybrid}, \hyperpage{47}
-  \item {KMlocalHybrid}, \hyperpage{48}
-  \item {KMlocalLloyds}, \hyperpage{50}
-  \item {KMlocalSwap}, \hyperpage{51}
-  \item {KMorthRect}, \hyperpage{52}
-  \item {KMterm}, \hyperpage{53}
+    \subitem {naokmeans.cpp}, \hyperpage{7}
 
   \indexspace
 
   \item {listActivities}
-    \subitem {naomngt.cpp}, \hyperpage{88}
-    \subitem {naomngt.h}, \hyperpage{93}
+    \subitem {naomngt.cpp}, \hyperpage{11}
 
   \indexspace
 
   \item {mapActivities}
-    \subitem {naomngt.cpp}, \hyperpage{88}
-    \subitem {naomngt.h}, \hyperpage{94}
+    \subitem {naomngt.cpp}, \hyperpage{11}
 
   \indexspace
 
-  \item {naodensetrack.cpp}, \hyperpage{77}
-    \subitem {extractSTIPs}, \hyperpage{78}
-  \item {naokmeans.cpp}, \hyperpage{79}
-    \subitem {createTrainingMeans}, \hyperpage{79}
-    \subitem {exportCenters}, \hyperpage{80}
-    \subitem {importCenters}, \hyperpage{80}
-    \subitem {importSTIPs}, \hyperpage{80}
-    \subitem {kmIvanAlgorithm}, \hyperpage{81}
-  \item {naokmeans.h}, \hyperpage{82}
-    \subitem {createTrainingMeans}, \hyperpage{82}
-    \subitem {exportCenters}, \hyperpage{83}
-    \subitem {importCenters}, \hyperpage{83}
-    \subitem {importSTIPs}, \hyperpage{83}
-    \subitem {kmIvanAlgorithm}, \hyperpage{84}
-  \item {naomngt.cpp}, \hyperpage{85}
-    \subitem {addActivity}, \hyperpage{86}
-    \subitem {addBdd}, \hyperpage{86}
-    \subitem {addLabel}, \hyperpage{86}
-    \subitem {addVideos}, \hyperpage{86}
-    \subitem {deleteActivity}, \hyperpage{87}
-    \subitem {deleteBdd}, \hyperpage{87}
-    \subitem {emptyFolder}, \hyperpage{87}
-    \subitem {fileExist}, \hyperpage{87}
-    \subitem {inttostring}, \hyperpage{88}
-    \subitem {listActivities}, \hyperpage{88}
-    \subitem {mapActivities}, \hyperpage{88}
-    \subitem {nbOfFiles}, \hyperpage{88}
-    \subitem {trainBdd}, \hyperpage{89}
-  \item {naomngt.h}, \hyperpage{90}
-    \subitem {addActivity}, \hyperpage{91}
-    \subitem {addBdd}, \hyperpage{91}
-    \subitem {addLabel}, \hyperpage{92}
-    \subitem {addVideos}, \hyperpage{92}
-    \subitem {deleteActivity}, \hyperpage{92}
-    \subitem {deleteBdd}, \hyperpage{92}
-    \subitem {emptyFolder}, \hyperpage{93}
-    \subitem {fileExist}, \hyperpage{93}
-    \subitem {inttostring}, \hyperpage{93}
-    \subitem {listActivities}, \hyperpage{93}
-    \subitem {mapActivities}, \hyperpage{94}
-    \subitem {nbOfFiles}, \hyperpage{94}
-    \subitem {trainBdd}, \hyperpage{94}
-  \item {naosvm.cpp}, \hyperpage{95}
-    \subitem {nrOfLines}, \hyperpage{95}
-    \subitem {printProbability}, \hyperpage{95}
-    \subitem {printProblem}, \hyperpage{96}
-  \item {naosvm.h}, \hyperpage{97}
-    \subitem {nrOfLines}, \hyperpage{97}
-    \subitem {printProbability}, \hyperpage{98}
-    \subitem {printProblem}, \hyperpage{98}
+  \item {naodensetrack.cpp}, \hyperpage{3}
+    \subitem {extractSTIPs}, \hyperpage{4}
+  \item {naokmeans.cpp}, \hyperpage{5}
+    \subitem {createTrainingMeans}, \hyperpage{5}
+    \subitem {exportCenters}, \hyperpage{6}
+    \subitem {exportSTIPs}, \hyperpage{6}
+    \subitem {importCenters}, \hyperpage{6}
+    \subitem {importSTIPs}, \hyperpage{6}
+    \subitem {kmIvanAlgorithm}, \hyperpage{7}
+  \item {naomngt.cpp}, \hyperpage{8}
+    \subitem {addActivity}, \hyperpage{9}
+    \subitem {addBdd}, \hyperpage{9}
+    \subitem {addLabel}, \hyperpage{9}
+    \subitem {addVideos}, \hyperpage{10}
+    \subitem {deleteActivity}, \hyperpage{10}
+    \subitem {deleteBdd}, \hyperpage{10}
+    \subitem {emptyFolder}, \hyperpage{10}
+    \subitem {fileExist}, \hyperpage{10}
+    \subitem {inttostring}, \hyperpage{11}
+    \subitem {listActivities}, \hyperpage{11}
+    \subitem {mapActivities}, \hyperpage{11}
+    \subitem {nbOfFiles}, \hyperpage{11}
+    \subitem {refreshBdd}, \hyperpage{12}
+    \subitem {trainBdd}, \hyperpage{12}
+    \subitem {transferBdd}, \hyperpage{12}
+  \item {naosvm.cpp}, \hyperpage{14}
+    \subitem {computeBOW}, \hyperpage{15}
+    \subitem {createSvmModel}, \hyperpage{15}
+    \subitem {exportProblem}, \hyperpage{15}
+    \subitem {exportProblemZero}, \hyperpage{15}
+    \subitem {importProblem}, \hyperpage{16}
+    \subitem {nrOfLines}, \hyperpage{16}
+    \subitem {printProbability}, \hyperpage{16}
+    \subitem {printProblem}, \hyperpage{16}
   \item {nbOfFiles}
-    \subitem {naomngt.cpp}, \hyperpage{88}
-    \subitem {naomngt.h}, \hyperpage{94}
+    \subitem {naomngt.cpp}, \hyperpage{11}
   \item {nrOfLines}
-    \subitem {naosvm.cpp}, \hyperpage{95}
-    \subitem {naosvm.h}, \hyperpage{97}
+    \subitem {naosvm.cpp}, \hyperpage{16}
 
   \indexspace
 
-  \item {ONE\_\discretionary {-}{}{}CLASS\_\discretionary {-}{}{}Q}, 
-		\hyperpage{55}
-  \item {onFrontHeadTouched}
-    \subitem {Tactil}, \hyperpage{73}
-
-  \indexspace
-
-  \item {Point}, \hyperpage{56}
-  \item {PointDesc}, \hyperpage{58}
   \item {printProbability}
-    \subitem {naosvm.cpp}, \hyperpage{95}
-    \subitem {naosvm.h}, \hyperpage{98}
+    \subitem {naosvm.cpp}, \hyperpage{16}
   \item {printProblem}
-    \subitem {naosvm.cpp}, \hyperpage{96}
-    \subitem {naosvm.h}, \hyperpage{98}
+    \subitem {naosvm.cpp}, \hyperpage{16}
 
   \indexspace
 
-  \item {QMatrix}, \hyperpage{59}
+  \item {refreshBdd}
+    \subitem {naomngt.cpp}, \hyperpage{12}
 
   \indexspace
 
-  \item {rebuild}
-    \subitem {IplImagePyramid}, \hyperpage{29, 30}
-
-  \indexspace
-
-  \item {Size}, \hyperpage{60}
-  \item {Solver}, \hyperpage{64}
-  \item {Solver::SolutionInfo}, \hyperpage{63}
-  \item {Solver\_\discretionary {-}{}{}NU}, \hyperpage{66}
-  \item {SVC\_\discretionary {-}{}{}Q}, \hyperpage{67}
-  \item {svm\_\discretionary {-}{}{}model}, \hyperpage{68}
-  \item {svm\_\discretionary {-}{}{}node}, \hyperpage{69}
-  \item {svm\_\discretionary {-}{}{}parameter}, \hyperpage{70}
-  \item {svm\_\discretionary {-}{}{}problem}, \hyperpage{71}
-  \item {SVR\_\discretionary {-}{}{}Q}, \hyperpage{72}
-
-  \indexspace
-
-  \item {Tactil}, \hyperpage{73}
-    \subitem {init}, \hyperpage{73}
-    \subitem {onFrontHeadTouched}, \hyperpage{73}
-  \item {temps\_\discretionary {-}{}{}exec}, \hyperpage{74}
-  \item {Track}, \hyperpage{75}
-  \item {TrackerInfo}, \hyperpage{76}
   \item {trainBdd}
-    \subitem {naomngt.cpp}, \hyperpage{89}
-    \subitem {naomngt.h}, \hyperpage{94}
+    \subitem {naomngt.cpp}, \hyperpage{12}
+  \item {transferBdd}
+    \subitem {naomngt.cpp}, \hyperpage{12}
 
 \end{theindex}

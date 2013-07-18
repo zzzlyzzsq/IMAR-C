@@ -43,7 +43,9 @@ void \hyperlink{naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773}{deleteBdd} (std:
 void \hyperlink{naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4}{emptyFolder} (std::string folder)
 \begin{DoxyCompactList}\small\item\em Deletes all files present in the folder. \item\end{DoxyCompactList}\item 
 void \hyperlink{naomngt_8cpp_ad56ac995dc8fae91374c3dc9881ce3cd}{refreshBdd} (std::string bddName, int dim, int maxPts)
-\begin{DoxyCompactList}\small\item\em Deletes all files excepted videos and extracts STIPs again. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Deletes all files excepted videos and extracts STIPs again. \item\end{DoxyCompactList}\item 
+void \hyperlink{naomngt_8cpp_ab8c91b5bbbb5fe22a841e000b3774441}{transferBdd} (std::string bddName, std::string login, std::string robotIP, std::string password)
+\begin{DoxyCompactList}\small\item\em Transfers the file svm.model, training.means and mapping.txt on the robot Nao. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -295,4 +297,24 @@ Trains the specified BDD.
 
 
 Definition at line 225 of file naomngt.cpp.
+
+\hypertarget{naomngt_8cpp_ab8c91b5bbbb5fe22a841e000b3774441}{
+\index{naomngt.cpp@{naomngt.cpp}!transferBdd@{transferBdd}}
+\index{transferBdd@{transferBdd}!naomngt.cpp@{naomngt.cpp}}
+\subsubsection[{transferBdd}]{\setlength{\rightskip}{0pt plus 5cm}void transferBdd (std::string {\em bddName}, \/  std::string {\em login}, \/  std::string {\em roboIP}, \/  std::string {\em password})}}
+\label{naomngt_8cpp_ab8c91b5bbbb5fe22a841e000b3774441}
+
+
+Transfers the file svm.model, training.means and mapping.txt on the robot Nao. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[\mbox{$\leftarrow$} {\em bddName}]The name of te BDD to transfer. \item[\mbox{$\leftarrow$} {\em login}]Your user name on the robot. \item[\mbox{$\leftarrow$} {\em robotIP}]The IP adress of the robot. \item[\mbox{$\leftarrow$} {\em password}]The password of the user on the robot.\end{DoxyParams}
+Training files are sent on the robot Nao via ftp so you have to precise your username on the robot and yout password.
+
+The server ftp must be configured with the following folders: \char`\"{}/data\char`\"{} and \char`\"{}/data/activity\_\-recognition\char`\"{}.
+
+Then the program uses the library ftplib to send the training files. It sends mapping.txt, training.means and svm.model which are present in the folder \char`\"{}./bdd/$<$bdd\_\-name$>$\char`\"{}. 
+
+Definition at line 721 of file naomngt.cpp.
 

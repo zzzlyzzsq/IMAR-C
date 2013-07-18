@@ -13,3 +13,5 @@ Suppression de BDD / activités :
 # Rafraichir une base de données
 (supression de toutes les données sauf les vidéos et réextraction des STIPs)
 	 ./naomngt refresh <bdd_name>
+# Transfering training data on the robot Nao
+	./actmngt transfer <bdd_name> <login> <robot IP> <password>

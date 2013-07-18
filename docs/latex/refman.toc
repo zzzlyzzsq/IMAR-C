@@ -1,186 +1,45 @@
-\contentsline {chapter}{\numberline {1}Class Index}{1}{chapter.1}
-\contentsline {section}{\numberline {1.1}Class Hierarchy}{1}{section.1.1}
-\contentsline {chapter}{\numberline {2}Class Index}{3}{chapter.2}
-\contentsline {section}{\numberline {2.1}Class List}{3}{section.2.1}
-\contentsline {chapter}{\numberline {3}File Index}{5}{chapter.3}
-\contentsline {section}{\numberline {3.1}File List}{5}{section.3.1}
-\contentsline {chapter}{\numberline {4}Class Documentation}{9}{chapter.4}
-\contentsline {section}{\numberline {4.1}activitiesMap Class Reference}{9}{section.4.1}
-\contentsline {subsection}{\numberline {4.1.1}Detailed Description}{9}{subsection.4.1.1}
-\contentsline {section}{\numberline {4.2}Box$<$ T $>$ Class Template Reference}{10}{section.4.2}
-\contentsline {subsection}{\numberline {4.2.1}Detailed Description}{19}{subsection.4.2.1}
-\contentsline {section}{\numberline {4.3}Cache Class Reference}{20}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}Detailed Description}{20}{subsection.4.3.1}
-\contentsline {section}{\numberline {4.4}decision\_\discretionary {-}{}{}function Struct Reference}{21}{section.4.4}
-\contentsline {subsection}{\numberline {4.4.1}Detailed Description}{21}{subsection.4.4.1}
-\contentsline {section}{\numberline {4.5}DescInfo Struct Reference}{22}{section.4.5}
-\contentsline {subsection}{\numberline {4.5.1}Detailed Description}{22}{subsection.4.5.1}
-\contentsline {section}{\numberline {4.6}DescMat Struct Reference}{23}{section.4.6}
-\contentsline {subsection}{\numberline {4.6.1}Detailed Description}{23}{subsection.4.6.1}
-\contentsline {section}{\numberline {4.7}exec\_\discretionary {-}{}{}time Struct Reference}{24}{section.4.7}
-\contentsline {subsection}{\numberline {4.7.1}Detailed Description}{24}{subsection.4.7.1}
-\contentsline {section}{\numberline {4.8}IplImagePyramid Class Reference}{25}{section.4.8}
-\contentsline {subsection}{\numberline {4.8.1}Detailed Description}{27}{subsection.4.8.1}
-\contentsline {subsection}{\numberline {4.8.2}Constructor \& Destructor Documentation}{27}{subsection.4.8.2}
-\contentsline {subsubsection}{\numberline {4.8.2.1}IplImagePyramid}{27}{subsubsection.4.8.2.1}
-\contentsline {subsubsection}{\numberline {4.8.2.2}IplImagePyramid}{27}{subsubsection.4.8.2.2}
-\contentsline {subsubsection}{\numberline {4.8.2.3}IplImagePyramid}{27}{subsubsection.4.8.2.3}
-\contentsline {subsubsection}{\numberline {4.8.2.4}IplImagePyramid}{27}{subsubsection.4.8.2.4}
-\contentsline {subsubsection}{\numberline {4.8.2.5}IplImagePyramid}{27}{subsubsection.4.8.2.5}
-\contentsline {subsubsection}{\numberline {4.8.2.6}IplImagePyramid}{28}{subsubsection.4.8.2.6}
-\contentsline {subsubsection}{\numberline {4.8.2.7}IplImagePyramid}{28}{subsubsection.4.8.2.7}
-\contentsline {subsubsection}{\numberline {4.8.2.8}IplImagePyramid}{28}{subsubsection.4.8.2.8}
-\contentsline {subsubsection}{\numberline {4.8.2.9}IplImagePyramid}{28}{subsubsection.4.8.2.9}
-\contentsline {subsubsection}{\numberline {4.8.2.10}IplImagePyramid}{28}{subsubsection.4.8.2.10}
-\contentsline {subsection}{\numberline {4.8.3}Member Function Documentation}{28}{subsection.4.8.3}
-\contentsline {subsubsection}{\numberline {4.8.3.1}getImage}{28}{subsubsection.4.8.3.1}
-\contentsline {subsubsection}{\numberline {4.8.3.2}getImage}{28}{subsubsection.4.8.3.2}
-\contentsline {subsubsection}{\numberline {4.8.3.3}getImage}{28}{subsubsection.4.8.3.3}
-\contentsline {subsubsection}{\numberline {4.8.3.4}getImage}{28}{subsubsection.4.8.3.4}
-\contentsline {subsubsection}{\numberline {4.8.3.5}getImage}{29}{subsubsection.4.8.3.5}
-\contentsline {subsubsection}{\numberline {4.8.3.6}getIndex}{29}{subsubsection.4.8.3.6}
-\contentsline {subsubsection}{\numberline {4.8.3.7}getIndex}{29}{subsubsection.4.8.3.7}
-\contentsline {subsubsection}{\numberline {4.8.3.8}getIndex}{29}{subsubsection.4.8.3.8}
-\contentsline {subsubsection}{\numberline {4.8.3.9}getIndex}{29}{subsubsection.4.8.3.9}
-\contentsline {subsubsection}{\numberline {4.8.3.10}getIndex}{29}{subsubsection.4.8.3.10}
-\contentsline {subsubsection}{\numberline {4.8.3.11}rebuild}{29}{subsubsection.4.8.3.11}
-\contentsline {subsubsection}{\numberline {4.8.3.12}rebuild}{29}{subsubsection.4.8.3.12}
-\contentsline {subsubsection}{\numberline {4.8.3.13}rebuild}{29}{subsubsection.4.8.3.13}
-\contentsline {subsubsection}{\numberline {4.8.3.14}rebuild}{30}{subsubsection.4.8.3.14}
-\contentsline {subsubsection}{\numberline {4.8.3.15}rebuild}{30}{subsubsection.4.8.3.15}
-\contentsline {section}{\numberline {4.9}IplImageWrapper Class Reference}{31}{section.4.9}
-\contentsline {subsection}{\numberline {4.9.1}Detailed Description}{33}{subsection.4.9.1}
-\contentsline {section}{\numberline {4.10}KCleaf Class Reference}{34}{section.4.10}
-\contentsline {subsection}{\numberline {4.10.1}Detailed Description}{34}{subsection.4.10.1}
-\contentsline {section}{\numberline {4.11}KCnode Class Reference}{35}{section.4.11}
-\contentsline {subsection}{\numberline {4.11.1}Detailed Description}{36}{subsection.4.11.1}
-\contentsline {section}{\numberline {4.12}KCsplit Class Reference}{37}{section.4.12}
-\contentsline {subsection}{\numberline {4.12.1}Detailed Description}{37}{subsection.4.12.1}
-\contentsline {section}{\numberline {4.13}KCtree Class Reference}{38}{section.4.13}
-\contentsline {subsection}{\numberline {4.13.1}Detailed Description}{38}{subsection.4.13.1}
-\contentsline {section}{\numberline {4.14}Kernel Class Reference}{39}{section.4.14}
-\contentsline {subsection}{\numberline {4.14.1}Detailed Description}{39}{subsection.4.14.1}
-\contentsline {section}{\numberline {4.15}KMcenters Class Reference}{40}{section.4.15}
-\contentsline {subsection}{\numberline {4.15.1}Detailed Description}{41}{subsection.4.15.1}
-\contentsline {section}{\numberline {4.16}KMdata Class Reference}{42}{section.4.16}
-\contentsline {subsection}{\numberline {4.16.1}Detailed Description}{42}{subsection.4.16.1}
-\contentsline {section}{\numberline {4.17}KMfilterCenters Class Reference}{43}{section.4.17}
-\contentsline {subsection}{\numberline {4.17.1}Detailed Description}{44}{subsection.4.17.1}
-\contentsline {section}{\numberline {4.18}KMlocal Class Reference}{45}{section.4.18}
-\contentsline {subsection}{\numberline {4.18.1}Detailed Description}{46}{subsection.4.18.1}
-\contentsline {section}{\numberline {4.19}KMlocalEZ\_\discretionary {-}{}{}Hybrid Class Reference}{47}{section.4.19}
-\contentsline {subsection}{\numberline {4.19.1}Detailed Description}{47}{subsection.4.19.1}
-\contentsline {section}{\numberline {4.20}KMlocalHybrid Class Reference}{48}{section.4.20}
-\contentsline {subsection}{\numberline {4.20.1}Detailed Description}{49}{subsection.4.20.1}
-\contentsline {section}{\numberline {4.21}KMlocalLloyds Class Reference}{50}{section.4.21}
-\contentsline {subsection}{\numberline {4.21.1}Detailed Description}{50}{subsection.4.21.1}
-\contentsline {section}{\numberline {4.22}KMlocalSwap Class Reference}{51}{section.4.22}
-\contentsline {subsection}{\numberline {4.22.1}Detailed Description}{51}{subsection.4.22.1}
-\contentsline {section}{\numberline {4.23}KMorthRect Class Reference}{52}{section.4.23}
-\contentsline {subsection}{\numberline {4.23.1}Detailed Description}{52}{subsection.4.23.1}
-\contentsline {section}{\numberline {4.24}KMterm Class Reference}{53}{section.4.24}
-\contentsline {subsection}{\numberline {4.24.1}Detailed Description}{54}{subsection.4.24.1}
-\contentsline {section}{\numberline {4.25}ONE\_\discretionary {-}{}{}CLASS\_\discretionary {-}{}{}Q Class Reference}{55}{section.4.25}
-\contentsline {subsection}{\numberline {4.25.1}Detailed Description}{55}{subsection.4.25.1}
-\contentsline {section}{\numberline {4.26}Point$<$ T $>$ Class Template Reference}{56}{section.4.26}
-\contentsline {subsection}{\numberline {4.26.1}Detailed Description}{57}{subsection.4.26.1}
-\contentsline {section}{\numberline {4.27}PointDesc Class Reference}{58}{section.4.27}
-\contentsline {subsection}{\numberline {4.27.1}Detailed Description}{58}{subsection.4.27.1}
-\contentsline {section}{\numberline {4.28}QMatrix Class Reference}{59}{section.4.28}
-\contentsline {subsection}{\numberline {4.28.1}Detailed Description}{59}{subsection.4.28.1}
-\contentsline {section}{\numberline {4.29}Size$<$ T $>$ Class Template Reference}{60}{section.4.29}
-\contentsline {subsection}{\numberline {4.29.1}Detailed Description}{62}{subsection.4.29.1}
-\contentsline {section}{\numberline {4.30}Solver::SolutionInfo Struct Reference}{63}{section.4.30}
-\contentsline {subsection}{\numberline {4.30.1}Detailed Description}{63}{subsection.4.30.1}
-\contentsline {section}{\numberline {4.31}Solver Class Reference}{64}{section.4.31}
-\contentsline {subsection}{\numberline {4.31.1}Detailed Description}{65}{subsection.4.31.1}
-\contentsline {section}{\numberline {4.32}Solver\_\discretionary {-}{}{}NU Class Reference}{66}{section.4.32}
-\contentsline {subsection}{\numberline {4.32.1}Detailed Description}{66}{subsection.4.32.1}
-\contentsline {section}{\numberline {4.33}SVC\_\discretionary {-}{}{}Q Class Reference}{67}{section.4.33}
-\contentsline {subsection}{\numberline {4.33.1}Detailed Description}{67}{subsection.4.33.1}
-\contentsline {section}{\numberline {4.34}svm\_\discretionary {-}{}{}model Struct Reference}{68}{section.4.34}
-\contentsline {subsection}{\numberline {4.34.1}Detailed Description}{68}{subsection.4.34.1}
-\contentsline {section}{\numberline {4.35}svm\_\discretionary {-}{}{}node Struct Reference}{69}{section.4.35}
-\contentsline {subsection}{\numberline {4.35.1}Detailed Description}{69}{subsection.4.35.1}
-\contentsline {section}{\numberline {4.36}svm\_\discretionary {-}{}{}parameter Struct Reference}{70}{section.4.36}
-\contentsline {subsection}{\numberline {4.36.1}Detailed Description}{70}{subsection.4.36.1}
-\contentsline {section}{\numberline {4.37}svm\_\discretionary {-}{}{}problem Struct Reference}{71}{section.4.37}
-\contentsline {subsection}{\numberline {4.37.1}Detailed Description}{71}{subsection.4.37.1}
-\contentsline {section}{\numberline {4.38}SVR\_\discretionary {-}{}{}Q Class Reference}{72}{section.4.38}
-\contentsline {subsection}{\numberline {4.38.1}Detailed Description}{72}{subsection.4.38.1}
-\contentsline {section}{\numberline {4.39}Tactil Class Reference}{73}{section.4.39}
-\contentsline {subsection}{\numberline {4.39.1}Detailed Description}{73}{subsection.4.39.1}
-\contentsline {subsection}{\numberline {4.39.2}Member Function Documentation}{73}{subsection.4.39.2}
-\contentsline {subsubsection}{\numberline {4.39.2.1}init}{73}{subsubsection.4.39.2.1}
-\contentsline {subsubsection}{\numberline {4.39.2.2}onFrontHeadTouched}{73}{subsubsection.4.39.2.2}
-\contentsline {section}{\numberline {4.40}temps\_\discretionary {-}{}{}exec Struct Reference}{74}{section.4.40}
-\contentsline {subsection}{\numberline {4.40.1}Detailed Description}{74}{subsection.4.40.1}
-\contentsline {section}{\numberline {4.41}Track Class Reference}{75}{section.4.41}
-\contentsline {subsection}{\numberline {4.41.1}Detailed Description}{75}{subsection.4.41.1}
-\contentsline {section}{\numberline {4.42}TrackerInfo Struct Reference}{76}{section.4.42}
-\contentsline {subsection}{\numberline {4.42.1}Detailed Description}{76}{subsection.4.42.1}
-\contentsline {chapter}{\numberline {5}File Documentation}{77}{chapter.5}
-\contentsline {section}{\numberline {5.1}naodensetrack.cpp File Reference}{77}{section.5.1}
-\contentsline {subsection}{\numberline {5.1.1}Detailed Description}{78}{subsection.5.1.1}
-\contentsline {subsection}{\numberline {5.1.2}Function Documentation}{78}{subsection.5.1.2}
-\contentsline {subsubsection}{\numberline {5.1.2.1}extractSTIPs}{78}{subsubsection.5.1.2.1}
-\contentsline {section}{\numberline {5.2}naokmeans.cpp File Reference}{79}{section.5.2}
-\contentsline {subsection}{\numberline {5.2.1}Detailed Description}{79}{subsection.5.2.1}
-\contentsline {subsection}{\numberline {5.2.2}Function Documentation}{79}{subsection.5.2.2}
-\contentsline {subsubsection}{\numberline {5.2.2.1}createTrainingMeans}{79}{subsubsection.5.2.2.1}
-\contentsline {subsubsection}{\numberline {5.2.2.2}exportCenters}{80}{subsubsection.5.2.2.2}
-\contentsline {subsubsection}{\numberline {5.2.2.3}importCenters}{80}{subsubsection.5.2.2.3}
-\contentsline {subsubsection}{\numberline {5.2.2.4}importSTIPs}{80}{subsubsection.5.2.2.4}
-\contentsline {subsubsection}{\numberline {5.2.2.5}kmIvanAlgorithm}{81}{subsubsection.5.2.2.5}
-\contentsline {section}{\numberline {5.3}naokmeans.h File Reference}{82}{section.5.3}
-\contentsline {subsection}{\numberline {5.3.1}Detailed Description}{82}{subsection.5.3.1}
-\contentsline {subsection}{\numberline {5.3.2}Function Documentation}{82}{subsection.5.3.2}
-\contentsline {subsubsection}{\numberline {5.3.2.1}createTrainingMeans}{82}{subsubsection.5.3.2.1}
-\contentsline {subsubsection}{\numberline {5.3.2.2}exportCenters}{83}{subsubsection.5.3.2.2}
-\contentsline {subsubsection}{\numberline {5.3.2.3}importCenters}{83}{subsubsection.5.3.2.3}
-\contentsline {subsubsection}{\numberline {5.3.2.4}importSTIPs}{83}{subsubsection.5.3.2.4}
-\contentsline {subsubsection}{\numberline {5.3.2.5}kmIvanAlgorithm}{84}{subsubsection.5.3.2.5}
-\contentsline {section}{\numberline {5.4}naomngt.cpp File Reference}{85}{section.5.4}
-\contentsline {subsection}{\numberline {5.4.1}Detailed Description}{86}{subsection.5.4.1}
-\contentsline {subsection}{\numberline {5.4.2}Function Documentation}{86}{subsection.5.4.2}
-\contentsline {subsubsection}{\numberline {5.4.2.1}addActivity}{86}{subsubsection.5.4.2.1}
-\contentsline {subsubsection}{\numberline {5.4.2.2}addBdd}{86}{subsubsection.5.4.2.2}
-\contentsline {subsubsection}{\numberline {5.4.2.3}addLabel}{86}{subsubsection.5.4.2.3}
-\contentsline {subsubsection}{\numberline {5.4.2.4}addVideos}{87}{subsubsection.5.4.2.4}
-\contentsline {subsubsection}{\numberline {5.4.2.5}deleteActivity}{87}{subsubsection.5.4.2.5}
-\contentsline {subsubsection}{\numberline {5.4.2.6}deleteBdd}{87}{subsubsection.5.4.2.6}
-\contentsline {subsubsection}{\numberline {5.4.2.7}emptyFolder}{87}{subsubsection.5.4.2.7}
-\contentsline {subsubsection}{\numberline {5.4.2.8}fileExist}{88}{subsubsection.5.4.2.8}
-\contentsline {subsubsection}{\numberline {5.4.2.9}inttostring}{88}{subsubsection.5.4.2.9}
-\contentsline {subsubsection}{\numberline {5.4.2.10}listActivities}{88}{subsubsection.5.4.2.10}
-\contentsline {subsubsection}{\numberline {5.4.2.11}mapActivities}{88}{subsubsection.5.4.2.11}
-\contentsline {subsubsection}{\numberline {5.4.2.12}nbOfFiles}{89}{subsubsection.5.4.2.12}
-\contentsline {subsubsection}{\numberline {5.4.2.13}trainBdd}{89}{subsubsection.5.4.2.13}
-\contentsline {section}{\numberline {5.5}naomngt.h File Reference}{90}{section.5.5}
-\contentsline {subsection}{\numberline {5.5.1}Detailed Description}{91}{subsection.5.5.1}
-\contentsline {subsection}{\numberline {5.5.2}Function Documentation}{91}{subsection.5.5.2}
-\contentsline {subsubsection}{\numberline {5.5.2.1}addActivity}{91}{subsubsection.5.5.2.1}
-\contentsline {subsubsection}{\numberline {5.5.2.2}addBdd}{92}{subsubsection.5.5.2.2}
-\contentsline {subsubsection}{\numberline {5.5.2.3}addLabel}{92}{subsubsection.5.5.2.3}
-\contentsline {subsubsection}{\numberline {5.5.2.4}addVideos}{92}{subsubsection.5.5.2.4}
-\contentsline {subsubsection}{\numberline {5.5.2.5}deleteActivity}{92}{subsubsection.5.5.2.5}
-\contentsline {subsubsection}{\numberline {5.5.2.6}deleteBdd}{93}{subsubsection.5.5.2.6}
-\contentsline {subsubsection}{\numberline {5.5.2.7}emptyFolder}{93}{subsubsection.5.5.2.7}
-\contentsline {subsubsection}{\numberline {5.5.2.8}fileExist}{93}{subsubsection.5.5.2.8}
-\contentsline {subsubsection}{\numberline {5.5.2.9}inttostring}{93}{subsubsection.5.5.2.9}
-\contentsline {subsubsection}{\numberline {5.5.2.10}listActivities}{94}{subsubsection.5.5.2.10}
-\contentsline {subsubsection}{\numberline {5.5.2.11}mapActivities}{94}{subsubsection.5.5.2.11}
-\contentsline {subsubsection}{\numberline {5.5.2.12}nbOfFiles}{94}{subsubsection.5.5.2.12}
-\contentsline {subsubsection}{\numberline {5.5.2.13}trainBdd}{94}{subsubsection.5.5.2.13}
-\contentsline {section}{\numberline {5.6}naosvm.cpp File Reference}{95}{section.5.6}
-\contentsline {subsection}{\numberline {5.6.1}Detailed Description}{95}{subsection.5.6.1}
-\contentsline {subsection}{\numberline {5.6.2}Function Documentation}{95}{subsection.5.6.2}
-\contentsline {subsubsection}{\numberline {5.6.2.1}nrOfLines}{95}{subsubsection.5.6.2.1}
-\contentsline {subsubsection}{\numberline {5.6.2.2}printProbability}{96}{subsubsection.5.6.2.2}
-\contentsline {subsubsection}{\numberline {5.6.2.3}printProblem}{96}{subsubsection.5.6.2.3}
-\contentsline {section}{\numberline {5.7}naosvm.h File Reference}{97}{section.5.7}
-\contentsline {subsection}{\numberline {5.7.1}Detailed Description}{97}{subsection.5.7.1}
-\contentsline {subsection}{\numberline {5.7.2}Function Documentation}{97}{subsection.5.7.2}
-\contentsline {subsubsection}{\numberline {5.7.2.1}nrOfLines}{97}{subsubsection.5.7.2.1}
-\contentsline {subsubsection}{\numberline {5.7.2.2}printProbability}{98}{subsubsection.5.7.2.2}
-\contentsline {subsubsection}{\numberline {5.7.2.3}printProblem}{98}{subsubsection.5.7.2.3}
+\contentsline {chapter}{\numberline {1}File Index}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}File List}{1}{section.1.1}
+\contentsline {chapter}{\numberline {2}File Documentation}{3}{chapter.2}
+\contentsline {section}{\numberline {2.1}naodensetrack.cpp File Reference}{3}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}Detailed Description}{4}{subsection.2.1.1}
+\contentsline {subsection}{\numberline {2.1.2}Function Documentation}{4}{subsection.2.1.2}
+\contentsline {subsubsection}{\numberline {2.1.2.1}extractSTIPs}{4}{subsubsection.2.1.2.1}
+\contentsline {section}{\numberline {2.2}naokmeans.cpp File Reference}{5}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Detailed Description}{5}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}Function Documentation}{5}{subsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.2.1}createTrainingMeans}{5}{subsubsection.2.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2.2}exportCenters}{6}{subsubsection.2.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.2.3}exportSTIPs}{6}{subsubsection.2.2.2.3}
+\contentsline {subsubsection}{\numberline {2.2.2.4}importCenters}{6}{subsubsection.2.2.2.4}
+\contentsline {subsubsection}{\numberline {2.2.2.5}importSTIPs}{7}{subsubsection.2.2.2.5}
+\contentsline {subsubsection}{\numberline {2.2.2.6}kmIvanAlgorithm}{7}{subsubsection.2.2.2.6}
+\contentsline {section}{\numberline {2.3}naomngt.cpp File Reference}{8}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Detailed Description}{9}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Function Documentation}{9}{subsection.2.3.2}
+\contentsline {subsubsection}{\numberline {2.3.2.1}addActivity}{9}{subsubsection.2.3.2.1}
+\contentsline {subsubsection}{\numberline {2.3.2.2}addBdd}{9}{subsubsection.2.3.2.2}
+\contentsline {subsubsection}{\numberline {2.3.2.3}addLabel}{9}{subsubsection.2.3.2.3}
+\contentsline {subsubsection}{\numberline {2.3.2.4}addVideos}{10}{subsubsection.2.3.2.4}
+\contentsline {subsubsection}{\numberline {2.3.2.5}deleteActivity}{10}{subsubsection.2.3.2.5}
+\contentsline {subsubsection}{\numberline {2.3.2.6}deleteBdd}{10}{subsubsection.2.3.2.6}
+\contentsline {subsubsection}{\numberline {2.3.2.7}emptyFolder}{10}{subsubsection.2.3.2.7}
+\contentsline {subsubsection}{\numberline {2.3.2.8}fileExist}{11}{subsubsection.2.3.2.8}
+\contentsline {subsubsection}{\numberline {2.3.2.9}inttostring}{11}{subsubsection.2.3.2.9}
+\contentsline {subsubsection}{\numberline {2.3.2.10}listActivities}{11}{subsubsection.2.3.2.10}
+\contentsline {subsubsection}{\numberline {2.3.2.11}mapActivities}{11}{subsubsection.2.3.2.11}
+\contentsline {subsubsection}{\numberline {2.3.2.12}nbOfFiles}{12}{subsubsection.2.3.2.12}
+\contentsline {subsubsection}{\numberline {2.3.2.13}refreshBdd}{12}{subsubsection.2.3.2.13}
+\contentsline {subsubsection}{\numberline {2.3.2.14}trainBdd}{12}{subsubsection.2.3.2.14}
+\contentsline {subsubsection}{\numberline {2.3.2.15}transferBdd}{12}{subsubsection.2.3.2.15}
+\contentsline {section}{\numberline {2.4}naosvm.cpp File Reference}{14}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Detailed Description}{14}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Function Documentation}{15}{subsection.2.4.2}
+\contentsline {subsubsection}{\numberline {2.4.2.1}computeBOW}{15}{subsubsection.2.4.2.1}
+\contentsline {subsubsection}{\numberline {2.4.2.2}createSvmModel}{15}{subsubsection.2.4.2.2}
+\contentsline {subsubsection}{\numberline {2.4.2.3}exportProblem}{15}{subsubsection.2.4.2.3}
+\contentsline {subsubsection}{\numberline {2.4.2.4}exportProblemZero}{15}{subsubsection.2.4.2.4}
+\contentsline {subsubsection}{\numberline {2.4.2.5}importProblem}{16}{subsubsection.2.4.2.5}
+\contentsline {subsubsection}{\numberline {2.4.2.6}nrOfLines}{16}{subsubsection.2.4.2.6}
+\contentsline {subsubsection}{\numberline {2.4.2.7}printProbability}{16}{subsubsection.2.4.2.7}
+\contentsline {subsubsection}{\numberline {2.4.2.8}printProblem}{16}{subsubsection.2.4.2.8}
