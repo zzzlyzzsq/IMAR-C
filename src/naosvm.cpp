@@ -7,7 +7,7 @@
 #include "naosvm.h" 
 
 /**
- * \fn struct svm_problem importProblem(char* file)
+ * \fn struct svm_problem importProblem(std::string file, int k)
  * \brief SVM Importation function. It read a file in the following format:
  * label 1:value 2:value 3:value (each lines).
  *
@@ -103,14 +103,14 @@ struct svm_problem importProblem(std::string file, int k){
   delete[] bowTab;
   return svmProblem;
 }
+
 /**
- * \fn void exportProblem(char* file)
+ * \fn exportProblem(struct svm_problem svmProblem, std::string file)
  * \brief SVM Exporting function. It writes in a file in the following format:
  * label 1:value 2:value 3:value (each lines).
  *
- * \param[in] file File which will containing the svm problem.
- * \param[in] k The number of clusters.
- * \return The svm problem in a structure.
+ * \param[in] svmProblem The SVM problem to export.
+ * \param[out] file The file which will contain the Bag Of Words.
  */
 void exportProblem(struct svm_problem svmProblem, std::string file){
   int l = svmProblem.l;  
@@ -131,10 +131,18 @@ void exportProblem(struct svm_problem svmProblem, std::string file){
     idActivity++;
   }
 }
+
+/**
+ * \fn exportProblemZero(struct svm_problem svmProblem, std::string file, int k)
+ * \brief SVM Exporting function. It writes in a file in the following format:
+ * label 1:value 2:value 3:value (each lines). It is different of exportProblem
+ * because it writes the null values.
+ *
+ * \param[in] svmProblem The SVM problem to export.
+ * \param[out] file The file which will contain the Bag Of Words.
+ * \param[in] The dimension of the STIPs.
+ */
 void exportProblemZero(struct svm_problem svmProblem, std::string file, int k){
-#ifdef DEBUG
-  std::cout << "[Entering: " << __FUNCTION__ << "...]" << std::endl;
-#endif
   int l = svmProblem.l;  
   ofstream bowFile(file.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
   if(!bowFile){
@@ -166,7 +174,7 @@ void exportProblemZero(struct svm_problem svmProblem, std::string file, int k){
 }
 
 /**
- * \fn struct svm_problem computeBOW(const KMdata& dataPts, const KMfilterCenters& ctrs)
+ * \fn struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters& ctrs)
  * \brief Converts the KMdata into a Bag Of Words histogram in the SVM format:
  * label 1:value 2:value 3:value (each lines).
  *
@@ -406,6 +414,14 @@ void printNodes(struct svm_node* nodes){
   cout << "(" << index << ",?)" << endl;
   }*/
 
+/**
+ * \fn struct svm_model* createSvmModel(std::string bowFile, int k)
+ * \brief Create the SVM model of the activities present in a file.
+ *
+ * \param[in] bowFile The name of the file containing the BOWs.
+ * \param[in] k The number of clusters (dimension of a BOW).
+ * \return The SVM model.
+ */
 struct svm_model* createSvmModel(std::string bowFile, int k){
   // SVM PARAMETER
   struct svm_parameter svmParameter;

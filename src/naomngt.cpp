@@ -4,7 +4,6 @@
  * \author Fabien ROUALDES (institut Mines-Télécom)
  * \date 17/07/2013
  */
-
 #include "naomngt.h"
 
 /**
@@ -26,6 +25,7 @@ void listBdds(){
     closedir(repertoire);
   }
 }
+
 /**
  * \fn void listActivities(std::string bdd)
  * \brief List activities present in the specified database.
@@ -91,6 +91,13 @@ int mapActivities(std::string path2bdd, activitiesMap **am){
   }
   return nbActivities;
 } 
+
+/**
+ * \fn int nbOfFiles(std::string path)
+ * \brief Counts the number of files in a folder.
+ * \param[in] path The path to the folder.
+ * \return The number of files.
+ */
 int nbOfFiles(std::string path){
   int nbFiles = 0;
   DIR * repertoire = opendir(path.c_str());
@@ -108,25 +115,44 @@ int nbOfFiles(std::string path){
   }
   return nbFiles;
 }
+
+/**
+ * \fn bool fileExist(std::string file, std::string folder)
+ * \brief Checks if the file name does not exist.
+ * \param[in] file The path to the file.
+ * \param[in] folder The path to the folder.
+ * \return True or false.
+ */
 bool fileExist(std::string file, std::string folder){
-  DIR * repertoire = opendir(folder.c_str());
-  if (repertoire == NULL){
+  DIR * repertory = opendir(folder.c_str());
+  if (repertory == NULL){
     std::cerr << "Impossible to open the directory!" << std::endl;
   }
   else{
     struct dirent * ent;
-    while ( (ent = readdir(repertoire)) != NULL){
+    while ( (ent = readdir(repertory)) != NULL){
       std::string entityName = ent->d_name;
       if(entityName.compare(".") != 0 && entityName.compare("..") != 0){
-	if(entityName.compare(file)){
+	if(entityName.compare(file) == 0){
 	  return true;
 	}
       }
     }
-    closedir(repertoire);
+    closedir(repertory);
   }
   return false;
 }
+
+/**
+ * \fn void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int dim, int maxPts)
+ * \brief Adds a new video in the choosen activity of the specified BDD.
+ * \param[in] bddName The name of the BDD.
+ * \param[in] activity The name of the activity.
+ * \param[in] nbVideos The number of videos we want to add.
+ * \param[in] videoPaths The different paths to the videos.
+ * \param[in] dim The dimension of the HOG and HOF.
+ * \param[in] maxPts The maximum vectors we want to compute.
+ */
 void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int dim, int maxPts){
   std::string path2bdd("bdd/" + bddName);
   activitiesMap *am;
@@ -170,7 +196,14 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
     j++;
   }
 }
-string inttostring(int int2str){
+
+/**
+ * \fn std::string inttostring(int int2str)
+ * \brief Converts an int into a string.
+ * \param[in] int2str The int to convert.
+ * \return The string converted.
+ */
+std::string inttostring(int int2str){
   // créer un flux de sortie
   std::ostringstream oss;
   // écrire un nombre dans le flux
@@ -180,6 +213,15 @@ string inttostring(int int2str){
   return result;
 }
 
+/**
+ * \fn void trainBdd(std::string bddName, int dim, int maxPts, int k)
+ * \brief Trains the specified BDD.
+ *
+ * \param[in] bddName The name of the BDD.
+ * \param[in] dim The dimension of the STIPs.
+ * \param[in] maxPts The maximum number of points we want to compute.
+ * \param[in] k The number of cluster (means).
+ */
 void trainBdd(std::string bddName, int dim, int maxPts, int k){
   std::string path2bdd("bdd/" + bddName);
   
@@ -329,7 +371,7 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
 }
 
 /**
- * \fn void addLabel
+ * \fn void addLabel(int label, std::string file, int k)
  * \brief Changes the label of the Bag Of Words
  *
  * \param[in] label The label.
@@ -384,8 +426,9 @@ void addLabel(int label, std::string file, int k){
   out.close();
   delete[] bowTab;
 }
+
 /**
- * \fn void addActivity
+ * \fn void addActivity(std::string activityName, std::string bddName)
  * \brief Creates a new activity in the specified BDD.
  *
  * \param[in] activityName The name of the new activity.
@@ -431,6 +474,14 @@ void addActivity(std::string activityName, std::string bddName){
   out << idActivity << ":" << activityName << endl;
   out.close();
 }
+
+/**
+ * \fn void deleteActivity(std::string activityName, std::string bddName)
+ * \brief Deletes an existant activity in the specified BDD.
+ *
+ * \param[in] activityName The name of the activity to delete.
+ * \param[in] bddName The name of the BDD.
+ */
 void deleteActivity(std::string activityName, std::string bddName){
   string path2bdd("bdd/" + bddName);
   
@@ -485,6 +536,7 @@ void deleteActivity(std::string activityName, std::string bddName){
   out.close();
   delete []am;
 }
+
 /**
  * \fn void addBdd(std::string bddName)
  * \brief Creates a new BDD.
@@ -543,6 +595,7 @@ void deleteBdd(std::string bddName){
   emptyFolder(path2bdd);
   rmdir(path2bdd.c_str());
 }
+
 /**
  * \fn void emptyFolder(std::string folder)
  * \brief Deletes all files present in the folder.
@@ -550,7 +603,7 @@ void deleteBdd(std::string bddName){
  * \param[in] folder The path to the folder.
  */
 void emptyFolder(std::string folder){
-  DIR * repertoire = opendir(folder.c_str());
+  DIR* repertoire = opendir(folder.c_str());
   if (repertoire == NULL){
     std::cerr << "Impossible to open the directory!" << std::endl;
   }
@@ -568,18 +621,18 @@ void emptyFolder(std::string folder){
 }
 
 /**
- * \fn void refreshBdd(std::string bddName, int dim, in maxPts)
+ * \fn void refreshBdd(std::string bddName, int dim, int maxPts)
  * \brief Deletes all files excepted videos and extracts STIPs again.
  *
  * \param[in] bddName The name of the BDD containing videos.
  * \param[in] dim The STIPs dimension.
- * \param[in] maxPts The maximum number of STIPs we can extract
+ * \param[in] maxPts The maximum number of STIPs we can extract.
  */
 void refreshBdd(std::string bddName, int dim, int maxPts){
   std::string path2bdd("bdd/" + bddName);
 
   // Supression des fichiers concatenate.stips, concatenate.bow, svm.model et training.means
-  DIR * repBDD = opendir(path2bdd.c_str());
+  DIR* repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
     std::cerr << "Impossible top open the BDD directory"<< std::endl;
     exit(EXIT_FAILURE);

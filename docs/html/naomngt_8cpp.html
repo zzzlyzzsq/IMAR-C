@@ -46,11 +46,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Set of functions permiting to manage the activity recognition BDD of Bag Of Words.  
 <a href="#_details">More...</a></p>
 <code>#include &quot;naomngt.h&quot;</code><br/>
-<div class="dynheader">
-Include dependency graph for naomngt.cpp:</div>
-<div class="dynsection">
-<div class="center"><img src="naomngt_8cpp__incl.png" border="0" usemap="#naomngt_8cpp_map" alt=""/></div>
-</div>
 
 <p><a href="naomngt_8cpp_source.html">Go to the source code of this file.</a></p>
 <table border="0" cellpadding="0" cellspacing="0">
@@ -62,30 +57,30 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naom
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">List activities present in the specified database.  <a href="#a12f73d87fbbaf92770b9b827dbec351e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#ae4d78aa9a888ef3787ea06e1246f7ee0">mapActivities</a> (std::string path2bdd, activitiesMap **am)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Fills the object activitiesMap which contain the equivalence Label-Activity.  <a href="#ae4d78aa9a888ef3787ea06e1246f7ee0"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc921e4909943966a8dbf2d85f31e29e"></a><!-- doxytag: member="naomngt.cpp::nbOfFiles" ref="acc921e4909943966a8dbf2d85f31e29e" args="(std::string path)" -->
-int&nbsp;</td><td class="memItemRight" valign="bottom"><b>nbOfFiles</b> (std::string path)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a396ba670916d96dfd1795deccf2e40ec"></a><!-- doxytag: member="naomngt.cpp::fileExist" ref="a396ba670916d96dfd1795deccf2e40ec" args="(std::string file, std::string folder)" -->
-bool&nbsp;</td><td class="memItemRight" valign="bottom"><b>fileExist</b> (std::string file, std::string folder)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee407c4eb98cc449a0faf764ea3dca33"></a><!-- doxytag: member="naomngt.cpp::addVideos" ref="aee407c4eb98cc449a0faf764ea3dca33" args="(std::string bddName, std::string activity, int nbVideos, std::string *videoPaths, int dim, int maxPts)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><b>addVideos</b> (std::string bddName, std::string activity, int nbVideos, std::string *videoPaths, int dim, int maxPts)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9cf61eb48f9698d3dbf778239ee293fc"></a><!-- doxytag: member="naomngt.cpp::inttostring" ref="a9cf61eb48f9698d3dbf778239ee293fc" args="(int int2str)" -->
-string&nbsp;</td><td class="memItemRight" valign="bottom"><b>inttostring</b> (int int2str)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0040386aa02e6e5c5b3c441ca85d56f"></a><!-- doxytag: member="naomngt.cpp::trainBdd" ref="aa0040386aa02e6e5c5b3c441ca85d56f" args="(std::string bddName, int dim, int maxPts, int k)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><b>trainBdd</b> (std::string bddName, int dim, int maxPts, int k)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c065e9016bd437f23e8cd9d01580ebf"></a><!-- doxytag: member="naomngt.cpp::addLabel" ref="a9c065e9016bd437f23e8cd9d01580ebf" args="(int label, std::string file, int k)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><b>addLabel</b> (int label, std::string file, int k)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7e4b446c4f6730a426cd269fafeb39cd"></a><!-- doxytag: member="naomngt.cpp::addActivity" ref="a7e4b446c4f6730a426cd269fafeb39cd" args="(std::string activityName, std::string bddName)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><b>addActivity</b> (std::string activityName, std::string bddName)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a725875b0f5b8af913ad9869004c31042"></a><!-- doxytag: member="naomngt.cpp::deleteActivity" ref="a725875b0f5b8af913ad9869004c31042" args="(std::string activityName, std::string bddName)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><b>deleteActivity</b> (std::string activityName, std::string bddName)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#acc921e4909943966a8dbf2d85f31e29e">nbOfFiles</a> (std::string path)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Counts the number of files in a folder.  <a href="#acc921e4909943966a8dbf2d85f31e29e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#a396ba670916d96dfd1795deccf2e40ec">fileExist</a> (std::string file, std::string folder)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Checks if the file name does not exist.  <a href="#a396ba670916d96dfd1795deccf2e40ec"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#aee407c4eb98cc449a0faf764ea3dca33">addVideos</a> (std::string bddName, std::string activity, int nbVideos, std::string *videoPaths, int dim, int maxPts)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Adds a new video in the choosen activity of the specified BDD.  <a href="#aee407c4eb98cc449a0faf764ea3dca33"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">std::string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#a4c824549da3499de85aa15a2d3617b19">inttostring</a> (int int2str)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Converts an int into a string.  <a href="#a4c824549da3499de85aa15a2d3617b19"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#aa0040386aa02e6e5c5b3c441ca85d56f">trainBdd</a> (std::string bddName, int dim, int maxPts, int k)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Trains the specified BDD.  <a href="#aa0040386aa02e6e5c5b3c441ca85d56f"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#a9c065e9016bd437f23e8cd9d01580ebf">addLabel</a> (int label, std::string file, int k)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Changes the label of the Bag Of Words.  <a href="#a9c065e9016bd437f23e8cd9d01580ebf"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#a7e4b446c4f6730a426cd269fafeb39cd">addActivity</a> (std::string activityName, std::string bddName)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Creates a new activity in the specified BDD.  <a href="#a7e4b446c4f6730a426cd269fafeb39cd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#a725875b0f5b8af913ad9869004c31042">deleteActivity</a> (std::string activityName, std::string bddName)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes an existant activity in the specified BDD.  <a href="#a725875b0f5b8af913ad9869004c31042"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#a5081f4d4997259563211c15b12078fbb">addBdd</a> (std::string bddName)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Creates a new BDD.  <a href="#a5081f4d4997259563211c15b12078fbb"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#ad96e8cbd0dcce75de84448326b987773">deleteBdd</a> (std::string bddName)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes a BDD.  <a href="#ad96e8cbd0dcce75de84448326b987773"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#a168b6930ac482db87ed7cf70bf61d9b4">emptyFolder</a> (std::string folder)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes all files present in the folder.  <a href="#a168b6930ac482db87ed7cf70bf61d9b4"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad56ac995dc8fae91374c3dc9881ce3cd"></a><!-- doxytag: member="naomngt.cpp::refreshBdd" ref="ad56ac995dc8fae91374c3dc9881ce3cd" args="(std::string bddName, int dim, int maxPts)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><b>refreshBdd</b> (std::string bddName, int dim, int maxPts)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="naomngt_8cpp.html#ad56ac995dc8fae91374c3dc9881ce3cd">refreshBdd</a> (std::string bddName, int dim, int maxPts)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes all files excepted videos and extracts STIPs again.  <a href="#ad56ac995dc8fae91374c3dc9881ce3cd"></a><br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Set of functions permiting to manage the activity recognition BDD of Bag Of Words. </p>
@@ -94,6 +89,44 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>refreshBdd</b> (std::
 
 <p>Definition in file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
 <hr/><h2>Function Documentation</h2>
+<a class="anchor" id="a7e4b446c4f6730a426cd269fafeb39cd"></a><!-- doxytag: member="naomngt.cpp::addActivity" ref="a7e4b446c4f6730a426cd269fafeb39cd" args="(std::string activityName, std::string bddName)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void addActivity </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>activityName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>bddName</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Creates a new activity in the specified BDD. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>activityName</em>&nbsp;</td><td>The name of the new activity. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>bddName</em>&nbsp;</td><td>The name of the BDD. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00437">437</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a5081f4d4997259563211c15b12078fbb"></a><!-- doxytag: member="naomngt.cpp::addBdd" ref="a5081f4d4997259563211c15b12078fbb" args="(std::string bddName)" -->
 <div class="memitem">
 <div class="memproto">
@@ -118,7 +151,156 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>refreshBdd</b> (std::
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00494">494</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00546">546</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9c065e9016bd437f23e8cd9d01580ebf"></a><!-- doxytag: member="naomngt.cpp::addLabel" ref="a9c065e9016bd437f23e8cd9d01580ebf" args="(int label, std::string file, int k)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void addLabel </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>label</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>k</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Changes the label of the Bag Of Words. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>label</em>&nbsp;</td><td>The label. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>file</em>&nbsp;</td><td>The file containing the Bag Of Words. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>k</em>&nbsp;</td><td>The dimension of the Bag Of Words. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00381">381</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aee407c4eb98cc449a0faf764ea3dca33"></a><!-- doxytag: member="naomngt.cpp::addVideos" ref="aee407c4eb98cc449a0faf764ea3dca33" args="(std::string bddName, std::string activity, int nbVideos, std::string *videoPaths, int dim, int maxPts)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void addVideos </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>bddName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>activity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>nbVideos</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string *&nbsp;</td>
+          <td class="paramname"> <em>videoPaths</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>maxPts</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Adds a new video in the choosen activity of the specified BDD. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>bddName</em>&nbsp;</td><td>The name of the BDD. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>activity</em>&nbsp;</td><td>The name of the activity. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>nbVideos</em>&nbsp;</td><td>The number of videos we want to add. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>videoPaths</em>&nbsp;</td><td>The different paths to the videos. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>dim</em>&nbsp;</td><td>The dimension of the HOG and HOF. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>maxPts</em>&nbsp;</td><td>The maximum vectors we want to compute. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00156">156</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a725875b0f5b8af913ad9869004c31042"></a><!-- doxytag: member="naomngt.cpp::deleteActivity" ref="a725875b0f5b8af913ad9869004c31042" args="(std::string activityName, std::string bddName)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void deleteActivity </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>activityName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>bddName</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Deletes an existant activity in the specified BDD. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>activityName</em>&nbsp;</td><td>The name of the activity to delete. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>bddName</em>&nbsp;</td><td>The name of the BDD. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00485">485</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
 
 </div>
 </div>
@@ -146,16 +328,7 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><b>refreshBdd</b> (std::
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00531">531</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dynsection">
-<div class="center"><img src="naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773_cgraph.png" border="0" usemap="#naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773_cgraph_map" alt=""></div>
-<map name="naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773_cgraph_map" id="naomngt_8cpp_ad96e8cbd0dcce75de84448326b987773_cgraph">
-<area shape="rect" href="naomngt_8cpp.html#a168b6930ac482db87ed7cf70bf61d9b4" title="Deletes all files present in the folder." alt="" coords="137,5,231,35"/><area shape="rect" href="naomngt_8cpp.html#ae4d78aa9a888ef3787ea06e1246f7ee0" title="Fills the object activitiesMap which contain the equivalence Label&#45;Activity." alt="" coords="135,59,233,88"/></map>
-</div>
-</p>
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00583">583</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
 
 </div>
 </div>
@@ -183,16 +356,75 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00552">552</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00605">605</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dynsection">
-<div class="center"><img src="naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4_icgraph.png" border="0" usemap="#naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4_icgraph_map" alt=""></div>
-<map name="naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4_icgraph_map" id="naomngt_8cpp_a168b6930ac482db87ed7cf70bf61d9b4_icgraph">
-<area shape="rect" href="naomngt_8cpp.html#ad96e8cbd0dcce75de84448326b987773" title="Deletes a BDD." alt="" coords="147,5,227,35"/></map>
 </div>
-</p>
+</div>
+<a class="anchor" id="a396ba670916d96dfd1795deccf2e40ec"></a><!-- doxytag: member="naomngt.cpp::fileExist" ref="a396ba670916d96dfd1795deccf2e40ec" args="(std::string file, std::string folder)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fileExist </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>folder</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Checks if the file name does not exist. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>file</em>&nbsp;</td><td>The path to the file. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>folder</em>&nbsp;</td><td>The path to the folder. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>True or false. </dd></dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00126">126</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a4c824549da3499de85aa15a2d3617b19"></a><!-- doxytag: member="naomngt.cpp::inttostring" ref="a4c824549da3499de85aa15a2d3617b19" args="(int int2str)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string inttostring </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>int2str</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Converts an int into a string. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>int2str</em>&nbsp;</td><td>The int to convert. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The string converted. </dd></dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00206">206</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
 
 </div>
 </div>
@@ -221,15 +453,6 @@ Here is the caller graph for this function:</div>
 </dl>
 
 <p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00034">34</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dynsection">
-<div class="center"><img src="naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e_cgraph.png" border="0" usemap="#naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e_cgraph_map" alt=""></div>
-<map name="naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e_cgraph_map" id="naomngt_8cpp_a12f73d87fbbaf92770b9b827dbec351e_cgraph">
-<area shape="rect" href="naomngt_8cpp.html#ae4d78aa9a888ef3787ea06e1246f7ee0" title="Fills the object activitiesMap which contain the equivalence Label&#45;Activity." alt="" coords="148,5,247,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -270,14 +493,131 @@ Here is the call graph for this function:</div>
 
 <p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00053">53</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dynsection">
-<div class="center"><img src="naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0_icgraph.png" border="0" usemap="#naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0_icgraph_map" alt=""></div>
-<map name="naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0_icgraph_map" id="naomngt_8cpp_ae4d78aa9a888ef3787ea06e1246f7ee0_icgraph">
-<area shape="rect" href="naomngt_8cpp.html#ad96e8cbd0dcce75de84448326b987773" title="Deletes a BDD." alt="" coords="161,5,241,35"/><area shape="rect" href="naomngt_8cpp.html#a12f73d87fbbaf92770b9b827dbec351e" title="List activities present in the specified database." alt="" coords="156,59,247,88"/></map>
 </div>
-</p>
+</div>
+<a class="anchor" id="acc921e4909943966a8dbf2d85f31e29e"></a><!-- doxytag: member="naomngt.cpp::nbOfFiles" ref="acc921e4909943966a8dbf2d85f31e29e" args="(std::string path)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int nbOfFiles </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>path</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Counts the number of files in a folder. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>path</em>&nbsp;</td><td>The path to the folder. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The number of files. </dd></dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00101">101</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ad56ac995dc8fae91374c3dc9881ce3cd"></a><!-- doxytag: member="naomngt.cpp::refreshBdd" ref="ad56ac995dc8fae91374c3dc9881ce3cd" args="(std::string bddName, int dim, int maxPts)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void refreshBdd </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>bddName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>maxPts</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Deletes all files excepted videos and extracts STIPs again. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>bddName</em>&nbsp;</td><td>The name of the BDD containing videos. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>dim</em>&nbsp;</td><td>The STIPs dimension. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>maxPts</em>&nbsp;</td><td>The maximum number of STIPs we can extract. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00631">631</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa0040386aa02e6e5c5b3c441ca85d56f"></a><!-- doxytag: member="naomngt.cpp::trainBdd" ref="aa0040386aa02e6e5c5b3c441ca85d56f" args="(std::string bddName, int dim, int maxPts, int k)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void trainBdd </td>
+          <td>(</td>
+          <td class="paramtype">std::string&nbsp;</td>
+          <td class="paramname"> <em>bddName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>maxPts</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>k</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Trains the specified BDD. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>bddName</em>&nbsp;</td><td>The name of the BDD. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>dim</em>&nbsp;</td><td>The dimension of the STIPs. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>maxPts</em>&nbsp;</td><td>The maximum number of points we want to compute. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>k</em>&nbsp;</td><td>The number of cluster (means). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="naomngt_8cpp_source.html#l00225">225</a> of file <a class="el" href="naomngt_8cpp_source.html">naomngt.cpp</a>.</p>
 
 </div>
 </div>
@@ -296,7 +636,7 @@ Here is the caller graph for this function:</div>
 </iframe>
 </div>
 
-<hr class="footer"/><address style="text-align: right;"><small>Generated on Wed Jul 17 16:59:03 2013 for IMAR-C by&nbsp;
+<hr class="footer"/><address style="text-align: right;"><small>Generated on Thu Jul 18 12:16:55 2013 for IMAR-C by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.3 </small></address>
 </body>

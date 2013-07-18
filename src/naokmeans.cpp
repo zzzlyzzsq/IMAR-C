@@ -43,19 +43,19 @@ int importSTIPs(std::string stip, int dim, int maxPts, KMdata* dataPts){
   }
   return nPts-1;
 }
+
 /**
- * \fn int exportSTIPs(std::string stip, int dim, int maxPts, KMdata* dataPts)
+ * \fn void exportSTIPs(std::string stip, int dim, const KMdata& dataPts)
  * \brief STIPs exportation function in the format 1 point = 1 line.
  * Each dimension are separated from one space (" ").
  *
  * \param[in] stip Name of the file containing the STIPs.
  * \param[in] dim The STIPs dimension.
  * \param[in] dataPts The KMlocal object which will be containing STIPs.
- * \return Number of points imported.
  */
 void exportSTIPs(std::string stip, int dim, const KMdata& dataPts){
   int nPts = dataPts.getNPts(); // actual number of points
-
+  
   // open fiouverture en écriture avec effacement du fichier ouvert
   ofstream sSTIPs(stip.c_str(), ios::out | ios::trunc);
   if(!sSTIPs){
@@ -70,6 +70,7 @@ void exportSTIPs(std::string stip, int dim, const KMdata& dataPts){
   }
   sSTIPs.close();
 }
+
 /**
  * \fn void exportCenters(std::string centers, int dim, int k, KMfilterCenters ctrs)
  * \brief Export function to save KMfilterCenters in a file.
@@ -96,6 +97,7 @@ void exportCenters(std::string centers, int dim, int k, KMfilterCenters ctrs){
   }
   trainingMeans.close();
 }
+
 /**
  * \fn void importCenters(std::string centers, int dim, int k, KMfilterCenters* ctrs)
  * \brief Importation function saving external centers in the KMfilterCenters object.
@@ -126,6 +128,7 @@ void importCenters(std::string centers, int dim, int k, KMfilterCenters* ctrs){
     center++;
   }
 }
+
 /**
  * \fn void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCenters& ctrs)
  * \brief This is an optimized KMeans algorithm. Ivan's algorithm uses
@@ -248,6 +251,7 @@ void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCen
     randomVector = NULL;
   }
 }
+
 /**
  * \fn void createTrainingMeans(std::string stipFile, int dim, int maxPts, int k, std::string meansFile)
  * \brief Import HOG and HOF from a file and compute KMeans algorithm to create

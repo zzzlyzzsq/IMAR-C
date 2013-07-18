@@ -1,8 +1,7 @@
 /**
  * @file naomngt.h
- * @author HADAPTIC 2013 
- * ROUALDES Fabien
- * @date 20 juin 2013
+ * @author Fabien ROUALDES (Institut Mines-Télécom)
+ * @date 17/07/2013
  */
 #ifndef _NAOMNGT_H_
 #define _NAOMNGT_H_ 
@@ -23,6 +22,9 @@
 
 using namespace std;
 
+/** \class activitiesMap
+ * \brief Correspondance between a label and an activity
+ */
 class activitiesMap{
  public:
   int label;

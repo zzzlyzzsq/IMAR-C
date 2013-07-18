@@ -71,11 +71,11 @@ void Tactil::onFrontHeadTouched(){
   videoRecorderProxy.setResolution(0); // kQQVGA ( 160 * 120 ). 0
   videoRecorderProxy.setFrameRate(10);
 
-  std::string videoOutput("recording-");
+ std::string videoOutput("recording-");
  int nrVideos = nbOfFiles("/home/nao/recordings/cameras");
- while(fileExist(videoOutput+inttostring(nrVideos),"/home/nao/recordings/cameras")){
-     nrVideos++;
- }
+ //ile(fileExist(videoOutput+inttostring(nrVideos),"/home/nao/recordings/cameras")){
+   //  nrVideos++;
+ //}
   videoOutput = videoOutput + inttostring(nrVideos);
   videoRecorderProxy.startRecording("/home/nao/recordings/cameras",videoOutput);
   sleep(duration);

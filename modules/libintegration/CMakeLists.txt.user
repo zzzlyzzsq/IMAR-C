@@ -22,7 +22,7 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">all</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
     <value type="QString">COLORTERM=gnome-terminal</value>
-    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-xG0mE1GrHW,guid=a8c5006be18bf69c0e60d25551e50510</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-59tgdhqxQu,guid=dcb10fbf5e657da24bd7efa751e65aa4</value>
     <value type="QString">DEFAULTS_PATH=/usr/share/gconf/gnome.default.path</value>
     <value type="QString">DESKTOP_SESSION=gnome</value>
     <value type="QString">DISPLAY=:0.0</value>
@@ -30,8 +30,8 @@
     <value type="QString">GDM_KEYBOARD_LAYOUT=fr	oss</value>
     <value type="QString">GDM_LANG=es_ES.utf8</value>
     <value type="QString">GNOME_DESKTOP_SESSION_ID=this-is-deprecated</value>
-    <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-FHX3gr</value>
-    <value type="QString">GNOME_KEYRING_PID=2171</value>
+    <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-5PtA4h</value>
+    <value type="QString">GNOME_KEYRING_PID=2338</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
     <value type="QString">HOME=/home/noox</value>
     <value type="QString">LANG=es_ES.utf8</value>
@@ -48,20 +48,20 @@
     <value type="QString">PATH=/home/noox/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
     <value type="QString">PWD=/home/noox/Escritorio/IMAR-C/modules</value>
     <value type="QString">PYTHONPATH=/home/noox/Documentos/stages/ete_2013-nanoInnov/activity_recognition/robot/qibuild-1.14.3/python</value>
-    <value type="QString">SESSION_MANAGER=local/noox-laptop:@/tmp/.ICE-unix/2189,unix/noox-laptop:/tmp/.ICE-unix/2189</value>
+    <value type="QString">SESSION_MANAGER=local/noox-laptop:@/tmp/.ICE-unix/2357,unix/noox-laptop:/tmp/.ICE-unix/2357</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SHLVL=1</value>
     <value type="QString">SPEECHD_PORT=7560</value>
-    <value type="QString">SSH_AGENT_PID=2225</value>
-    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-FHX3gr/ssh</value>
+    <value type="QString">SSH_AGENT_PID=2393</value>
+    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-5PtA4h/ssh</value>
     <value type="QString">TERM=xterm</value>
     <value type="QString">USER=noox</value>
     <value type="QString">USERNAME=noox</value>
-    <value type="QString">WINDOWID=69217078</value>
-    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-noox-fzfHos/database</value>
+    <value type="QString">WINDOWID=62914564</value>
+    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-noox-0qk61B/database</value>
     <value type="QString">XDG_CONFIG_DIRS=/etc/xdg/xdg-gnome:/etc/xdg</value>
     <value type="QString">XDG_DATA_DIRS=/usr/share/gnome:/usr/local/share/:/usr/share/</value>
-    <value type="QString">XDG_SESSION_COOKIE=f282d2f9fc34422531e22b3150be79a4-1373963536.369890-596458421</value>
+    <value type="QString">XDG_SESSION_COOKIE=f282d2f9fc34422531e22b3150be79a4-1374050980.74679-786742370</value>
     <value type="QString">_=/home/noox/bin/qibuild</value>
    </valuelist>
    <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>
