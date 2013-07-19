@@ -1,18 +1,18 @@
 #include "tactil.h"
 
-Tactil::Tactil(boost::shared_ptr<AL::ALBroker> broker, const std::string& name):
-    AL::ALModule(broker, name),fCallbackMutex(AL::ALMutex::createALMutex())
-{
-    // A little description :
-  setModuleDescription(
-          "This module presents how to subscribe to a simple event (here FrontTactilTouched) and use a callback method."
-          );
-// Method name
+Tactil::Tactil(boost::shared_ptr<AL::ALBroker> broker,
+	       const std::string& name):
+  AL::ALModule(broker, name),fCallbackMutex(AL::ALMutex::createALMutex()){
+  
+  // A little description:
+  setModuleDescription("This module presents how to subscribe to a simple event (here FrontTactilTouched) and use a callback method.");
+  
+  // Method name
   functionName("onFrontHeadTouched", // function name
                getName(), // module name
                "Method when the robot front is touched."); // description
-
-  BIND_METHOD(Tactil::onFrontHeadTouched) // to made the method appeared in the web interface
+  
+  BIND_METHOD(Tactil::onFrontHeadTouched); // to made the method appeared in the web interface
 }
 
 Tactil::~Tactil() {
@@ -26,8 +26,7 @@ void Tactil::init() {
   try {
     // Create a proxy to ALMemory.
     fMemoryProxy = AL::ALMemoryProxy(getParentBroker());
-    fState = fMemoryProxy.getData("FrontTactilTouched");
-
+    
     // subscribing to event
     fMemoryProxy.subscribeToEvent("FrontTactilTouched",     // event name
                                   "Tactil",                 // module name
@@ -35,61 +34,89 @@ void Tactil::init() {
     fMemoryProxy.subscribeToEvent("startRecognition",
                                   "Tactil",
                                   "onFrontHeadTouched");
-}
+  }
   catch (const AL::ALError& e) {
     qiLogError("module.example") << e.what() << std::endl;
   }
-
+  
   rpp = AL::ALRobotPostureProxy(getParentBroker());
   rpp.goToPosture("Crouch",0.5f);
-
+  
   videoRecorderProxy = AL::ALVideoRecorderProxy(getParentBroker());
 
-}
-
-void Tactil::onFrontHeadTouched(){
-  qiLogInfo("Tactil") << "Executing callback method on FrontTactilTouched event" << std::endl;
-  // As long as this is defined, the code is thread-safe
-  AL::ALCriticalSection section(fCallbackMutex);
-
- // Check that the front is touched
-  if((float) fMemoryProxy.getData("FrontTactilTouched") == 1.0f){
-      fState = fMemoryProxy.getData("FrontTactilTouched");
-  }
-  else{
-      fState =  fMemoryProxy.getData("startRecognition");
-  }
- if (fState) {
   ttsp = AL::ALTextToSpeechProxy(getParentBroker());
   ttsp.setLanguage("French");
   ttsp.setVoice( "Kenny22Enhanced");
+}
 
- // std::string phraseToSay("Bonjour !");
-  //ttsp.say(phraseToSay);
-  //helloAnimation()
-  int duration = 2;
-  videoRecorderProxy.setResolution(0); // kQQVGA ( 160 * 120 ). 0
-  videoRecorderProxy.setFrameRate(10);
+void Tactil::onFrontHeadTouched(){
+    // unsubscribing to event to avoid loops
+    fMemoryProxy.unsubscribeToEvent("FrontTactilTouched", // event name
+                                    "Tactil"); // module name
+    fMemoryProxy.unsubscribeToEvent("startRecognition", // event name
+                                    "Tactil"); // module name
+    qiLogInfo("Tactil") << "Executing callback method on FrontTactilTouched event" << std::endl;
 
- std::string videoOutput("recording-");
- int nrVideos = nbOfFiles("/home/nao/recordings/cameras");
- //ile(fileExist(videoOutput+inttostring(nrVideos),"/home/nao/recordings/cameras")){
-   //  nrVideos++;
- //}
-  videoOutput = videoOutput + inttostring(nrVideos);
-  videoRecorderProxy.startRecording("/home/nao/recordings/cameras",videoOutput);
-  sleep(duration);
-  AL::ALValue video = videoRecorderProxy.stopRecording();
-  qiLogInfo("Tactil") << "Predicting activity..." << std::endl;
-  std::string activityPredicted = integration(video[1],
-                            "/home/nao/data/activity_recognition/training.means",
-                            "/home/nao/data/activity_recognition/svm.model");
-  qiLogInfo("Tactil") << "Activitée  détectée : " << activityPredicted << std::endl;
-  ttsp.say("Activité détectée : " + activityPredicted);
+    // As long as this is defined, the code is thread-safe
+    AL::ALCriticalSection section(fCallbackMutex);
 
+    // Check that the front is touched
+  if((float) fMemoryProxy.getData("FrontTactilTouched") == 1.0f){
+    fState = fMemoryProxy.getData("FrontTactilTouched");
+  }
+  else{
+    fState =  fMemoryProxy.getData("startRecognition");
+  }
+ 
+  if (fState) {
+      lp = AL::ALLedsProxy(getParentBroker());
+
+      // post permits to execute a long method and to continue the programm
+      // the id returned permits to  stop the methode with the stop function
+      // int idLeds = lp.post.rotateEyes(0x0000CC00,0.5,100.0); // long time in the second
+      int idLeds = lp.post.rasta(100.0); // long time in the second
+
+
+      int duration = 2;
+      videoRecorderProxy.setResolution(0); // kQQVGA ( 160 * 120 ). 0
+      videoRecorderProxy.setFrameRate(10);
+
+      std::string videoOutput("recording-");
+      int nrVideos = nbOfFiles("/home/nao/recordings/cameras");
+      //ile(fileExist(videoOutput+inttostring(nrVideos),"/home/nao/recordings/cameras")){
+      //  nrVideos++;
+      //}
+      videoOutput = videoOutput + inttostring(nrVideos);
+
+      videoRecorderProxy.startRecording("/home/nao/recordings/cameras",videoOutput);
+      sleep(duration);
+      AL::ALValue video = videoRecorderProxy.stopRecording();
+      qiLogInfo("Tactil") << "Predicting activity..." << std::endl;
+      std::string activityPredicted = integration(video[1],
+						"/home/nao/data/activity_recognition/training.means",
+                                                "/home/nao/data/activity_recognition/svm.model");
+     lp.stop(idLeds);
+     lp.on("FaceLeds");
+     //lp.off("LeftFaceLedsGreen");
+     //lp.off("RightFaceLedsGreen");
+     if(activityPredicted.compare("applaud") == 0){
+         applaudAnimation();
+         rpp.goToPosture("Crouch",0.5f);
+     }
+     qiLogInfo("Tactil") << "Activitée  détectée : " << activityPredicted << std::endl;
+     ttsp.post.say("Activité détectée : " + activityPredicted);
+     lp.on("FaceLeds");
  }
 
 
+
+  // subscribing again to events
+  fMemoryProxy.subscribeToEvent("FrontTactilTouched",     // event name
+                                "Tactil",                 // module name
+                                "onFrontHeadTouched");  //method name
+  fMemoryProxy.subscribeToEvent("startRecognition",
+                                "Tactil",
+                                "onFrontHeadTouched");
 }
 
 void Tactil::helloAnimation(){
@@ -331,4 +358,228 @@ catch(const std::exception&)
 {
 
 }
+}
+void Tactil::applaudAnimation()
+{
+    // Choregraphe bezier export in c++.
+    // Add #include <alproxies/almotionproxy.h> at the beginning of this file.
+    std::vector<std::string> names;
+    AL::ALValue times, keys;
+    names.reserve(12);
+    times.arraySetSize(12);
+    keys.arraySetSize(12);
+
+    names.push_back("LElbowRoll");
+    times[0].arraySetSize(6);
+    keys[0].arraySetSize(6);
+
+    times[0][0] = 0.400000;
+    keys[0][0] = AL::ALValue::array(-1.21182, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[0][1] = 1.00000;
+    keys[0][1] = AL::ALValue::array(-1.19648, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[0][2] = 1.60000;
+    keys[0][2] = AL::ALValue::array(-1.21182, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[0][3] = 2.20000;
+    keys[0][3] = AL::ALValue::array(-1.19648, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[0][4] = 2.80000;
+    keys[0][4] = AL::ALValue::array(-1.21182, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[0][5] = 3.40000;
+    keys[0][5] = AL::ALValue::array(-1.19648, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("LElbowYaw");
+    times[1].arraySetSize(6);
+    keys[1].arraySetSize(6);
+
+    times[1][0] = 0.400000;
+    keys[1][0] = AL::ALValue::array(-1.63989, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[1][1] = 1.00000;
+    keys[1][1] = AL::ALValue::array(-1.13827, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[1][2] = 1.60000;
+    keys[1][2] = AL::ALValue::array(-1.63989, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[1][3] = 2.20000;
+    keys[1][3] = AL::ALValue::array(-1.13827, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[1][4] = 2.80000;
+    keys[1][4] = AL::ALValue::array(-1.63989, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[1][5] = 3.40000;
+    keys[1][5] = AL::ALValue::array(-1.13827, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("LHand");
+    times[2].arraySetSize(6);
+    keys[2].arraySetSize(6);
+
+    times[2][0] = 0.400000;
+    keys[2][0] = AL::ALValue::array(0.00804946, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[2][1] = 1.00000;
+    keys[2][1] = AL::ALValue::array(0.00807040, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[2][2] = 1.60000;
+    keys[2][2] = AL::ALValue::array(0.00804946, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[2][3] = 2.20000;
+    keys[2][3] = AL::ALValue::array(0.00807040, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[2][4] = 2.80000;
+    keys[2][4] = AL::ALValue::array(0.00804946, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[2][5] = 3.40000;
+    keys[2][5] = AL::ALValue::array(0.00807040, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("LShoulderPitch");
+    times[3].arraySetSize(6);
+    keys[3].arraySetSize(6);
+
+    times[3][0] = 0.400000;
+    keys[3][0] = AL::ALValue::array(0.805308, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[3][1] = 1.00000;
+    keys[3][1] = AL::ALValue::array(0.711734, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[3][2] = 1.60000;
+    keys[3][2] = AL::ALValue::array(0.805309, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[3][3] = 2.20000;
+    keys[3][3] = AL::ALValue::array(0.711735, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[3][4] = 2.80000;
+    keys[3][4] = AL::ALValue::array(0.805309, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[3][5] = 3.40000;
+    keys[3][5] = AL::ALValue::array(0.711735, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("LShoulderRoll");
+    times[4].arraySetSize(6);
+    keys[4].arraySetSize(6);
+
+    times[4][0] = 0.400000;
+    keys[4][0] = AL::ALValue::array(0.291418, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[4][1] = 1.00000;
+    keys[4][1] = AL::ALValue::array(-0.240880, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[4][2] = 1.60000;
+    keys[4][2] = AL::ALValue::array(0.291418, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[4][3] = 2.20000;
+    keys[4][3] = AL::ALValue::array(-0.240880, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[4][4] = 2.80000;
+    keys[4][4] = AL::ALValue::array(0.291418, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[4][5] = 3.40000;
+    keys[4][5] = AL::ALValue::array(-0.240880, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("LWristYaw");
+    times[5].arraySetSize(6);
+    keys[5].arraySetSize(6);
+
+    times[5][0] = 0.400000;
+    keys[5][0] = AL::ALValue::array(0.119610, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[5][1] = 1.00000;
+    keys[5][1] = AL::ALValue::array(0.0674541, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[5][2] = 1.60000;
+    keys[5][2] = AL::ALValue::array(0.119610, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[5][3] = 2.20000;
+    keys[5][3] = AL::ALValue::array(0.0674542, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[5][4] = 2.80000;
+    keys[5][4] = AL::ALValue::array(0.119610, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[5][5] = 3.40000;
+    keys[5][5] = AL::ALValue::array(0.0674542, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("RElbowRoll");
+    times[6].arraySetSize(6);
+    keys[6].arraySetSize(6);
+
+    times[6][0] = 0.400000;
+    keys[6][0] = AL::ALValue::array(1.05390, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[6][1] = 1.00000;
+    keys[6][1] = AL::ALValue::array(1.08305, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[6][2] = 1.60000;
+    keys[6][2] = AL::ALValue::array(1.05390, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[6][3] = 2.20000;
+    keys[6][3] = AL::ALValue::array(1.08305, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[6][4] = 2.80000;
+    keys[6][4] = AL::ALValue::array(1.05390, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[6][5] = 3.40000;
+    keys[6][5] = AL::ALValue::array(1.08305, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("RElbowYaw");
+    times[7].arraySetSize(6);
+    keys[7].arraySetSize(6);
+
+    times[7][0] = 0.400000;
+    keys[7][0] = AL::ALValue::array(1.43732, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[7][1] = 1.00000;
+    keys[7][1] = AL::ALValue::array(1.02160, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[7][2] = 1.60000;
+    keys[7][2] = AL::ALValue::array(1.43732, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[7][3] = 2.20000;
+    keys[7][3] = AL::ALValue::array(1.02160, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[7][4] = 2.80000;
+    keys[7][4] = AL::ALValue::array(1.43732, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[7][5] = 3.40000;
+    keys[7][5] = AL::ALValue::array(1.02160, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("RHand");
+    times[8].arraySetSize(6);
+    keys[8].arraySetSize(6);
+
+    times[8][0] = 0.400000;
+    keys[8][0] = AL::ALValue::array(0.00888023, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[8][1] = 1.00000;
+    keys[8][1] = AL::ALValue::array(0.00886627, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[8][2] = 1.60000;
+    keys[8][2] = AL::ALValue::array(0.00888024, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[8][3] = 2.20000;
+    keys[8][3] = AL::ALValue::array(0.00886627, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[8][4] = 2.80000;
+    keys[8][4] = AL::ALValue::array(0.00888024, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[8][5] = 3.40000;
+    keys[8][5] = AL::ALValue::array(0.00886627, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("RShoulderPitch");
+    times[9].arraySetSize(6);
+    keys[9].arraySetSize(6);
+
+    times[9][0] = 0.400000;
+    keys[9][0] = AL::ALValue::array(0.733294, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[9][1] = 1.00000;
+    keys[9][1] = AL::ALValue::array(0.625914, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[9][2] = 1.60000;
+    keys[9][2] = AL::ALValue::array(0.733295, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[9][3] = 2.20000;
+    keys[9][3] = AL::ALValue::array(0.625914, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[9][4] = 2.80000;
+    keys[9][4] = AL::ALValue::array(0.733295, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[9][5] = 3.40000;
+    keys[9][5] = AL::ALValue::array(0.625914, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("RShoulderRoll");
+    times[10].arraySetSize(6);
+    keys[10].arraySetSize(6);
+
+    times[10][0] = 0.400000;
+    keys[10][0] = AL::ALValue::array(-0.366668, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[10][1] = 1.00000;
+    keys[10][1] = AL::ALValue::array(0.288350, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[10][2] = 1.60000;
+    keys[10][2] = AL::ALValue::array(-0.366667, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[10][3] = 2.20000;
+    keys[10][3] = AL::ALValue::array(0.288349, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[10][4] = 2.80000;
+    keys[10][4] = AL::ALValue::array(-0.366667, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[10][5] = 3.40000;
+    keys[10][5] = AL::ALValue::array(0.288349, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    names.push_back("RWristYaw");
+    times[11].arraySetSize(6);
+    keys[11].arraySetSize(6);
+
+    times[11][0] = 0.400000;
+    keys[11][0] = AL::ALValue::array(0.0797260, AL::ALValue::array(3, -0.133333, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[11][1] = 1.00000;
+    keys[11][1] = AL::ALValue::array(0.0781920, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[11][2] = 1.60000;
+    keys[11][2] = AL::ALValue::array(0.0797259, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[11][3] = 2.20000;
+    keys[11][3] = AL::ALValue::array(0.0781920, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[11][4] = 2.80000;
+    keys[11][4] = AL::ALValue::array(0.0797259, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.200000, 0.00000));
+    times[11][5] = 3.40000;
+    keys[11][5] = AL::ALValue::array(0.0781920, AL::ALValue::array(3, -0.200000, -0.00000), AL::ALValue::array(3, 0.00000, 0.00000));
+
+    try
+    {
+      getParentBroker()->getMotionProxy()->angleInterpolationBezier(names, times, keys);
+    }
+    catch(const std::exception&)
+    {
+
+    }
+
 }

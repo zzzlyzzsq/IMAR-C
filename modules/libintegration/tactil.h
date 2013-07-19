@@ -21,6 +21,7 @@
 #include <alproxies/alrobotpostureproxy.h>
 #include <alproxies/almotionproxy.h>
 #include <alproxies/alvideorecorderproxy.h>
+#include <alproxies/alledsproxy.h>
 
 #include "integration.h"
 
@@ -48,12 +49,14 @@ class Tactil : public AL::ALModule
     void onFrontHeadTouched();
 
     void helloAnimation();
+    void applaudAnimation();
 
   private:
     AL::ALMemoryProxy fMemoryProxy;
     AL::ALTextToSpeechProxy ttsp;
     AL::ALRobotPostureProxy rpp;
     AL::ALVideoRecorderProxy videoRecorderProxy;
+    AL::ALLedsProxy lp;
     boost::shared_ptr<AL::ALMutex> fCallbackMutex;
     float fState;
 
