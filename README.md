@@ -35,8 +35,8 @@ http://www.csie.ntu.edu.tw/~cjlin/libsvm
 * FTP connection: [http://nbpfaus.net/~pfau/ftplib/](http://nbpfaus.net/~pfau/ftplib/).
 
 ## Licence:
-This work is under the free software licence CeCILL.
-For more information open the folder Copyrights
+This work is under the free software licence [http://www.cecill.info/](CeCILL).
+For more information open the folder copyrights.
 
 ## Members:
 HUILON He and ROUALDES Fabien (Institut Mines-Télécom)
