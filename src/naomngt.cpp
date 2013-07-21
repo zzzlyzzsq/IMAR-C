@@ -306,7 +306,8 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
 	  KMfilterCenters ctrs(k, dataPts);  
 	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
 	  struct svm_problem svmProblem = computeBOW(am[i].label, dataPts, ctrs);
-	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");	  	exportProblem(svmProblem, path2BOW);
+	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");
+	  exportProblem(svmProblem, path2BOW);
 	}
       }
       closedir(repertoire);

@@ -1,5 +1,6 @@
 *.avi
 *.o
+*.so
 *.so.*
 *~
 *.xml
@@ -18,6 +19,8 @@ archives/*
 
 # Documentation
 refman.pdf
+
+journal_de_bord.txt
 
 # Exceptions
 !CMakeLists.txt

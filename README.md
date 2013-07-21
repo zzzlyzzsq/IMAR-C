@@ -34,5 +34,9 @@ http://www.csie.ntu.edu.tw/~cjlin/libsvm
 * NAO sofwares: [https://developer.aldebaran-robotics.com/home/](https://developer.aldebaran-robotics.com/home/);
 * FTP connection: [http://nbpfaus.net/~pfau/ftplib/](http://nbpfaus.net/~pfau/ftplib/).
 
+## Licence:
+This work is under the free software licence CeCILL.
+For more information open the folder Copyrights
+
 ## Members:
 HUILON He and ROUALDES Fabien (Institut Mines-Télécom)
