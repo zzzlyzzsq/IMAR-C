@@ -35,7 +35,7 @@ http://www.csie.ntu.edu.tw/~cjlin/libsvm
 * FTP connection: [http://nbpfaus.net/~pfau/ftplib/](http://nbpfaus.net/~pfau/ftplib/).
 
 ## Licence:
-This work is under the free software licence [http://www.cecill.info/](CeCILL).
+This work is under the free software licence [CeCILL](http://www.cecill.info/).
 For more information open the folder copyrights.
 
 ## Members:
