@@ -742,7 +742,7 @@ int extractSTIPs(std::string video, int dim, int maxPts, KMdata* dataPts){
 				    //printf("%f\t", vec[m]/float(t_stride));
 				    (*dataPts)[nPts][d] = vec[m]/float(t_stride);
 					d++;
-					}
+                  }
 				}
 				
 				iDesc = descs.begin();
@@ -756,6 +756,7 @@ int extractSTIPs(std::string video, int dim, int maxPts, KMdata* dataPts){
 				    //printf("%f\t", vec[m]/float(t_stride));
 					(*dataPts)[nPts][d] = vec[m]/float(t_stride);
 				    d++;
+                  }
 				}
 				
 				iDesc = descs.begin();
