@@ -53,15 +53,15 @@ typedef struct DescMat
 class PointDesc
 {
  public:
-  std::vector<float> hog;
-  std::vector<float> hof;
+  //std::vector<float> hog;
+  //std::vector<float> hof;
   std::vector<float> mbhX;
   std::vector<float> mbhY;
   CvPoint2D32f point;
 
- PointDesc(const DescInfo& hogInfo, const DescInfo& hofInfo, const DescInfo& mbhInfo, const CvPoint2D32f& point_)
-   : hog(hogInfo.nxCells * hogInfo.nyCells * hogInfo.nBins),
-    hof(hofInfo.nxCells * hofInfo.nyCells * hofInfo.nBins),
+ PointDesc(/*const DescInfo& hogInfo, const DescInfo& hofInfo, */const DescInfo& mbhInfo, const CvPoint2D32f& point_)
+   ://hog(hogInfo.nxCells * hogInfo.nyCells * hogInfo.nBins),
+    //hof(hofInfo.nxCells * hofInfo.nyCells * hofInfo.nBins),
     mbhX(mbhInfo.nxCells * mbhInfo.nyCells * mbhInfo.nBins),
     mbhY(mbhInfo.nxCells * mbhInfo.nyCells * mbhInfo.nBins),
     point(point_)
@@ -92,11 +92,13 @@ class Track
 CvScalar getRect(const CvPoint2D32f point, // the interest point position
                  const CvSize size, // the size of the image
                  const DescInfo descInfo); // parameters about the descriptor
+
 /* compute integral histograms for the whole image */
 void BuildDescMat(const IplImage* xComp, // x gradient component
                   const IplImage* yComp, // y gradient component
                   DescMat* descMat, // output integral histograms
                   const DescInfo descInfo); // parameters about the descriptor
+
 /* get a descriptor from the integral histogram */
 std::vector<float> getDesc(const DescMat* descMat, // input integral histogram
                            CvScalar rect, // rectangle area for the descriptor
@@ -112,22 +114,29 @@ void OpticalFlowTracker(IplImage* flow, // the optical field
                         std::vector<CvPoint2D32f>& points_in, // input interest point positions
                         std::vector<CvPoint2D32f>& points_out, // output interest point positions
                         std::vector<int>& status); // status for successfully tracked or not
+
 /* check whether a trajectory is valid or not */
 int isValid(std::vector<CvPoint2D32f>& track, float& mean_x, float& mean_y, float& var_x, float& var_y, float& length,
             float min_var, float max_var, float max_dis);
+
 /* detect new feature points in the whole image */
 void cvDenseSample(IplImage* grey, IplImage* eig, std::vector<CvPoint2D32f>& points,
                    const double quality, const double min_distance);
+
 /* detect new feature points in a image without overlapping to previous points */
 void cvDenseSample(IplImage* grey, IplImage* eig, std::vector<CvPoint2D32f>& points_in,
                    std::vector<CvPoint2D32f>& points_out, const double quality, const double min_distance);
+
 // initialize
 void InitTrackerInfo(TrackerInfo* tracker, int track_length, int init_gap);
 DescMat* InitDescMat(int height, int width, int nBins);
 void ReleDescMat( DescMat* descMat);
 void InitDescInfo(DescInfo* descInfo, int nBins, int flag, int orientation, int size, int nxy_cell, int nt_cell, float min_flow);
 void usage();
-//void arg_parse(int argc, char** argv);
+void arg_parse(int argc, char** argv);
 void  denseTrack(char * file);
+
+// to extract the MBH descriptors from video
+int extractMBH(char*);
 
 #endif /*DENSETRACK_H_*/
