@@ -1,32 +1,11 @@
-# Configuration #
-# Compilator
-CC		= g++
-
-# Executables to build 
-EXEC		= densetrack
-
-# Sources files
-# Source code directory 
-SRCDIR		= ../../src
-# Include directories
-INCLUDEDIRS 	= ../../include ../../include/kmlocal
-
-# Compilation and link flags
-CFLAGS 		= $(patsubst %,-I%,$(subst :, ,$(INCLUDEDIRS)))
-LDFLAGS 	= -lsvm -lkmeans 
-
-.PHONY: clean cleanall
-
-all: $(EXEC)
-$(EXEC): main.o naokmeans.o naosvm.o 
-	$(CC) -Wall -o $@  $^ -L../../lib $(LDFLAGS)
-main.o: main.cpp 
-	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naokmeans.o: $(SRCDIR)/naokmeans.cpp
-	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-naosvm.o: $(SRCDIR)/naosvm.cpp
-	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+all: densetracktofile
+main.o: main.cpp
+	g++ -c main.cpp -I../../include -I../../include/kmlocal
+IplImagePyramid.o: IplImagePyramid.cpp
+	g++ -c IplImagePyramid.cpp -I../../include
+IplImageWrapper.o: IplImageWrapper.cpp
+	g++ -c IplImageWrapper.cpp -I../../include
+densetracktofile: main.o IplImagePyramid.o IplImageWrapper.o
+	g++ -o densetracktofile main.o IplImagePyramid.o IplImageWrapper.o `pkg-config --cflags --libs opencv`
 clean:
-	rm -f *~
-cleanall: clean
-	rm -f *.o $(EXEC)
+	rm *.o densetracktofile
