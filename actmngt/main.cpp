@@ -4,14 +4,17 @@
 #include <stdlib.h>
 #include <string>
 #include "naomngt.h"
+#include <fstream>
 
 using namespace std;
 
 void help();
 
 int main(int argc, char* argv[]){  
-  int dim = 204;
-  int k = 100;
+			  
+	int desc = 1;// descriptor type
+  int dim = 0;
+  int k = 600;
   int maxPts = 1000000;
 
   if(argc<3){
@@ -19,9 +22,10 @@ int main(int argc, char* argv[]){
     return EXIT_SUCCESS;
   }
   std::string function = argv[1];
-  if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
-    if(argc == 3){
-      refreshBdd(argv[2],dim,maxPts);
+  if(function.compare("refresh") == 0){ // delete all files but videos and recompute stips
+    if(argc == 4){
+			desc = atoi(argv[3]);
+      refreshBdd(argv[2],desc,maxPts);
     }
     else{
       std::cerr << "Refresh: Bad arguments!" << std::endl;
@@ -39,9 +43,11 @@ int main(int argc, char* argv[]){
   } 
   else if(function.compare("add") == 0){ // in order to add video + stips in db
     // add bdd
-    std::string bddName(argv[3]);
-    if(argc == 4 && (bddName.compare("bdd") != 0)){
-      addBdd(bddName);
+		std::string bddName(argv[3]);
+    if(argc == 5 && (bddName.compare("bdd") != 0)){
+			desc = atoi(argv[4]);
+      addBdd(bddName,desc);
+			saveDescInfo(bddName,desc);
     }
     else{
       // add activity
@@ -51,21 +57,22 @@ int main(int argc, char* argv[]){
 	addActivity(activityName,argv[4]);
       }
       else{
-	// add video
-	int nbVideos = argc - 4;
-	if(nbVideos == 0){
-	  std::cerr << "There is no path to video!" << std::endl;
-	  return EXIT_FAILURE;
-	}
-	std::string videoPaths[nbVideos];
-	int j = 0;
-	for(int i = 2; i < argc - 2;i++){
-	  videoPaths[j] = argv[i];
-	  j++;
-	}
-	std::string bddName = argv[argc-2];
-	std::string activity = argv[argc-1];
-	addVideos(bddName,activity,nbVideos,videoPaths,dim,maxPts);
+				// add video
+				int nbVideos = argc - 4;
+				if(nbVideos == 0){
+				  std::cerr << "There is no path to video!" << std::endl;
+				  return EXIT_FAILURE;
+				}
+				std::string videoPaths[nbVideos];
+				int j = 0;
+				for(int i = 2; i < argc - 2;i++){
+				  videoPaths[j] = argv[i];
+				  j++;
+				}
+				std::string bddName = argv[argc-2];
+				std::string activity = argv[argc-1];
+				desc = getDesc(bddName);
+				addVideos(bddName,activity,nbVideos,videoPaths,desc,maxPts);
       }
     }
   }
@@ -74,6 +81,9 @@ int main(int argc, char* argv[]){
       std::cerr << "compute: bad arguments!" << std::endl;
       return EXIT_FAILURE;
     }
+		char* bddName = argv[2];
+	  desc = getDesc(bddName);
+		dim = getDim(desc);
     trainBdd(argv[2], dim, maxPts, k);
   }
   else if(function.compare("delete") == 0){ 
@@ -111,7 +121,7 @@ void help(){
   std::cout << "Ajouter des vidéos / créer une nouvelle bdd / créer une nouvelle activité : " << std::endl;
   std::cout << "\t ./naomngt add /path/to/video1.avi ... /path/to/video_n.avi <bdd_name> <activity_name>" << std::endl;
   std::cout << "\t ./naomngt add activity <activity_name> <bdd_name>" << std::endl;
-  std::cout << "\t ./naomngt add bdd <bdd_name>" << std::endl;
+  std::cout << "\t ./naomngt add bdd <bdd_name> <descriptor type>" << std::endl;
 
   std::cout << "Effectuer les algorithmes d'apprentissage :" << std::endl;
   std::cout << "\t ./naomngt compute <bdd_name>" << std::endl;
@@ -122,5 +132,9 @@ void help(){
   
   std::cout << "Rafraichir une base de données" << std::endl;
   std::cout << "(supression de toutes les données sauf les vidéos et réextraction des STIPs)" << std::endl;
-  std::cout << "\t ./naomngt refresh <bdd_name>" << std::endl;
+  std::cout << "\t ./naomngt refresh <bdd_name> <descriptor type>" << std::endl;
+	
+  std::cout << "Descriptor type:" << std::endl;
+	std::cout << "\t 0 : HOG and HOF" << std::endl;
+	std::cout << "\t 1 : MBHx and MBHy" << std::endl;
 }

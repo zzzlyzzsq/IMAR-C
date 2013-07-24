@@ -44,7 +44,7 @@ std::string inttostring(int int2str);
 void trainBdd(std::string bddName, int dim, int maxPts, int k);
 void addLabel(int label, std::string file, int k);
 
-void addBdd(std::string bddName);
+void addBdd(std::string bddName,int desc);
 void addActivity(std::string activityName, std::string bddName);
 
 void deleteBdd(std::string bddName);
@@ -53,4 +53,8 @@ void deleteActivity(std::string activityName, std::string bddName);
 void emptyFolder(std::string folder);
 void refreshBdd(std::string bddName, int dim, int maxPts);
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);
+
+int getDim(int desc);
+void saveDescInfo(string bddName, int desc);
+int getDesc(string bddName);
 #endif

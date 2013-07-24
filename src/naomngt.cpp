@@ -150,10 +150,11 @@ bool fileExist(std::string file, std::string folder){
  * \param[in] activity The name of the activity.
  * \param[in] nbVideos The number of videos we want to add.
  * \param[in] videoPaths The different paths to the videos.
- * \param[in] dim The dimension of the HOG and HOF.
+ * \param[in] desc The descriptor number 
  * \param[in] maxPts The maximum vectors we want to compute.
  */
-void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int dim, int maxPts){
+void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int desc, int maxPts){
+	int dim = getDim(desc);
   std::string path2bdd("bdd/" + bddName);
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
@@ -190,7 +191,15 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
     string idFile = inttostring(j);
     string videoInput(copypath + "/" + strlabel + idFile + ".avi");
     string stipOutput(stipspath + "/" + strlabel + idFile + ".stip");
-    int nPts = extractSTIPs(videoInput, dim, maxPts, &dataPts);
+		int nPts;
+		switch(desc){
+			case 0: //HOG HOF
+				nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
+				break;
+			case 1: //MBH
+				nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
+				break;
+		}
     dataPts.setNPts(nPts);
     exportSTIPs(stipOutput, dim,dataPts);
     j++;
@@ -539,12 +548,12 @@ void deleteActivity(std::string activityName, std::string bddName){
 }
 
 /**
- * \fn void addBdd(std::string bddName)
+ * \fn void addBdd(std::string bddName,int desc)
  * \brief Creates a new BDD.
  *
  * \param[in] bddName The name of the BDD we want to create.
  */
-void addBdd(std::string bddName){
+void addBdd(std::string bddName, int desc){
   // On vérifie que la BDD n'existe pas
   DIR * repertoire = opendir("bdd");
   if (repertoire == NULL){
@@ -568,12 +577,18 @@ void addBdd(std::string bddName){
   
   // création du fichier mapping.txt
   std::string file = (path2bdd+"/"+"mapping.txt");
+	// création du fichier desc.txt
+	std::string filedesc = (path2bdd+"/"+"desc.txt");
+
   ofstream out(file.c_str(), ios::out);  // ouverture en écriture avec effacement du fichier ouvert
+	ofstream outdesc(filedesc.c_str(), ios::out);
+	outdesc << desc << endl;
   if(!out){
     std::cerr << "Impossible to create the file mapping.txt!" <<std::endl;
     exit(EXIT_FAILURE);
   }
   out.close();
+	outdesc.close();
 }
 /**
  * \fn void deleteBdd(std::string bddName)
@@ -622,16 +637,17 @@ void emptyFolder(std::string folder){
 }
 
 /**
- * \fn void refreshBdd(std::string bddName, int dim, int maxPts)
+ * \fn void refreshBdd(std::string bddName, int desc, int maxPts)
  * \brief Deletes all files excepted videos and extracts STIPs again.
  *
  * \param[in] bddName The name of the BDD containing videos.
  * \param[in] dim The STIPs dimension.
  * \param[in] maxPts The maximum number of STIPs we can extract.
  */
-void refreshBdd(std::string bddName, int dim, int maxPts){
+void refreshBdd(std::string bddName, int desc, int maxPts){
   std::string path2bdd("bdd/" + bddName);
 
+	int dim = getDim(desc);
   // Supression des fichiers concatenate.stips, concatenate.bow, svm.model et training.means
   DIR* repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
@@ -667,6 +683,9 @@ void refreshBdd(std::string bddName, int dim, int maxPts){
     string cmd("rm " + rep + "/*"); 
     system(cmd.c_str());
   }  
+  // save the descriptor number
+  saveDescInfo(bddName,desc);
+
   // Extracting STIPs for each videos
   for(int i = 0 ; i< nbActivities ; i++){
     std::string label = inttostring(am[i].label);
@@ -687,7 +706,16 @@ void refreshBdd(std::string bddName, int dim, int maxPts){
         KMdata dataPts(dim,maxPts);
         string videoInput(avipath + "/" + file);
         string stipOutput(stipspath + "/" + label + idFile + ".stip");
-        int nPts = extractSTIPs(videoInput, dim, maxPts, &dataPts);
+				int nPts;
+                cout << videoInput << std::endl;
+		switch(desc){
+			case 0: //HOG HOF
+				nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
+				break;
+			case 1: //MBH
+				nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
+				break;
+		}
         dataPts.setNPts(nPts);
         exportSTIPs(stipOutput, dim, dataPts);
 	j++;	
@@ -751,4 +779,46 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
     return exit(EXIT_FAILURE);
   }
   FtpQuit(nControl); 
+}
+
+/**
+ * \fn int getDim(int desc)
+ * \brief get the dimension from the descriptor number 
+ *
+ * \param[in] desc the descriptor number 
+ */
+int getDim(int desc){
+	switch(desc){
+		case 0:
+			return 204;//HOG HOF
+		case 1:
+			return 192;//MBH
+	}
+	return -1;
+}
+
+/**
+ * \fn void saveDescInfo(string bddName,int desc)
+ * \bref save the descriptor information into the BDD
+ * \param[in] bddName the BDD name
+ * \param[in] desc the descriptor number
+ */
+void saveDescInfo(string bddName,int desc){
+  std::string path2bdd("bdd/" + bddName + "/desc.txt");
+	ofstream out(path2bdd.c_str(), ios::out);
+	out<<desc<<endl;
+	out.close();
+}
+
+/**
+ * \fn int getDesc(string bddName)
+ * \bref get the descriptor number from the BDD
+ * \param[in] bddName the BDD name
+ */
+int getDesc(string bddName){
+	std::string path2file("bdd/" + bddName + "/desc.txt");
+	ifstream in(path2file.c_str());
+	int desc;
+	in >> desc;
+	return desc;
 }
