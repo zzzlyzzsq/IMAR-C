@@ -15,6 +15,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm> // tri dans l'odre croissant
 
 #include <ftplib.h> // ftp transfer
 
@@ -36,12 +37,14 @@ class activitiesMap{
 void listBdds();
 void listActivities(std::string bdd);
 int mapActivities(std::string path2bdd, activitiesMap** am);
+bool labelExist(int label, activitiesMap *am, int nbActivities);
+int searchMapIndex(int label, activitiesMap *am, int nbActivities);
 int nbOfFiles(std::string path);
 bool fileExist(std::string file, std::string folder);
 
-void addVideos(std::string bddName,std::string activity,int nbVideos, std::string* videoPaths, int dim, int maxPts);
+void addVideos(std::string bddName,std::string activity,int nbVideos, std::string* videoPaths, int maxPts);
 std::string inttostring(int int2str);
-void trainBdd(std::string bddName, int dim, int maxPts, int k);
+void trainBdd(std::string bddName, int maxPts, int k);
 void addLabel(int label, std::string file, int k);
 
 void addBdd(std::string bddName,int desc);
@@ -52,6 +55,8 @@ void deleteActivity(std::string activityName, std::string bddName);
 
 void emptyFolder(std::string folder);
 void refreshBdd(std::string bddName, int dim, int maxPts);
+
+void predictActivity(std::string videoPath, std::string bddName, int maxPts, int k);
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);
 
 int getDim(int desc);

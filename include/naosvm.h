@@ -17,6 +17,11 @@
 
 using namespace std;
 
+typedef struct _svm_probability{
+  int label;
+  double probability;
+} SvmProbability;
+
 // SVM prediction
 struct svm_model* createSvmModel(std::string bowFile, int k);
 void printProbability(struct svm_model* pModel, struct svm_node* nodes);
@@ -33,4 +38,13 @@ void printProblem(struct svm_problem svmProblem);
 
 // Other
 int nrOfLines(std::string filename);
+int print_scores(const struct svm_model *model,
+		 const struct svm_node *x);
+double entropy(double x, double lambda);
+SvmProbability* svm_calculate_probability(int* labels,
+					  double* dec_values,
+					  int nr_class);
+SvmProbability svm_vote(int* labels,
+			double* dec_values,
+			int nr_class);
 #endif

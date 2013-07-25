@@ -20,14 +20,15 @@ std::string integration(std::string video, std::string means, std::string model)
   //std::string model(argv[3]);
 
   /* KMeans BOWing	*/
-  int k = 100;
-  int dim = 204; // STIPs dimension
+  int k = 200;
+  int dim = 192; // STIPs dimension
   int maxPts = 500000; // max number of data points
 
   std::cout << "Importing the STIPs..." << std::endl;
   execTime.begin = times(&execTime.sbegin);
   KMdata dataPts(dim,maxPts);
-  int nPts = extractSTIPs(video.c_str(), dim, maxPts, &dataPts);
+  int nPts =  extractMBH(video.c_str(), dim, maxPts, &dataPts);
+  if(nPts != 0){
   //int nPts = importSTIPs(stip.c_str(),dim,maxPts, &dataPts);
   dataPts.setNPts(nPts);			// set actual number of pts
   dataPts.buildKcTree();			// build filtering structure
@@ -122,6 +123,8 @@ std::string integration(std::string video, std::string means, std::string model)
   std::string activity (am[i].activity);
   delete[] am;
   return activity;
+}
+  return "Nothing";
 }
 void printTime(exec_time *tmps){
   int top = sysconf(_SC_CLK_TCK); // number of tips per seconds

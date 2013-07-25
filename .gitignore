@@ -16,6 +16,7 @@
 *.bow
 
 archives/*
+tmp/*
 
 # Documentation
 refman.pdf

@@ -89,8 +89,43 @@ int mapActivities(std::string path2bdd, activitiesMap **am){
       j++;
     }
   }
+  
+  // tri insertion
+  for(int i=1 ; i<nbActivities ; i++){
+    activitiesMap tmp;
+    tmp.activity = (*am)[i].activity;
+    tmp.label = (*am)[i].label;
+    
+    int j = i;
+    while(j>0 && (*am)[j-1].label > tmp.label){
+      (*am)[j].label = (*am)[j-1].label;
+      (*am)[j].activity = (*am)[j-1].activity;
+      j--;
+    }
+    (*am)[j].label = tmp.label;
+    (*am)[j].activity = tmp.activity;
+  }
+  
   return nbActivities;
 } 
+bool labelExist(int label, activitiesMap *am, int nbActivities){
+  int i = 0;
+  while(i<nbActivities && am[i].label != label){
+    i++;
+  }
+  return am[i].label == label;
+}
+int searchMapIndex(int label, activitiesMap *am, int nbActivities){
+  int i = 0;
+  while(i<nbActivities && am[i].label != label){
+    i++;
+  }
+  if(am[i].label != label){
+    std::cerr << " " << am[i].label << " " << label << " File mapping.txt corrupted!" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  return i;
+}
 
 /**
  * \fn int nbOfFiles(std::string path)
@@ -153,8 +188,9 @@ bool fileExist(std::string file, std::string folder){
  * \param[in] desc The descriptor number 
  * \param[in] maxPts The maximum vectors we want to compute.
  */
-void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int desc, int maxPts){
-	int dim = getDim(desc);
+void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int maxPts){
+  int desc = getDesc(bddName);
+  int dim = getDim(desc);
   std::string path2bdd("bdd/" + bddName);
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
@@ -231,14 +267,16 @@ std::string inttostring(int int2str){
  * \param[in] maxPts The maximum number of points we want to compute.
  * \param[in] k The number of cluster (means).
  */
-void trainBdd(std::string bddName, int dim, int maxPts, int k){
+void trainBdd(std::string bddName, int maxPts, int k){
+  int desc = getDesc(bddName);
+  int dim = getDim(desc);
+  
   std::string path2bdd("bdd/" + bddName);
   
   // ouverture du fichier d'équivalence label <-> activités
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
-
-  
+    
   // Création du fichier concatenate.stip
   std::cout << "Creating the file concatenate.stips...";
   // d'abord, on le supprime s'il existe  
@@ -292,6 +330,7 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
   std::string cmd = "cp " + path2bdd + "/" + "training.means " + "out";
   system(cmd.c_str());
   
+  std::cout << "Computing BOWs..." << std::endl;
   // Finally we have to compute BOWs
   for(int i = 0 ; i< nbActivities ; i++){
     string label = inttostring(am[i].label);
@@ -301,29 +340,32 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
       std::cerr << "Impossible to open the stips directory!" << std::endl;
       exit(EXIT_FAILURE);
     }
-      struct dirent * ent;
-      while ( (ent = readdir(repertoire)) != NULL){
-	std::string file = ent->d_name;
-	if(file.compare(".") != 0 && file.compare("..") != 0){
-	  std::string path2STIPs(path2bdd + "/" + label + "/stips/" + file);
-	  
-	  KMdata dataPts(dim,maxPts);
-	  int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
+    struct dirent * ent;
+    while ( (ent = readdir(repertoire)) != NULL){
+      std::string file = ent->d_name;
+      if(file.compare(".") != 0 && file.compare("..") != 0){
+	std::cout << file << std::endl;
+	std::string path2STIPs(path2bdd + "/" + label + "/stips/" + file);
+	
+	KMdata dataPts(dim,maxPts);
+	int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
+	if(nPts != 0){
 	  dataPts.setNPts(nPts);
 	  dataPts.buildKcTree();
 	  
 	  KMfilterCenters ctrs(k, dataPts);  
 	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
+	  
 	  struct svm_problem svmProblem = computeBOW(am[i].label, dataPts, ctrs);
-	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");
-	  exportProblem(svmProblem, path2BOW);
+	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");	  exportProblem(svmProblem, path2BOW);
 	}
       }
-      closedir(repertoire);
+    }
+    closedir(repertoire);
   }
-  
+  std::cout << "Done!" << std::endl;
   // créer la base de données svm
-  
+  std::cout<< "bow" << std::endl;
   // Création du fichier concatenate.bow
   // d'abord, on le supprime s'il existe  
   path2concatenate = path2bdd + "/" + "concatenate.bow";
@@ -341,7 +383,7 @@ void trainBdd(std::string bddName, int dim, int maxPts, int k){
   closedir(repBDD);
       
   // Puis on le créé
-  std::cout << "Creating the file concatenate.bow...";
+  std::cout << "Creating the file concatenate.bow..."<<std::endl;
   for(int i = 0 ; i< nbActivities ; i++){
     string label = inttostring(am[i].label);
     string rep(path2bdd + "/" + label + "/bow");
@@ -577,18 +619,16 @@ void addBdd(std::string bddName, int desc){
   
   // création du fichier mapping.txt
   std::string file = (path2bdd+"/"+"mapping.txt");
-	// création du fichier desc.txt
-	std::string filedesc = (path2bdd+"/"+"desc.txt");
-
+  
   ofstream out(file.c_str(), ios::out);  // ouverture en écriture avec effacement du fichier ouvert
-	ofstream outdesc(filedesc.c_str(), ios::out);
-	outdesc << desc << endl;
   if(!out){
     std::cerr << "Impossible to create the file mapping.txt!" <<std::endl;
     exit(EXIT_FAILURE);
   }
   out.close();
-	outdesc.close();
+
+  // création du fichier desc.txt
+  saveDescInfo(bddName,desc);
 }
 /**
  * \fn void deleteBdd(std::string bddName)
@@ -646,8 +686,8 @@ void emptyFolder(std::string folder){
  */
 void refreshBdd(std::string bddName, int desc, int maxPts){
   std::string path2bdd("bdd/" + bddName);
-
-	int dim = getDim(desc);
+  
+  int dim = getDim(desc);
   // Supression des fichiers concatenate.stips, concatenate.bow, svm.model et training.means
   DIR* repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
@@ -685,7 +725,7 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
   }  
   // save the descriptor number
   saveDescInfo(bddName,desc);
-
+  
   // Extracting STIPs for each videos
   for(int i = 0 ; i< nbActivities ; i++){
     std::string label = inttostring(am[i].label);
@@ -706,16 +746,16 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
         KMdata dataPts(dim,maxPts);
         string videoInput(avipath + "/" + file);
         string stipOutput(stipspath + "/" + label + idFile + ".stip");
-				int nPts;
-                cout << videoInput << std::endl;
-		switch(desc){
-			case 0: //HOG HOF
-				nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
-				break;
-			case 1: //MBH
-				nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
-				break;
-		}
+	int nPts;
+	cout << videoInput << std::endl;
+	switch(desc){
+	case 0: //HOG HOF
+	  nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
+	  break;
+	case 1: //MBH
+	  nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
+	  break;
+	}
         dataPts.setNPts(nPts);
         exportSTIPs(stipOutput, dim, dataPts);
 	j++;	
@@ -727,6 +767,76 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
   delete []am;
 }
 
+/**
+ * \fn void predictActivity(std::string bddName, int dim, int maxPts)
+ * \brief Predict the activity done in a video with an existant trained BDD.
+ *
+ * \param[in] The path to the video to predict.
+ * \param[in] bddName The name of the BDD containing videos.
+ * \param[in] dim The STIPs dimension.
+ * \param[in] maxPts The maximum number of STIPs we can extract.
+ * \return The name of the activity.
+ */
+void predictActivity(std::string videoPath,
+		     std::string bddName,
+		     int maxPts,
+		     int k){
+  std::string path2bdd("bdd/" + bddName);   
+  int desc = getDesc(bddName);
+  int dim = getDim(desc);
+  
+  KMdata dataPts(dim,maxPts);
+  
+  int nPts = 0;
+  
+		switch(desc){
+			case 0: //HOG HOF
+				nPts = extractHOGHOF(videoPath, dim, maxPts, &dataPts);
+				break;
+			case 1: //MBH
+				nPts = extractMBH(videoPath, dim, maxPts, &dataPts);		
+				break;
+		}
+  
+  dataPts.setNPts(nPts);
+  dataPts.buildKcTree();
+  
+  KMfilterCenters ctrs(k, dataPts);  
+  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
+    
+  activitiesMap *am;
+  int nbActivities = mapActivities(path2bdd,&am);
+  
+  struct svm_problem svmProblem = computeBOW(0, dataPts, ctrs);
+
+  std::string path2model (path2bdd + "/" + "svm.model");
+  struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
+  
+  int nr_class = svm_get_nr_class(pSVMModel);
+  int nr_couples = nr_class*(nr_class-1)/2;
+  
+  double* dec_values = (double*) malloc(nr_couples * sizeof(double));
+  int label = (int) svm_predict_values(pSVMModel,
+				       svmProblem.x[0],
+				       dec_values);
+  
+  int *labels = (int*) malloc(nr_class * sizeof(int));
+  svm_get_labels(pSVMModel,labels);
+  
+  std::cout << "computing proba ..." << std::endl;
+  SvmProbability* svmP = svm_calculate_probability(labels, dec_values, nr_class);
+  
+  free(labels);
+  free(dec_values);
+  
+  std::cout << "label\t proba" << std::endl;
+  for(int i=0 ; i<nr_class ;i++){
+    std::cout << svmP[i].label << "\t";
+    std::cout << svmP[i].probability << std::endl;
+  }
+  free(svmP);
+  svm_free_and_destroy_model(&pSVMModel);
+}
 /**
  * \fn void transferBdd(std::string bddName, std::string login, std::string roboIP, std::string password)
  * \brief Transfers the file svm.model, training.means and mapping.txt on the robot Nao.
@@ -805,9 +915,9 @@ int getDim(int desc){
  */
 void saveDescInfo(string bddName,int desc){
   std::string path2bdd("bdd/" + bddName + "/desc.txt");
-	ofstream out(path2bdd.c_str(), ios::out);
-	out<<desc<<endl;
-	out.close();
+  ofstream out(path2bdd.c_str(), ios::out);
+  out<<desc<<endl;
+  out.close();
 }
 
 /**

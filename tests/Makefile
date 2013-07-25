@@ -15,7 +15,7 @@ INCLUDEDIRS 	= ../include ../include/kmlocal ../include/densetrack
 
 # Compilation and link flags
 CFLAGS 		= $(patsubst %,-I%,$(subst :, ,$(INCLUDEDIRS)))
-LDFLAGS 	= -lsvm -lkmeans -ldensetrack
+LDFLAGS 	= -lsvm -lkmeans -ldensetrack -lftp
 
 .PHONY: clean cleanall
 

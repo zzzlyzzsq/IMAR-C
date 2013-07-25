@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
 			  
 	int desc = 1;// descriptor type
   int dim = 0;
-  int k = 600;
+  int k = 200;
   int maxPts = 1000000;
 
   if(argc<3){
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
   std::string function = argv[1];
   if(function.compare("refresh") == 0){ // delete all files but videos and recompute stips
     if(argc == 4){
-			desc = atoi(argv[3]);
+      desc = atoi(argv[3]);
       refreshBdd(argv[2],desc,maxPts);
     }
     else{
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
 				std::string bddName = argv[argc-2];
 				std::string activity = argv[argc-1];
 				desc = getDesc(bddName);
-				addVideos(bddName,activity,nbVideos,videoPaths,desc,maxPts);
+				addVideos(bddName,activity,nbVideos,videoPaths,maxPts);
       }
     }
   }
@@ -83,8 +83,8 @@ int main(int argc, char* argv[]){
     }
 		char* bddName = argv[2];
 	  desc = getDesc(bddName);
-		dim = getDim(desc);
-    trainBdd(argv[2], dim, maxPts, k);
+	  dim = getDim(desc);
+	  trainBdd(argv[2], maxPts, k);
   }
   else if(function.compare("delete") == 0){ 
     std::string todelete(argv[2]);
@@ -109,6 +109,15 @@ int main(int argc, char* argv[]){
     std::string robotIP = argv[4];
     std::string password = argv[5];
     transferBdd(bddName,login,robotIP,password);
+  }
+  else if(function.compare("ar") == 0){
+    if(argc != 4){
+      std::cerr << "Activity recognition: bad arguments!" << std::endl;
+      return EXIT_FAILURE;
+    }
+    std::string videoPath = argv[2];
+    std::string bddName = argv[3];
+    predictActivity(videoPath,bddName,maxPts,k);
   }
   
   return EXIT_SUCCESS;
