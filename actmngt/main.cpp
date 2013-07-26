@@ -1,6 +1,10 @@
-// ROUALDES Fabien (Institut Mines-Télécom)
-// 2 juillet 2013
-
+/**
+ * \function main.cpp
+ * \author HUILONG He (Télécom SudParis)
+ * \author ROUALDES Fabien (Télécom SudParis)
+ * \date 25/07/2013
+ * \brief Create and modify BDDs of activity recognition.
+ */
 #include <stdlib.h>
 #include <string>
 #include "naomngt.h"
@@ -11,18 +15,16 @@ using namespace std;
 void help();
 
 int main(int argc, char* argv[]){  
-			  
-	int desc = 1;// descriptor type
+  int desc = 1;// descriptor type
   int dim = 0;
   int k = 200;
   int maxPts = 1000000;
-
   if(argc<3){
     help();
     return EXIT_SUCCESS;
   }
   std::string function = argv[1];
-  if(function.compare("refresh") == 0){ // delete all files but videos and recompute stips
+  if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
     if(argc == 4){
       desc = atoi(argv[3]);
       refreshBdd(argv[2],desc,maxPts);
@@ -32,7 +34,6 @@ int main(int argc, char* argv[]){
       return EXIT_FAILURE;
     }
   }
-  
   if(function.compare("list") == 0){ // It permits to inform user
     if(argc == 3)
       listBdds();
@@ -42,38 +43,41 @@ int main(int argc, char* argv[]){
       std::cerr << "list: Bad arguments!" << std::endl;
   } 
   else if(function.compare("add") == 0){ // in order to add video + stips in db
-    // add bdd
-		std::string bddName(argv[3]);
-    if(argc == 5 && (bddName.compare("bdd") != 0)){
-			desc = atoi(argv[4]);
+    std::string subfunction(argv[2]);
+    if(argc == 5 && (subfunction.compare("bdd") == 0)){
+      // add bdd
+      std::string bddName(argv[3]);
+      desc = atoi(argv[4]);
       addBdd(bddName,desc);
-			saveDescInfo(bddName,desc);
+      saveDescInfo(bddName,desc);
     }
-    else{
+    else if(argc == 5 && subfunction.compare("activity") == 0){
       // add activity
       std::string activityName(argv[3]);
       std::string bddName(argv[4]);
-      if(argc == 5 && (activityName.compare("activity")) != 0){
-	addActivity(activityName,argv[4]);
+      addActivity(activityName,argv[4]);
+    }
+    else if(argc >= 6 && subfunction.compare("videos") == 0){
+      // add video
+      int nbVideos = argc - 5;
+      if(nbVideos == 0){
+	std::cerr << "There is no path to video!" << std::endl;
+	return EXIT_FAILURE;
       }
-      else{
-				// add video
-				int nbVideos = argc - 4;
-				if(nbVideos == 0){
-				  std::cerr << "There is no path to video!" << std::endl;
-				  return EXIT_FAILURE;
-				}
-				std::string videoPaths[nbVideos];
-				int j = 0;
-				for(int i = 2; i < argc - 2;i++){
-				  videoPaths[j] = argv[i];
-				  j++;
-				}
-				std::string bddName = argv[argc-2];
-				std::string activity = argv[argc-1];
-				desc = getDesc(bddName);
-				addVideos(bddName,activity,nbVideos,videoPaths,maxPts);
+      std::string videoPaths[nbVideos];
+      int j = 0;
+      for(int i = 3; i < argc - 2;i++){
+	videoPaths[j] = argv[i];
+	j++;
       }
+      std::string bddName = argv[argc-2];
+      std::string activity = argv[argc-1];
+      desc = getDesc(bddName);
+      addVideos(bddName,activity,nbVideos,videoPaths,maxPts);
+    }
+    else{
+      std::cerr << "add: Bad arguments!" << std::endl;
+      return EXIT_FAILURE;
     }
   }
   else if(function.compare("compute") == 0){ // in order to add video + stips in db
@@ -81,10 +85,10 @@ int main(int argc, char* argv[]){
       std::cerr << "compute: bad arguments!" << std::endl;
       return EXIT_FAILURE;
     }
-		char* bddName = argv[2];
-	  desc = getDesc(bddName);
-	  dim = getDim(desc);
-	  trainBdd(argv[2], maxPts, k);
+    char* bddName = argv[2];
+    desc = getDesc(bddName);
+    dim = getDim(desc);
+    trainBdd(argv[2], maxPts, k);
   }
   else if(function.compare("delete") == 0){ 
     std::string todelete(argv[2]);
@@ -99,7 +103,8 @@ int main(int argc, char* argv[]){
       return EXIT_FAILURE;
     }
   }
-  else if(function.compare("transfer") == 0){
+#ifdef TRANSFER_TO_ROBOT_NAO
+	  else if(function.compare("transfer") == 0){
     if(argc != 6){
       std::cerr << "Transfer: bad arguments!" << std::endl;
       return EXIT_FAILURE;
@@ -110,6 +115,7 @@ int main(int argc, char* argv[]){
     std::string password = argv[5];
     transferBdd(bddName,login,robotIP,password);
   }
+#endif // TRANSFER_TO_ROBOT_NAO
   else if(function.compare("ar") == 0){
     if(argc != 4){
       std::cerr << "Activity recognition: bad arguments!" << std::endl;
@@ -123,9 +129,9 @@ int main(int argc, char* argv[]){
   return EXIT_SUCCESS;
 }
 void help(){
-  std::cout <<"Lister les activités ou BDDs préexistantes : " << std::endl;
-  std::cout << "\t ./naomngt list activities <bdd_name>" << std::endl;
-  std::cout << "\t ./naomngt list bdds" << std::endl;
+  std::cout <<"Lister les activités ou BDDs préexistantes :"
+	    << "\t ./naomngt list activities <bdd_name>"
+	    << "\t ./naomngt list bdds" << std::endl;
 
   std::cout << "Ajouter des vidéos / créer une nouvelle bdd / créer une nouvelle activité : " << std::endl;
   std::cout << "\t ./naomngt add /path/to/video1.avi ... /path/to/video_n.avi <bdd_name> <activity_name>" << std::endl;
@@ -134,7 +140,7 @@ void help(){
 
   std::cout << "Effectuer les algorithmes d'apprentissage :" << std::endl;
   std::cout << "\t ./naomngt compute <bdd_name>" << std::endl;
-
+  
   std::cout << "Suppression de BDD / activités :" << std::endl;
   std::cout << "\t ./naomngt delete activity <activity_name> <bdd_name>" << std::endl;
   std::cout << "\t ./naomngt delete bdd <bdd_name>" << std::endl;
@@ -144,6 +150,6 @@ void help(){
   std::cout << "\t ./naomngt refresh <bdd_name> <descriptor type>" << std::endl;
 	
   std::cout << "Descriptor type:" << std::endl;
-	std::cout << "\t 0 : HOG and HOF" << std::endl;
-	std::cout << "\t 1 : MBHx and MBHy" << std::endl;
+  std::cout << "\t 0 : HOG and HOF" << std::endl;
+  std::cout << "\t 1 : MBHx and MBHy" << std::endl;
 }

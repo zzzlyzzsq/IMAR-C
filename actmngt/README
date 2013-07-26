@@ -6,9 +6,9 @@
   imarc ar <video_path> <bdd_name>
 
 # Add videos / create a new BDD / create a new activity:
-  imar add /path/to/video1.avi ... /path/to/video_n.avi <bdd_name> <activity_name>
+  imar add videos /path/to/video1.avi ... /path/to/video_n.avi <bdd_name> <activity_name>
   imar add activity <activity_name> <bdd_name>
-  imar add bdd <bdd_name>
+  imar add bdd <bdd_name> <descriptor_types>
 
 # Effectuer les algorithmes d'apprentissage :
   imar compute <bdd_name>
@@ -23,3 +23,7 @@
 
 # Transfering training data on the robot Nao
   imar transfer <bdd_name> <login> <robot IP> <password>
+
+# Descriptor types:
+  0: HOG & HOF
+  1: MBHx & MBHy

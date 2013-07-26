@@ -57,9 +57,12 @@ void emptyFolder(std::string folder);
 void refreshBdd(std::string bddName, int dim, int maxPts);
 
 void predictActivity(std::string videoPath, std::string bddName, int maxPts, int k);
+#ifdef TRANSFER_TO_ROBOT_NAO
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);
+#endif
 
 int getDim(int desc);
 void saveDescInfo(string bddName, int desc);
 int getDesc(string bddName);
+void concatenateAll(int nbActivities, activitiesMap *am, std::string path2bdd);
 #endif

@@ -1,8 +1,9 @@
 /**
  * \file naomngt.cpp
  * \brief Set of functions permiting to manage the activity recognition BDD of Bag Of Words.
- * \author Fabien ROUALDES (institut Mines-Télécom)
- * \date 17/07/2013
+ * \author HUILONG He (Télécom SudParis)
+ * \author ROUALDES Fabien (Télécom SudParis)
+ * \date 25/07/2013
  */
 #include "naomngt.h"
 
@@ -189,9 +190,10 @@ bool fileExist(std::string file, std::string folder){
  * \param[in] maxPts The maximum vectors we want to compute.
  */
 void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int maxPts){
-  int desc = getDesc(bddName);
-  int dim = getDim(desc);
   std::string path2bdd("bdd/" + bddName);
+  int desc = getDesc(path2bdd);
+  int dim = getDim(desc);
+  
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
   int i = 0;
@@ -227,15 +229,15 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
     string idFile = inttostring(j);
     string videoInput(copypath + "/" + strlabel + idFile + ".avi");
     string stipOutput(stipspath + "/" + strlabel + idFile + ".stip");
-		int nPts;
-		switch(desc){
-			case 0: //HOG HOF
-				nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
-				break;
-			case 1: //MBH
-				nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
-				break;
-		}
+    int nPts;
+    switch(desc){
+    case 0: //HOG HOF
+      nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
+      break;
+    case 1: //MBH
+      nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
+      break;
+    }
     dataPts.setNPts(nPts);
     exportSTIPs(stipOutput, dim,dataPts);
     j++;
@@ -251,8 +253,10 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
 std::string inttostring(int int2str){
   // créer un flux de sortie
   std::ostringstream oss;
+  
   // écrire un nombre dans le flux
   oss << int2str;
+  
   // récupérer une chaîne de caractères
   std::string result = oss.str(); 
   return result;
@@ -268,56 +272,16 @@ std::string inttostring(int int2str){
  * \param[in] k The number of cluster (means).
  */
 void trainBdd(std::string bddName, int maxPts, int k){
-  int desc = getDesc(bddName);
-  int dim = getDim(desc);
-  
   std::string path2bdd("bdd/" + bddName);
+  int desc = getDesc(path2bdd);
+  int dim = getDim(desc);
   
   // ouverture du fichier d'équivalence label <-> activités
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
     
   // Création du fichier concatenate.stip
-  std::cout << "Creating the file concatenate.stips...";
-  // d'abord, on le supprime s'il existe  
-  std::string path2concatenate(path2bdd + "/" + "concatenate.stips");
-  DIR * repBDD = opendir(path2bdd.c_str());
-  if (repBDD == NULL){
-    std::cerr << "Impossible top open the BDD directory"<< std::endl;
-    exit(EXIT_FAILURE);
-  }
-  struct dirent *ent;
-  while ( (ent = readdir(repBDD)) != NULL){
-    std::string file = ent->d_name;
-    if(file.compare("concatenate.stips") == 0){
-      remove(path2concatenate.c_str());
-    }
-  }
-  closedir(repBDD);
-  
-  // Ensuite on concatène les fichiers
-  for(int i = 0 ; i< nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/stips");
-    DIR * repertoire = opendir(rep.c_str());
-    
-    if (repertoire == NULL){
-      std::cerr << "Impossible to open the stips directory!" << std::endl;
-    }
-    else{
-      struct dirent * ent;
-      while ( (ent = readdir(repertoire)) != NULL){
-	std::string file = ent->d_name;
-	if(file.compare(".") != 0 && file.compare("..") != 0){
-	  string cmd("cat " + path2bdd + "/" + label + "/stips/" + file);
-	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.stips";
-	  system(cmd.c_str());
-	}
-      }
-      closedir(repertoire);
-    }
-  }
-  std::cout << "Done!" << std::endl;
+  concatenateAll(nbActivities, am, path2bdd);
   
   // Creating the file training.means
   std::cout << "Computing KMeans..." << std::endl;
@@ -368,12 +332,13 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::cout<< "bow" << std::endl;
   // Création du fichier concatenate.bow
   // d'abord, on le supprime s'il existe  
-  path2concatenate = path2bdd + "/" + "concatenate.bow";
-  repBDD = opendir(path2bdd.c_str());
+  std::string path2concatenate = path2bdd + "/" + "concatenate.bow";
+  DIR* repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
     std::cerr << "Impossible to open the BDD directory"<< std::endl;
     exit(EXIT_FAILURE);
   }
+  dirent *ent = NULL;
   while ( (ent = readdir(repBDD)) != NULL){
     std::string file = ent->d_name;
     if(file.compare("concatenate.bow") == 0){
@@ -782,7 +747,7 @@ void predictActivity(std::string videoPath,
 		     int maxPts,
 		     int k){
   std::string path2bdd("bdd/" + bddName);   
-  int desc = getDesc(bddName);
+  int desc = getDesc(path2bdd);
   int dim = getDim(desc);
   
   KMdata dataPts(dim,maxPts);
@@ -837,6 +802,8 @@ void predictActivity(std::string videoPath,
   free(svmP);
   svm_free_and_destroy_model(&pSVMModel);
 }
+
+#ifdef TRANSFER_TO_ROBOT_NAO
 /**
  * \fn void transferBdd(std::string bddName, std::string login, std::string roboIP, std::string password)
  * \brief Transfers the file svm.model, training.means and mapping.txt on the robot Nao.
@@ -881,16 +848,20 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
   std::string mappingFile(path2bdd + "/" + "mapping.txt");
   std::string rMappingFile(remoteFolder + "/" + "mapping.txt");
   
+  std::string descFile(path2bdd + "/" + "desc.txt");
+  std::string rDescFile(remoteFolder + "/" + "desc.txt");
+  
   if(FtpPut(meansFile.c_str(),rMeansFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
      FtpPut(svmFile.c_str(),rSvmFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
-     FtpPut(mappingFile.c_str(),rMappingFile.c_str(),FTPLIB_ASCII,nControl) != 1
+     FtpPut(mappingFile.c_str(),rMappingFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
+     FtpPut(descFile.c_str(),rDescFile.c_str(),FTPLIB_ASCII,nControl) != 1
      ){
     perror("Impossible to write on the robot!\n");
     return exit(EXIT_FAILURE);
   }
   FtpQuit(nControl); 
 }
-
+#endif // TRANSFER_TO_ROBOT_NAO
 /**
  * \fn int getDim(int desc)
  * \brief get the dimension from the descriptor number 
@@ -898,13 +869,13 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
  * \param[in] desc the descriptor number 
  */
 int getDim(int desc){
-	switch(desc){
-		case 0:
-			return 204;//HOG HOF
-		case 1:
-			return 192;//MBH
-	}
-	return -1;
+  switch(desc){
+  case 0:
+    return 204;//HOG HOF
+  case 1:
+    return 192;//MBH
+  }
+  return -1;
 }
 
 /**
@@ -916,19 +887,58 @@ int getDim(int desc){
 void saveDescInfo(string bddName,int desc){
   std::string path2bdd("bdd/" + bddName + "/desc.txt");
   ofstream out(path2bdd.c_str(), ios::out);
-  out<<desc<<endl;
-  out.close();
+  out << desc << std::endl;
 }
 
 /**
  * \fn int getDesc(string bddName)
  * \bref get the descriptor number from the BDD
- * \param[in] bddName the BDD name
+ * \param[in] folder The folder containing the descriptor file.
  */
-int getDesc(string bddName){
-	std::string path2file("bdd/" + bddName + "/desc.txt");
-	ifstream in(path2file.c_str());
-	int desc;
-	in >> desc;
-	return desc;
+int getDesc(string folder){
+  std::string path2file(folder + "/desc.txt");
+  ifstream in(path2file.c_str());
+  int desc;
+  in >> desc;
+  return desc;
+}
+void concatenateAll(int nbActivities, activitiesMap *am, std::string path2bdd){
+  std::cout << "Creating the file concatenate.stips...";
+  // d'abord, on le supprime s'il existe  
+  std::string path2concatenate(path2bdd + "/" + "concatenate.stips");
+  DIR * repBDD = opendir(path2bdd.c_str());
+  if (repBDD == NULL){
+    std::cerr << "Impossible top open the BDD directory"<< std::endl;
+    exit(EXIT_FAILURE);
+  }
+  struct dirent *ent;
+  while ( (ent = readdir(repBDD)) != NULL){
+    std::string file = ent->d_name;
+    if(file.compare("concatenate.stips") == 0){
+      remove(path2concatenate.c_str());
+    }
+  }
+  closedir(repBDD);
+  
+  for(int i = 0 ; i< nbActivities ; i++){
+    string label = inttostring(am[i].label);
+    string rep(path2bdd + "/" + label + "/stips");
+    DIR * repertoire = opendir(rep.c_str());
+    
+    if (repertoire == NULL){
+      std::cerr << "Impossible to open the stips directory!" << std::endl;
+    }
+    else{
+      struct dirent * ent;
+      while ( (ent = readdir(repertoire)) != NULL){
+	std::string file = ent->d_name;
+	if(file.compare(".") != 0 && file.compare("..") != 0){
+	  string cmd("cat " + path2bdd + "/" + label + "/stips/" + file);
+	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.stips";
+	  system(cmd.c_str());
+	}
+      }
+      closedir(repertoire);
+    }
+  }
 }
