@@ -5,6 +5,9 @@ CC		= g++
 # Executables to build 
 EXEC		= actmngt
 
+# Options (TRANSFER_TO_ROBOT_NAO)
+OPT 		= TRANSFER_TO_ROBOT_NAO
+
 # Sources files
 
 # Source code directory
@@ -14,7 +17,7 @@ SRCDIRS 	= ../src
 INCLUDEDIRS 	= ../include ../include/kmlocal ../include/densetrack
 
 # Compilation and link flags
-CFLAGS 		= $(patsubst %,-I%,$(subst :, ,$(INCLUDEDIRS)))
+CFLAGS 		= $(patsubst %,-I%,$(subst :, ,$(INCLUDEDIRS))) -D$(OPT)
 LDFLAGS 	= -lsvm -lkmeans -lftp `pkg-config --libs opencv`
 
 .PHONY: clean cleanall
