@@ -267,7 +267,9 @@ void createTrainingMeans(std::string stipFile,
 			 int dim,
 			 int maxPts,
 			 int k,
-			 std::string meansFile){
+                         std::string meansFile
+                         ){
+
   KMdata dataPts(dim,maxPts);
   int nPts = importSTIPs(stipFile, dim, maxPts, &dataPts);
   dataPts.setNPts(nPts);
