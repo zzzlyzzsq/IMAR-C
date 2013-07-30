@@ -18,6 +18,9 @@
 archives/*
 tmp/*
 
+actmngt/bdd/*
+actmngt/out/*
+
 # Documentation
 refman.pdf
 
