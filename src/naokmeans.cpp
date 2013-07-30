@@ -275,9 +275,11 @@ void createTrainingMeans(std::string stipFile,
   dataPts.setNPts(nPts);
   dataPts.buildKcTree();
   
-  KMfilterCenters ctrs(k, dataPts);  
-  int ic = 3;
+  KMfilterCenters ctrs(k, dataPts);    
   
-  kmIvanAlgorithm(ic, dim, dataPts, k, ctrs);
+  int ic = 3;
+  kmIvanAlgorithm(ic, dim, dataPts, k, ctrs);  
+  
   exportCenters(meansFile, dim, k, ctrs);
 }
+

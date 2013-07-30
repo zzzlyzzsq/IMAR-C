@@ -64,5 +64,14 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
 int getDim(int desc);
 void saveDescInfo(string bddName, int desc);
 int getDesc(string bddName);
-void concatenateAll(int nbActivities, activitiesMap *am, std::string path2bdd);
+void concatenate_features_points(int nbActivities, activitiesMap *am, std::string path2bdd);
+int create_specifics_training_means(std::string path2bdd,
+				    int dim,
+				    int maxPts,
+				    int subK,
+				    int nr_class,
+				    activitiesMap* am,
+				    // std::vector <std::string> rejects,
+				    std::string meansFile);
+
 #endif
