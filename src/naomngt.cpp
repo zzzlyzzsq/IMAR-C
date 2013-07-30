@@ -75,7 +75,7 @@ int mapActivities(std::string path2bdd, activitiesMap **am){
   }
   in.close();
   *am = new activitiesMap[mapString.size()];
-
+  
   for(unsigned int i=0 ; i<mapString.size() ; i++){
     std::istringstream iss(mapString[i]);
     std::string token;
@@ -238,8 +238,10 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
       nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
       break;
     }
-    dataPts.setNPts(nPts);
-    exportSTIPs(stipOutput, dim,dataPts);
+    if(nPts != 0){
+      dataPts.setNPts(nPts);
+      exportSTIPs(stipOutput, dim,dataPts);
+    }
     j++;
   }
 }
@@ -273,15 +275,17 @@ std::string inttostring(int int2str){
  */
 void trainBdd(std::string bddName, int maxPts, int k){
   std::string path2bdd("bdd/" + bddName);
+  std::string meansFile(path2bdd + "/" + "training.means");
   int desc = getDesc(path2bdd);
   int dim = getDim(desc);
   
   // ouverture du fichier d'équivalence label <-> activités
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
-    
+  
   // Création du fichier concatenate.stip
-  concatenateAll(nbActivities, am, path2bdd);
+  concatenate_features_points(nbActivities, am, path2bdd);
+  
   
   // Creating the file training.means
   std::cout << "Computing KMeans..." << std::endl;
@@ -289,8 +293,18 @@ void trainBdd(std::string bddName, int maxPts, int k){
 		      dim,
 		      maxPts,
 		      k,
-		      path2bdd + "/" + "training.means");
+		      meansFile);
   
+  /*int subK = k/nbActivities;
+  std::cout << "k=" << k << " & subK=" << subK << std::endl;
+  k = create_specifics_training_means(path2bdd,
+				      dim,
+				      maxPts,
+				      subK,
+				      nbActivities,
+				      am,
+				      meansFile);
+  */
   std::string cmd = "cp " + path2bdd + "/" + "training.means " + "out";
   system(cmd.c_str());
   
@@ -321,7 +335,8 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
 	  
 	  struct svm_problem svmProblem = computeBOW(am[i].label, dataPts, ctrs);
-	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");	  exportProblem(svmProblem, path2BOW);
+	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");
+	  exportProblem(svmProblem, path2BOW);
 	}
       }
     }
@@ -330,6 +345,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::cout << "Done!" << std::endl;
   // créer la base de données svm
   std::cout<< "bow" << std::endl;
+  
   // Création du fichier concatenate.bow
   // d'abord, on le supprime s'il existe  
   std::string path2concatenate = path2bdd + "/" + "concatenate.bow";
@@ -690,7 +706,7 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
   }  
   // save the descriptor number
   saveDescInfo(bddName,desc);
-  
+
   // Extracting STIPs for each videos
   for(int i = 0 ; i< nbActivities ; i++){
     std::string label = inttostring(am[i].label);
@@ -721,8 +737,10 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
 	  nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
 	  break;
 	}
-        dataPts.setNPts(nPts);
-        exportSTIPs(stipOutput, dim, dataPts);
+	if(nPts != 0){
+	  dataPts.setNPts(nPts);
+	  exportSTIPs(stipOutput, dim, dataPts);
+	}
 	j++;	
       }
     }
@@ -754,14 +772,14 @@ void predictActivity(std::string videoPath,
   
   int nPts = 0;
   
-		switch(desc){
-			case 0: //HOG HOF
-				nPts = extractHOGHOF(videoPath, dim, maxPts, &dataPts);
-				break;
-			case 1: //MBH
-				nPts = extractMBH(videoPath, dim, maxPts, &dataPts);		
-				break;
-		}
+  switch(desc){
+  case 0: //HOG HOF
+    nPts = extractHOGHOF(videoPath, dim, maxPts, &dataPts);
+    break;
+  case 1: //MBH
+    nPts = extractMBH(videoPath, dim, maxPts, &dataPts);		
+    break;
+  }
   
   dataPts.setNPts(nPts);
   dataPts.buildKcTree();
@@ -902,7 +920,8 @@ int getDesc(string folder){
   in >> desc;
   return desc;
 }
-void concatenateAll(int nbActivities, activitiesMap *am, std::string path2bdd){
+ 
+void concatenate_features_points(int nbActivities, activitiesMap *am, std::string path2bdd){
   std::cout << "Creating the file concatenate.stips...";
   // d'abord, on le supprime s'il existe  
   std::string path2concatenate(path2bdd + "/" + "concatenate.stips");
@@ -941,4 +960,142 @@ void concatenateAll(int nbActivities, activitiesMap *am, std::string path2bdd){
       closedir(repertoire);
     }
   }
+}
+int create_specifics_training_means(std::string path2bdd,
+				    int dim,
+				    int maxPts,
+				    int subK,
+				    int nr_class,
+				    activitiesMap* am,
+				    //std::vector <std::string> rejects,
+				    std::string meansFile){
+  // The total number of centers
+  int k = nr_class*subK;
+  
+  double ***vDataPts = (double ***) malloc(nr_class*sizeof(double**));
+  int *nrFP = (int *) malloc(nr_class*sizeof(int));
+  if(!vDataPts){
+    std::cerr << "Memory allocation error: vDataPts" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  for(int i=0 ; i<nr_class ; i++){
+    std::string rep(path2bdd + "/" + inttostring(am[i].label) + "/stips"); // FP = feature points
+    DIR * repertoire = opendir(rep.c_str());
+    if (!repertoire){
+      std::cerr << "Impossible to open the stips directory!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    struct dirent * ent;
+    nrFP[i] = 0;
+    while ((ent = readdir(repertoire)) != NULL){
+      std::string file = ent->d_name;
+      if(file.compare(".") != 0 && file.compare("..") != 0){
+	std::cout << file << std::endl;
+	std::string path2FP(rep + "/" + file);
+	KMdata kmData(dim,maxPts);
+	int nPts = 0;
+	if((nPts = importSTIPs(path2FP,dim,maxPts,&kmData)) != 0){
+	  nrFP[i] += nPts;
+	  if(nrFP[i]-nPts == 0)
+	    vDataPts[i] = (double**) malloc(nPts*sizeof(double*));
+	  else
+	    vDataPts[i] = (double**) realloc(vDataPts[i],nrFP[i]*sizeof(double*));
+	  if(!vDataPts[i]){
+	    std::cerr << "Memory allocation error while importing features points" << std::endl;
+	    exit(EXIT_FAILURE);
+	  }
+	  int index =0;
+	  for(int n=(nrFP[i] - nPts) ; n<nrFP[i] ; n++){
+	    vDataPts[i][n] = (double*) malloc(dim*sizeof(double));
+	    if(!vDataPts[i][n]){
+	      std::cerr << "Memory allocation error" << std::endl;
+	      exit(EXIT_FAILURE);
+	    }
+	    for(int d=0 ; d<dim ; d++){
+	      vDataPts[i][n][d] = kmData[index][d];
+	    }
+	    index++;
+	  }
+	} // else we read the next file because no points were detected
+      } 
+    }
+    if(nrFP[i] == 0){
+      std::cerr << "A class does not contain features points!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  } // all the feature points are saved in vDataPts[activity][vectors(dim)]
+  
+  // Total number of feature points
+  int ttFP = 0;
+  for(int i=0 ; i<nr_class ; i++){
+    ttFP += nrFP[i];
+  }
+  
+  double** vCtrs = (double**) malloc(k*sizeof(double*));
+  if(!vCtrs){
+    std::cerr << "Ctrs memory allocation error" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  for(int i=0 ; i<k ; i++){
+    vCtrs[i] = (double*) malloc(dim*sizeof(double));
+    if(!vCtrs[i]){
+      std::cerr << "Ctrs[i] memory allocation error" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+  int ic = 3;
+  int currCenter = 0;
+  for(int i=0 ; i<nr_class ; i++){
+    KMdata kmData(dim,nrFP[i]);
+    for(int n=0 ; n<nrFP[i]; n++)
+      for(int d=0 ; d<dim ; d++)
+	kmData[n][d] = vDataPts[i][n][d];
+    kmData.setNPts(nrFP[i]);
+    kmData.buildKcTree();
+    KMfilterCenters kmCtrs(subK,kmData);
+    kmIvanAlgorithm(ic, dim, kmData, subK, kmCtrs);
+    for(int n=0 ; n<subK ; n++){
+      for(int d=0 ; d<dim ; d++){
+	vCtrs[currCenter][d] = kmCtrs[n][d];
+      }
+      currCenter++;
+    }
+  }
+  
+  // Concatenate all the KMdata
+  KMdata dataPts(dim,ttFP);
+  int nPts = 0;
+  for (int i=0 ; i<nr_class ; i++){
+    for(int n=0 ; n<nrFP[i]; n++){
+      for(int d=0 ; d<dim ; d++){
+	dataPts[nPts][d] = vDataPts[i][n][d];
+      }
+      nPts++;
+    }
+  }
+  for(int i=0 ; i<nr_class ; i++){
+    for(int n=0 ; n<nrFP[i] ; n++){
+      free(vDataPts[i][n]);
+    }
+    free(vDataPts[i]);
+  }
+  free(vDataPts);
+  free(nrFP);
+  dataPts.buildKcTree();
+  
+  // Returning the true centers
+  KMfilterCenters ctrs(k,dataPts);
+  for(int n=0 ; n<k ; n++){
+    for(int d=0 ; d<dim ; d++){
+      ctrs[n][d] = vCtrs[n][d];
+    }
+  }
+  for(int i=0 ; i<k ; i++){
+    free(vCtrs[i]);
+  }
+  free(vCtrs);
+  
+  exportCenters(meansFile, dim, k, ctrs);
+  
+  return k;
 }
