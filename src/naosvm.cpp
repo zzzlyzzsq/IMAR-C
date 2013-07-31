@@ -781,11 +781,11 @@ void MatrixC::output(){
   cout<<"===Confusion Matrix==="<<endl;
   cout<<setw(6)<<' ';
   for(int i=0;i<num;i++){
-    cout<<setw(6)<<setprecision(0)<<this->labels[i];
+    cout<<setw(6)<<setiosflags(ios::fixed)<<setprecision(0)<<this->labels[i];
   }
   cout<<endl;
   for(int i=0;i<num;i++){
-    cout<<setw(6)<<setprecision(0)<<this->labels[i];
+    cout<<setw(6)<<setiosflags(ios::fixed)<<setprecision(0)<<this->labels[i];
     for(int j=0;j<num;j++){
       cout<<setw(6)<<setprecision(2)<<this->m_fre[i][j];
     }
