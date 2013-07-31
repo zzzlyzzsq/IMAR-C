@@ -22,23 +22,9 @@
 #include "naokmeans.h"
 #include "naosvm.h"
 #include "naodensetrack.h"
-
+#include "imconfig.h"
 using namespace std;
 
-/** \class activitiesMap
- * \brief Correspondance between a label and an activity
- */
-class activitiesMap{
- public:
-  int label;
-  std::string activity;
-};
-
-void listBdds();
-void listActivities(std::string bdd);
-int mapActivities(std::string path2bdd, activitiesMap** am);
-bool labelExist(int label, activitiesMap *am, int nbActivities);
-int searchMapIndex(int label, activitiesMap *am, int nbActivities);
 int nbOfFiles(std::string path);
 bool fileExist(std::string file, std::string folder);
 
@@ -55,20 +41,16 @@ void deleteActivity(std::string activityName, std::string bddName);
 
 void emptyFolder(std::string folder);
 void refreshBdd(std::string bddName, int dim, int maxPts);
-
 void predictActivity(std::string videoPath, std::string bddName, int maxPts, int k);
+
 #ifdef TRANSFER_TO_ROBOT_NAO
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);
 #endif
 
-int getDim(int desc);
-void saveDescInfo(string bddName, int desc);
-int getDesc(string bddName);
+
 void concatenate_features_points(int nbActivities, activitiesMap *am, std::string path2bdd);
 void concatenate_bag_of_words(int nbActivities, activitiesMap *am, std::string path2bdd);
 int getMinNumVideo(int nbActivities, activitiesMap *am, std::string path2bdd);
-
-
 int create_specifics_training_means(std::string path2bdd,
 				    int dim,
 				    int maxPts,
@@ -77,5 +59,4 @@ int create_specifics_training_means(std::string path2bdd,
 				    activitiesMap* am,
 				    // std::vector <std::string> rejects,
 				    std::string meansFile);
-
 #endif
