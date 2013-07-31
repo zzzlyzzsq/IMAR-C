@@ -183,8 +183,8 @@ int getK(std::string folder){
  * \param[in] folder The folder which will contain kmeans.txt.
  * \param[in] k Number of means.
  */
-void saveKInfo(string folder,int k){
-  std::string path2file("bdd/" + folder + "/.txt");
+void saveKinfo(string folder,int k){
+  std::string path2file(folder + "/kmeans.txt");
   ofstream out(path2file.c_str(), ios::out);
   out << k << std::endl;
 }

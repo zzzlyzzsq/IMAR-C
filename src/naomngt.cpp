@@ -155,6 +155,7 @@ std::string inttostring(int int2str){
 void trainBdd(std::string bddName, int maxPts, int k){
   std::string path2bdd("bdd/" + bddName);
   std::string meansFile(path2bdd + "/" + "training.means");
+  
   int desc = getDesc(path2bdd);
   int dim = getDim(desc);
   
@@ -174,7 +175,12 @@ void trainBdd(std::string bddName, int maxPts, int k){
 		      k,
 		      meansFile);
   */
+  
   int subK = k/nbActivities;
+  if(k%nbActivities != 0){
+    k = subK * nbActivities;
+  }
+  saveKinfo(path2bdd,k);
   std::cout << "k=" << k << " & subK=" << subK << std::endl;
   k = create_specifics_training_means(path2bdd,
 				      dim,
@@ -507,6 +513,7 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
   std::string path2bdd("bdd/" + bddName);
   
   int dim = getDim(desc);
+  
   // Supression des fichiers concatenate.stips, concatenate.bow, svm.model et training.means
   DIR* repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
@@ -589,22 +596,22 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
 }
 
 /**
- * \fn void predictActivity(std::string bddName, int dim, int maxPts)
+ * \fn void predictActivity(std::string, std::string bddName, int maxPts)
  * \brief Predict the activity done in a video with an existant trained BDD.
  *
  * \param[in] The path to the video to predict.
  * \param[in] bddName The name of the BDD containing videos.
- * \param[in] dim The STIPs dimension.
  * \param[in] maxPts The maximum number of STIPs we can extract.
  * \return The name of the activity.
  */
 void predictActivity(std::string videoPath,
 		     std::string bddName,
-		     int maxPts,
-		     int k){
+		     int maxPts
+		     ){
   std::string path2bdd("bdd/" + bddName);   
   int desc = getDesc(path2bdd);
   int dim = getDim(desc);
+  int k = getK(path2bdd);
   
   KMdata dataPts(dim,maxPts);
   

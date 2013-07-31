@@ -81,11 +81,12 @@ int main(int argc, char* argv[]){
     }
   }
   else if(function.compare("compute") == 0){ // in order to add video + stips in db
-    if(argc != 3){
+    if(argc != 4){
       std::cerr << "compute: bad arguments!" << std::endl;
       return EXIT_FAILURE;
     }
     char* bddName = argv[2];
+    k = atoi(argv[3]);
     desc = getDesc(bddName);
     dim = getDim(desc);
     trainBdd(argv[2], maxPts, k);
@@ -123,7 +124,7 @@ int main(int argc, char* argv[]){
     }
     std::string videoPath = argv[2];
     std::string bddName = argv[3];
-    predictActivity(videoPath,bddName,maxPts,k);
+    predictActivity(videoPath,bddName,maxPts);
   }
   
   return EXIT_SUCCESS;
@@ -139,7 +140,7 @@ void help(){
   std::cout << "\t ./naomngt add bdd <bdd_name> <descriptor type>" << std::endl;
 
   std::cout << "Effectuer les algorithmes d'apprentissage :" << std::endl;
-  std::cout << "\t ./naomngt compute <bdd_name>" << std::endl;
+  std::cout << "\t ./naomngt compute <bdd_name> <nr_centers>" << std::endl;
   
   std::cout << "Suppression de BDD / activités :" << std::endl;
   std::cout << "\t ./naomngt delete activity <activity_name> <bdd_name>" << std::endl;

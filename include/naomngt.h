@@ -41,7 +41,7 @@ void deleteActivity(std::string activityName, std::string bddName);
 
 void emptyFolder(std::string folder);
 void refreshBdd(std::string bddName, int dim, int maxPts);
-void predictActivity(std::string videoPath, std::string bddName, int maxPts, int k);
+void predictActivity(std::string videoPath, std::string bddName, int maxPts);
 
 #ifdef TRANSFER_TO_ROBOT_NAO
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);

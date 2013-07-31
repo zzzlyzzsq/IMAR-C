@@ -201,10 +201,7 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   for(int point = 0; point < nPts ; point++){
     bowHistogram[closeCtr[point]]++;
   }
-  // 4. Dividing by the number of points (YOU CAN DELETE THIS PART IF YOU WANT)
-  for(int centre = 0 ; centre < k ; centre++){
-    bowHistogram[centre] /= nPts;
-  }
+
   delete closeCtr;
   delete[] sqDist;
   
