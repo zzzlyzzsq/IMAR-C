@@ -454,6 +454,20 @@ struct svm_model* createSvmModel(std::string bowFile, int k){
   cout << "Importing the problem..." << std::endl;
   struct svm_problem svmProblem = importProblem(bowFile,k);
   struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
+
+  // Calculate the confusion matrix
+  MatrixC *mc = new MatrixC(svmModel);
+  double* py = svmProblem.y;
+  int pnum = svmProblem.l;
+  struct svm_node** px = svmProblem.x;
+  for(int i=0; i<pnum; i++){
+    double lab_in = py[i];
+    double lab_out = svm_predict(svmModel,px[i]);
+    mc->addTransfer(lab_in,lab_out);
+  }
+  mc->calculFrequence();
+  mc->output();
+
   free(svmProblem.x);
   free(svmProblem.y);
   
@@ -662,6 +676,7 @@ SvmProbability svm_vote(int* labels,
 /**
  * the definitions of class MatrixC
  */
+/*
 MatrixC::MatrixC(double* labs_with_repeat,int num_of_labs){
   const int MAX_NUM_LABS = 100;
   labels = new double[MAX_NUM_LABS];
@@ -690,6 +705,28 @@ MatrixC::MatrixC(double* labs_with_repeat,int num_of_labs){
   }
   for(int i=0; i<this->num_labels; i++){
     for(int j=0; j<this->num_labels; j++){
+      this->m[i][j] = 0;
+      this->m_fre[i][j] = .0;
+    }
+  }
+}
+*/
+MatrixC::MatrixC(const svm_model* model){
+  int n = this->num_labels = model->nr_class;
+  this->labels = new double[n];
+  for(int i=0; i<n; i++){
+    this->labels[i] = model->label[i];
+  }
+  this->m = new int*[n];
+  for(int i=0; i<n; i++){
+    this->m[i] = new int[n];
+  }
+  this->m_fre = new double*[n];
+  for(int i=0; i<n; i++){
+    this->m_fre[i] = new double[n];
+  }
+  for(int i=0; i<n; i++){
+    for(int j=0; j<n; j++){
       this->m[i][j] = 0;
       this->m_fre[i][j] = .0;
     }
@@ -738,20 +775,21 @@ double** MatrixC::getMatrix(){
   return this->m_fre;
 }
 
-void MatrixC::output(std::string file){
+void MatrixC::output(){
   using namespace std;
-  ofstream fout(file.c_str());
   int num = this->num_labels;
-  fout<<setw(6)<<' ';
+  cout<<"===Confusion Matrix==="<<endl;
+  cout<<setw(6)<<' ';
   for(int i=0;i<num;i++){
-    fout<<setw(6)<<setprecision(0)<<this->labels[i];
+    cout<<setw(6)<<setprecision(0)<<this->labels[i];
   }
-  fout<<endl;
+  cout<<endl;
   for(int i=0;i<num;i++){
-    fout<<setw(6)<<setprecision(0)<<this->labels[i];
+    cout<<setw(6)<<setprecision(0)<<this->labels[i];
     for(int j=0;j<num;j++){
-      fout<<setw(6)<<setprecision(2)<<this->m_fre[i][j];
+      cout<<setw(6)<<setprecision(2)<<this->m_fre[i][j];
     }
-    fout<<endl;
+    cout<<endl;
   }
+  cout<<"===END Confusion Matrix==="<<endl;
 }
