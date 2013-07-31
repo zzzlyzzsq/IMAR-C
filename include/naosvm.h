@@ -50,9 +50,9 @@ SvmProbability svm_vote(int* labels,
 //confusion matrix
 class MatrixC{
  public:
-  MatrixC(double* labs_with_repeat,int num_of_labs);
+  MatrixC(const svm_model* model);
   ~MatrixC();
-  void output(std::string file);
+  void output();
   void calculFrequence();
   int getIndex(double lab);
   void addTransfer(double lab_in,double lab_out);
