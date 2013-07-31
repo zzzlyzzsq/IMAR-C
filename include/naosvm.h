@@ -1,6 +1,6 @@
-/** @author Fabien ROUALDES (institut Mines-Télécom)
- *  @file naosvm.h
- *  @date 09/07/2013 
+/** \author Fabien ROUALDES (institut Mines-Télécom)
+ *  \file naosvm.h
+ *  \date 09/07/2013 
  *  Set of function permiting to import/ predict a svm problem, import/create a svm model
  */
 #ifndef _NAOSVM_H_
@@ -47,4 +47,21 @@ SvmProbability* svm_calculate_probability(int* labels,
 SvmProbability svm_vote(int* labels,
 			double* dec_values,
 			int nr_class);
+//confusion matrix
+class MatrixC{
+ public:
+  MatrixC(double* labs_with_repeat,int num_of_labs);
+  ~MatrixC();
+  void output(std::string file);
+  void calculFrequence();
+  int getIndex(double lab);
+  void addTransfer(double lab_in,double lab_out);
+  double** getMatrix();
+ private:
+  int** m;
+  double* labels;
+  int num_labels;
+  double** m_fre;
+};
+
 #endif

@@ -1,7 +1,8 @@
 /** 
  * \file naosvm.cpp
  * \brief Set of functions permiting to import/ predict a svm problem, import/create a svm model
- * \author Fabien ROUALDES (institut Mines-Télécom)
+ * \author ROUALDES Fabien (Télécom SudParis)
+ * \author HE Huilong (Télécom SudParis)
  * \date 17/07/2013 
 */
 #include "naosvm.h" 
@@ -656,4 +657,101 @@ SvmProbability svm_vote(int* labels,
   svmProbability.probability = max*1.0/(nr_class-1);
 
   return svmProbability;
+}
+
+/**
+ * the definitions of class MatrixC
+ */
+MatrixC::MatrixC(double* labs_with_repeat,int num_of_labs){
+  const int MAX_NUM_LABS = 100;
+  labels = new double[MAX_NUM_LABS];
+  this->num_labels = 0;
+  for(int i=0; i<num_of_labs; i++){
+    bool exist = false; 
+    for(int j=0; j<num_labels; j++){
+      if(this->labels[j] == labs_with_repeat[i]){
+        exist = true;
+        break;
+      }
+    }
+    if(!exist){
+      this->num_labels++;
+      labels[this->num_labels - 1] = labs_with_repeat[i];
+    }
+  }
+  
+  this->m = new int*[this->num_labels];
+  for(int i=0; i<this->num_labels; i++){
+    this->m[i] = new int[this->num_labels];
+  }
+  this->m_fre = new double*[this->num_labels];
+  for(int i=0; i<this->num_labels; i++){
+    this->m_fre[i] = new double[this->num_labels];
+  }
+  for(int i=0; i<this->num_labels; i++){
+    for(int j=0; j<this->num_labels; j++){
+      this->m[i][j] = 0;
+      this->m_fre[i][j] = .0;
+    }
+  }
+}
+
+MatrixC::~MatrixC(){
+  delete [] this->labels;
+  for(int i=0; i<this->num_labels; i++){
+    delete [] this->m[i];
+    delete [] this->m_fre[i];
+  }
+  delete [] this->m;
+  delete [] this->m_fre;
+}
+
+int MatrixC::getIndex(double lab){
+  for(int i=0; i<this->num_labels; i++){
+    if(this->labels[i] == lab){
+      return i;
+    }
+  }
+  return -1;
+}
+
+void MatrixC::addTransfer(double lab_in,double lab_out){
+  int index_in = this->getIndex(lab_in);
+  int index_out = this->getIndex(lab_out);
+  this->m[index_in][index_out]++;
+}
+
+void MatrixC::calculFrequence(){
+  int num = this->num_labels;
+  for(int i=0; i<num; i++){
+    int total = 0;
+    for(int j=0; j<num; j++){
+      total += this->m[i][j];
+    }
+    for(int j=0; j<num; j++){
+      this->m_fre[i][j] = (double)this->m[i][j]/(double)total;
+    }
+  }
+}
+
+double** MatrixC::getMatrix(){
+  return this->m_fre;
+}
+
+void MatrixC::output(std::string file){
+  using namespace std;
+  ofstream fout(file.c_str());
+  int num = this->num_labels;
+  fout<<setw(6)<<' ';
+  for(int i=0;i<num;i++){
+    fout<<setw(6)<<setprecision(0)<<this->labels[i];
+  }
+  fout<<endl;
+  for(int i=0;i<num;i++){
+    fout<<setw(6)<<setprecision(0)<<this->labels[i];
+    for(int j=0;j<num;j++){
+      fout<<setw(6)<<setprecision(2)<<this->m_fre[i][j];
+    }
+    fout<<endl;
+  }
 }

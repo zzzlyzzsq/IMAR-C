@@ -1,7 +1,7 @@
 /**
- * @file naomngt.h
- * @author Fabien ROUALDES (Institut Mines-Télécom)
- * @date 17/07/2013
+ * \file naomngt.h
+ * \author Fabien ROUALDES (Institut Mines-Télécom)
+ * \date 17/07/2013
  */
 #ifndef _NAOMNGT_H_
 #define _NAOMNGT_H_ 
@@ -65,6 +65,10 @@ int getDim(int desc);
 void saveDescInfo(string bddName, int desc);
 int getDesc(string bddName);
 void concatenate_features_points(int nbActivities, activitiesMap *am, std::string path2bdd);
+void concatenate_bag_of_words(int nbActivities, activitiesMap *am, std::string path2bdd);
+int getMinNumVideo(int nbActivities, activitiesMap *am, std::string path2bdd);
+
+
 int create_specifics_training_means(std::string path2bdd,
 				    int dim,
 				    int maxPts,
