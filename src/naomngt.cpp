@@ -1,8 +1,8 @@
 /**
  * \file naomngt.cpp
  * \brief Set of functions permiting to manage the activity recognition BDD of Bag Of Words.
- * \author HUILONG He (Télécom SudParis)
  * \author ROUALDES Fabien (Télécom SudParis)
+ * \author HUILONG He (Télécom SudParis)
  * \date 25/07/2013
  */
 #include "naomngt.h"
@@ -289,13 +289,13 @@ void trainBdd(std::string bddName, int maxPts, int k){
   
   // Creating the file training.means
   std::cout << "Computing KMeans..." << std::endl;
-  createTrainingMeans(path2bdd + "/" + "concatenate.stips",
+  /*createTrainingMeans(path2bdd + "/" + "concatenate.stips",
 		      dim,
 		      maxPts,
 		      k,
 		      meansFile);
-  
-  /*int subK = k/nbActivities;
+  */
+  int subK = k/nbActivities;
   std::cout << "k=" << k << " & subK=" << subK << std::endl;
   k = create_specifics_training_means(path2bdd,
 				      dim,
@@ -304,7 +304,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
 				      nbActivities,
 				      am,
 				      meansFile);
-  */
+  
   std::string cmd = "cp " + path2bdd + "/" + "training.means " + "out";
   system(cmd.c_str());
   
@@ -347,48 +347,8 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::cout<< "bow" << std::endl;
   
   // Création du fichier concatenate.bow
-  // d'abord, on le supprime s'il existe  
-  std::string path2concatenate = path2bdd + "/" + "concatenate.bow";
-  DIR* repBDD = opendir(path2bdd.c_str());
-  if (repBDD == NULL){
-    std::cerr << "Impossible to open the BDD directory"<< std::endl;
-    exit(EXIT_FAILURE);
-  }
-  dirent *ent = NULL;
-  while ( (ent = readdir(repBDD)) != NULL){
-    std::string file = ent->d_name;
-    if(file.compare("concatenate.bow") == 0){
-      remove(path2concatenate.c_str());
-    }
-  }
-  closedir(repBDD);
-      
-  // Puis on le créé
-  std::cout << "Creating the file concatenate.bow..."<<std::endl;
-  for(int i = 0 ; i< nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/bow");
-    DIR * repertoire = opendir(rep.c_str());
+  concatenate_bag_of_words(nbActivities, am, path2bdd);
     
-    if (repertoire == NULL){
-      std::cerr << "Impossible to open the bow directory!" << std::endl;
-    }
-    else{
-      struct dirent * ent;
-      while ( (ent = readdir(repertoire)) != NULL){
-	std::string file = ent->d_name;
-	if(file.compare(".") != 0 && file.compare("..") != 0){
-	  string cmd("cat " + path2bdd + "/" + label + "/bow/" + file);
-	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.bow\n";
-	  system(cmd.c_str());
-	}
-      }
-      closedir(repertoire);
-    }
-  }
-  std::cout << "Done!" << std::endl;
-  
-  
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
   struct svm_model* svmModel = createSvmModel(path2bdd + "/concatenate.bow",k);
@@ -788,7 +748,7 @@ void predictActivity(std::string videoPath,
   importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
     
   activitiesMap *am;
-  int nbActivities = mapActivities(path2bdd,&am);
+  mapActivities(path2bdd,&am);
   
   struct svm_problem svmProblem = computeBOW(0, dataPts, ctrs);
 
@@ -799,9 +759,9 @@ void predictActivity(std::string videoPath,
   int nr_couples = nr_class*(nr_class-1)/2;
   
   double* dec_values = (double*) malloc(nr_couples * sizeof(double));
-  int label = (int) svm_predict_values(pSVMModel,
-				       svmProblem.x[0],
-				       dec_values);
+  svm_predict_values(pSVMModel,
+		     svmProblem.x[0],
+		     dec_values);
   
   int *labels = (int*) malloc(nr_class * sizeof(int));
   svm_get_labels(pSVMModel,labels);
@@ -1098,4 +1058,74 @@ int create_specifics_training_means(std::string path2bdd,
   exportCenters(meansFile, dim, k, ctrs);
   
   return k;
+}
+
+int getMinNumVideo(int nbActivities, activitiesMap *am, std::string path2bdd){
+  int minNumVideo = 0x7fffffff;
+  for(int i = 0 ; i < nbActivities ; i++){
+    string label = inttostring(am[i].label);
+    string rep(path2bdd + "/" + label + "/avi");
+    DIR * repertoire = opendir(rep.c_str());
+    if (repertoire == NULL){
+      std::cerr << "Impossible to open the videos directory!" << std::endl;
+    }
+    else{
+      struct dirent * ent;
+      int numOfFile = 0;
+      while( (ent = readdir(repertoire)) != NULL) numOfFile++;
+      if ( numOfFile < minNumVideo ) minNumVideo = numOfFile;
+    }
+  }
+  using std::cout;
+  using std::endl;
+  minNumVideo -= 2;
+  cout << "The minimal number of videos: " << minNumVideo << endl; 
+  return minNumVideo;
+}
+
+void concatenate_bag_of_words(int nbActivities, activitiesMap *am, std::string path2bdd){
+  // d'abord, on le supprime s'il existe  
+  std::string path2concatenate = path2bdd + "/" + "concatenate.bow";
+  DIR* repBDD = opendir(path2bdd.c_str());
+  if (repBDD == NULL){
+    std::cerr << "Impossible to open the BDD directory"<< std::endl;
+    exit(EXIT_FAILURE);
+  }
+  dirent *ent = NULL;
+  while ( (ent = readdir(repBDD)) != NULL){
+    std::string file = ent->d_name;
+    if(file.compare("concatenate.bow") == 0){
+      remove(path2concatenate.c_str());
+    }
+  }
+  closedir(repBDD);
+  
+  int minNrVideo = getMinNumVideo(nbActivities, am,path2bdd);
+  
+  // Puis on le créé
+  std::cout << "Creating the file concatenate.bow..."<<std::endl;
+  for(int i = 0 ; i< nbActivities ; i++){
+    string label = inttostring(am[i].label);
+    string rep(path2bdd + "/" + label + "/bow");
+    DIR * repertoire = opendir(rep.c_str());
+    
+    if (repertoire == NULL){
+      std::cerr << "Impossible to open the bow directory!" << std::endl;
+    }
+    else{
+      struct dirent * ent;
+      int count = 0;
+      while ( (ent = readdir(repertoire)) != NULL){
+	std::string file = ent->d_name;
+	if(file.compare(".") != 0 && file.compare("..") != 0 && count < minNrVideo){
+	  string cmd("cat " + path2bdd + "/" + label + "/bow/" + file);
+	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.bow\n";
+	  system(cmd.c_str());
+	  count++;
+	}
+      }
+      closedir(repertoire);
+    }
+  }
+  std::cout << "Done!" << std::endl;
 }
