@@ -1,8 +1,11 @@
 *.avi
+
 *.o
 *.so
 *.so.*
 *~
+#*#
+
 *.xml
 *.cmake
 *.make
@@ -15,9 +18,9 @@
 *.stip
 *.bow
 
+
 archives/*
 tmp/*
-
 actmngt/bdd/*
 actmngt/out/*
 
