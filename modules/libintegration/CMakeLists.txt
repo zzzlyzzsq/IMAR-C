@@ -21,6 +21,7 @@ set(_srcs
     ${SRCDIR}/naosvm.cpp
     ${SRCDIR}/integration.cpp
     ${SRCDIR}/naomngt.cpp
+    ${SRCDIR}/imconfig.cpp
     tactil.cpp
     tactil.h
     )

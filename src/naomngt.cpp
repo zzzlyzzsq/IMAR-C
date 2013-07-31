@@ -70,7 +70,7 @@ bool fileExist(std::string file, std::string folder){
  */
 void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int maxPts){
   std::string path2bdd("bdd/" + bddName);
-  int desc = getDesc(path2bdd);
+  int desc = getDescID(path2bdd);
   int dim = getDim(desc);
   
   activitiesMap *am;
@@ -156,7 +156,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::string path2bdd("bdd/" + bddName);
   std::string meansFile(path2bdd + "/" + "training.means");
   
-  int desc = getDesc(path2bdd);
+  int desc = getDescID(path2bdd);
   int dim = getDim(desc);
   
   // ouverture du fichier d'équivalence label <-> activités
@@ -165,7 +165,6 @@ void trainBdd(std::string bddName, int maxPts, int k){
   
   // Création du fichier concatenate.stip
   concatenate_features_points(nbActivities, am, path2bdd);
-  
   
   // Creating the file training.means
   std::cout << "Computing KMeans..." << std::endl;
@@ -232,7 +231,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   // Create the svm BDD
   // Création du fichier concatenate.bow
   concatenate_bag_of_words(nbActivities, am, path2bdd);
-    
+  
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
   struct svm_model* svmModel = createSvmModel(path2bdd + "/concatenate.bow",k);
@@ -609,7 +608,7 @@ void predictActivity(std::string videoPath,
 		     int maxPts
 		     ){
   std::string path2bdd("bdd/" + bddName);   
-  int desc = getDesc(path2bdd);
+  int desc = getDescID(path2bdd);
   int dim = getDim(desc);
   int k = getK(path2bdd);
   

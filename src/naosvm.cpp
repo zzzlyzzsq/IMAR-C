@@ -197,6 +197,7 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   bowHistogram = new float[k];
   for(int centre = 0; centre<k; centre++)
     bowHistogram[centre]=0;
+
   // 3. Filling histogram
   for(int point = 0; point < nPts ; point++){
     bowHistogram[closeCtr[point]]++;
@@ -241,6 +242,12 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   delete bowHistogram;
 
   return svmProblem; 
+}
+
+struct svm_problem naive_normalization(struct svm_problem svmProblem){
+  
+  int nrLabels = svmProblem.l;
+  
 }
 /**
  * \fn void printProblem(struct svm_problem svmProblem)
@@ -450,6 +457,7 @@ struct svm_model* createSvmModel(std::string bowFile, int k){
   // SVM PROBLEM
   cout << "Importing the problem..." << std::endl;
   struct svm_problem svmProblem = importProblem(bowFile,k);
+  
   struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
 
   // Calculate the confusion matrix

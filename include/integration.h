@@ -17,5 +17,5 @@ typedef struct{
   sTms sbegin, send;
 } exec_time;
 void printTime(exec_time *tmps);
-std::string integration(std::string video, std::string means, std::string model);
+std::string integration(std::string video, std::string folder);
 #endif // INTEGRATION_H
