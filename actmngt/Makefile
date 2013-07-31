@@ -23,7 +23,7 @@ LDFLAGS 	= -lsvm -lkmeans -lftp `pkg-config --libs opencv`
 .PHONY: clean cleanall
 
 all: $(EXEC)
-$(EXEC): main.o naomngt.o naokmeans.o naosvm.o naodensetrack.o IplImageWrapper.o IplImagePyramid.o
+$(EXEC): main.o naomngt.o naokmeans.o naosvm.o imconfig.o naodensetrack.o IplImageWrapper.o IplImagePyramid.o
 	$(CC) -Wall -o $@  $^ -L../lib $(LDFLAGS)
 main.o: main.cpp 
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
@@ -33,12 +33,14 @@ naokmeans.o: $(SRCDIRS)/naokmeans.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
 naosvm.o: $(SRCDIRS)/naosvm.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+imconfig.o: $(SRCDIRS)/imconfig.c
+	$(CC) -Wall -o $@ -c $< $(CFLAGS)
 naodensetrack.o: $(SRCDIRS)/naodensetrack.cpp
-	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS)
 IplImageWrapper.o: $(SRCDIRS)/IplImageWrapper.cpp
-	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS)
 IplImagePyramid.o:$(SRCDIRS)/IplImagePyramid.cpp
-	$(CC) -Wall -o $@ -c $< $(CFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS)
 clean:
 	rm -f *~
 cleanall: clean
