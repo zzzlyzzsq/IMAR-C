@@ -53,7 +53,7 @@ class MatrixC{
   MatrixC(const svm_model* model);
   ~MatrixC();
   void output();
-  void exportMC(std::string folder);
+  void exportMC(std::string folder, std::string file);
   void calculFrequence();
   int getIndex(double lab);
   void addTransfer(double lab_in,double lab_out);
