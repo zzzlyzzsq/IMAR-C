@@ -23,7 +23,7 @@ typedef struct _svm_probability{
 } SvmProbability;
 
 // SVM prediction
-struct svm_model* createSvmModel(std::string bowFile, int k);
+struct svm_model* createSvmModel(std::string path2bdd, int k);
 void printProbability(struct svm_model* pModel, struct svm_node* nodes);
 
 // Import / Print
@@ -53,6 +53,7 @@ class MatrixC{
   MatrixC(const svm_model* model);
   ~MatrixC();
   void output();
+  void exportMC(std::string folder);
   void calculFrequence();
   int getIndex(double lab);
   void addTransfer(double lab_in,double lab_out);
@@ -64,4 +65,5 @@ class MatrixC{
   double** m_fre;
 };
 
+struct svm_problem bow_normalization(struct svm_problem svmProblem);
 #endif

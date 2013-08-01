@@ -244,11 +244,6 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   return svmProblem; 
 }
 
-struct svm_problem naive_normalization(struct svm_problem svmProblem){
-  
-  int nrLabels = svmProblem.l;
-  
-}
 /**
  * \fn void printProblem(struct svm_problem svmProblem)
  * \brief It permits to print the SVM problem in the standard output.
@@ -427,7 +422,8 @@ void printNodes(struct svm_node* nodes){
  * \param[in] k The number of clusters (dimension of a BOW).
  * \return The SVM model.
  */
-struct svm_model* createSvmModel(std::string bowFile, int k){
+struct svm_model* createSvmModel(std::string path2bdd, int k){
+  std::string bowFile(path2bdd + "/concatenate.bow");
   // SVM PARAMETER
   struct svm_parameter svmParameter;
   svmParameter.svm_type = C_SVC;
@@ -472,7 +468,8 @@ struct svm_model* createSvmModel(std::string bowFile, int k){
   }
   mc->calculFrequence();
   mc->output();
-
+  mc->exportMC(path2bdd);
+  
   free(svmProblem.x);
   free(svmProblem.y);
   
@@ -797,4 +794,38 @@ void MatrixC::output(){
     cout<<endl;
   }
   cout<<"===END Confusion Matrix==="<<endl;
+}
+
+void MatrixC::exportMC(std::string folder, std::string file){
+  std::string file(folder + file);
+  ofstream out(file.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
+  int num = this->num_labels;
+  for(int i=0;i<num;i++){
+    for(int j=0;j<num;j++){
+      out<< this->m_fre[num-i-1][j] << " ";
+    }
+    out<<endl;
+  }
+}
+
+struct svm_problem bow_normalization(struct svm_problem svmProblem){
+  int nrBows = svmProblem.l;
+  int i;
+  double sum;
+  for(int l=0 ; l<nrBows ; l++){
+    i=0;
+    
+    sum = 0;
+    while((svmProblem.x[l])[i].index != -1){
+      sum += (svmProblem.x[l])[i].value;
+      i++;
+    }
+    
+    i=0;
+    while((svmProblem.x[l])[i].index != -1){
+      (svmProblem.x[l])[i].value /= sum;
+      i++;
+    }
+  }
+  return svmProblem;
 }

@@ -169,10 +169,10 @@ void trainBdd(std::string bddName, int maxPts, int k){
   // Creating the file training.means
   std::cout << "Computing KMeans..." << std::endl;
   /*createTrainingMeans(path2bdd + "/" + "concatenate.stips",
-		      dim,
-		      maxPts,
-		      k,
-		      meansFile);
+    dim,
+    maxPts,
+    k,
+    meansFile);
   */
   
   int subK = k/nbActivities;
@@ -218,7 +218,11 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	  KMfilterCenters ctrs(k, dataPts);  
 	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
 	  
-	  struct svm_problem svmProblem = computeBOW(am[i].label, dataPts, ctrs);
+	  struct svm_problem svmProblem =
+	    bow_normalization(computeBOW(am[i].label,
+					 dataPts,
+					 ctrs));
+	  
 	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");
 	  exportProblem(svmProblem, path2BOW);
 	}
@@ -234,7 +238,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
-  struct svm_model* svmModel = createSvmModel(path2bdd + "/concatenate.bow",k);
+  struct svm_model* svmModel = createSvmModel(path2bdd,k);
   
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
@@ -634,8 +638,11 @@ void predictActivity(std::string videoPath,
   activitiesMap *am;
   mapActivities(path2bdd,&am);
   
-  struct svm_problem svmProblem = computeBOW(0, dataPts, ctrs);
-
+  struct svm_problem svmProblem =
+    bow_normalization(computeBOW(0,
+				 dataPts,
+				 ctrs));
+  
   std::string path2model (path2bdd + "/" + "svm.model");
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
   
@@ -713,10 +720,14 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
   std::string descFile(path2bdd + "/" + "desc.txt");
   std::string rDescFile(remoteFolder + "/" + "desc.txt");
   
+  std::string kmeansFile(path2bdd + "/" + "kmeans.txt");
+  std::string rKMeansFile(remoteFolder + "/" + "kmeans.txt");
+  
   if(FtpPut(meansFile.c_str(),rMeansFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
      FtpPut(svmFile.c_str(),rSvmFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
      FtpPut(mappingFile.c_str(),rMappingFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
-     FtpPut(descFile.c_str(),rDescFile.c_str(),FTPLIB_ASCII,nControl) != 1
+     FtpPut(descFile.c_str(),rDescFile.c_str(),FTPLIB_ASCII,nControl) != 1 || 
+     FtpPut(kmeansFile.c_str(),rKMeansFile.c_str(),FTPLIB_ASCII,nControl) != 1
      ){
     perror("Impossible to write on the robot!\n");
     return exit(EXIT_FAILURE);
