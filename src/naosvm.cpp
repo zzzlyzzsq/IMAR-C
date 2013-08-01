@@ -481,6 +481,7 @@ void gauss_normalization(std::string path2bdd,struct svm_problem &svmProblem,int
   double means[k];
   double stand_devia[k];
   struct svm_node** nodes = svmProblem.x;
+  double* labels = svmProblem.y;
   int num_nodes = svmProblem.l;
   int pointers[num_nodes];
   for(int i=0; i<num_nodes; i++)
@@ -521,16 +522,39 @@ void gauss_normalization(std::string path2bdd,struct svm_problem &svmProblem,int
   std::string path2norm = path2bdd + "/concatenate_norm_gauss.bow";
   std::ofstream outnorm(path2norm.c_str());
   for(int j=0; j<num_nodes; j++){
-    int i=0;
     struct svm_node* node = nodes[j];
+    outnorm<<setprecision(0)<<labels[j]<<' ';
+    outnorm<<node[0].index<<':'<<node[0].value;
+    int i=1;
     while(node[i].index != -1){
       int index = node[i].index-1;
       int value = node[i].value;
       node[i].value = (value-means[index])/stand_devia[index];
-      outnorm<<index+1<<':'<<node[i].value<<' ';
+      outnorm<<' '<<index+1<<':'<<node[i].value;
       i ++;
     }
     outnorm<<std::endl;
+  }
+}
+
+void normalize_one_bow_gauss(std::string path2bdd,struct svm_problem &svmProblem, int k){
+  double means[k];
+  double stand_devia[k];
+  std::string path2mean = path2bdd + "/gauss_mean.txt";
+  std::string path2stand = path2bdd + "/gauss_stand.txt";
+  std::ifstream inmean(path2mean.c_str());
+  std::ifstream instand(path2stand.c_str());
+  for(int i=0; i<k; i++){
+    inmean>>means[i];
+    instand>>stand_devia[i];
+  }
+  struct svm_node* node = svmProblem.x[0];
+  int i = 0;
+  while(node[i].index != -1){
+    int index = node[i].index - 1;
+    int value = node[i].value;
+    node[i].value = (value-means[index])/stand_devia[index];
+    i ++;
   }
 }
 

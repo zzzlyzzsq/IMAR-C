@@ -235,7 +235,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
     
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
-  struct svm_model* svmModel = createSvmModel(path2bdd + "/concatenate.bow",k);
+  struct svm_model* svmModel = createSvmModel(path2bdd,k);
   
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
@@ -636,6 +636,8 @@ void predictActivity(std::string videoPath,
   mapActivities(path2bdd,&am);
   
   struct svm_problem svmProblem = computeBOW(0, dataPts, ctrs);
+
+  normalize_one_bow_gauss(path2bdd, svmProblem, k); 
 
   std::string path2model (path2bdd + "/" + "svm.model");
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
