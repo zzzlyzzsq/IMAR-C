@@ -23,7 +23,15 @@ typedef struct _svm_probability{
 } SvmProbability;
 
 // SVM prediction
+
 struct svm_model* createSvmModel(std::string path2bdd, int k);
+
+// Gaussian normalization
+void gauss_normalization(std::string path2bdd,struct svm_problem &svmProblem,int k);
+
+// Normalize one point (gaussian)
+void normalize_one_bow_gauss(std::string path2bdd, struct svm_problem &svmProblem, int k);
+
 void printProbability(struct svm_model* pModel, struct svm_node* nodes);
 
 // Import / Print

@@ -6,6 +6,7 @@
  * \date 17/07/2013 
 */
 #include "naosvm.h" 
+#include <math.h>
 
 /**
  * \fn struct svm_problem importProblem(std::string file, int k)
@@ -453,7 +454,10 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
   // SVM PROBLEM
   cout << "Importing the problem..." << std::endl;
   struct svm_problem svmProblem = importProblem(bowFile,k);
-  
+
+  // Normalize les BOW in svmProblem
+  gauss_normalization(path2bdd,svmProblem,k);
+
   struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
 
   // Calculate the confusion matrix
@@ -475,6 +479,88 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
   
   return svmModel;
 }
+
+void gauss_normalization(std::string path2bdd,struct svm_problem &svmProblem,int k){
+  double means[k];
+  double stand_devia[k];
+  struct svm_node** nodes = svmProblem.x;
+  double* labels = svmProblem.y;
+  int num_nodes = svmProblem.l;
+  int pointers[num_nodes];
+  for(int i=0; i<num_nodes; i++)
+    pointers[i] = 0;
+  for(int i=0; i<k; i++){
+    double components[num_nodes]; 
+    double total = 0;
+    for(int j=0; j<num_nodes; j++){
+      struct svm_node* node = nodes[j];
+      components[j] = 0;
+      int pointer = pointers[j];
+      int index = node[pointer].index;
+      if(i+1 == index){
+        components[j] = node[pointer].value;
+        pointers[j] ++;
+      }
+      total += components[j];
+    }
+    means[i] = total/num_nodes;
+    double var = 0;
+    for(int j=0; j<num_nodes; j++){
+      var += (components[j]-means[i])*(components[j]-means[i]);
+    }
+    var /= num_nodes;
+    stand_devia[i] = sqrt(var);
+  }
+  // Save the gaussian parameters
+  std::string path2mean = path2bdd + "/gauss_mean.txt";
+  std::string path2stand = path2bdd + "/gauss_stand.txt";
+  std::ofstream outmean(path2mean.c_str());
+  std::ofstream outstand(path2stand.c_str());
+  for(int i=0; i<k; i++){
+    outmean<<means[i]<<std::endl;
+    outstand<<stand_devia[i]<<std::endl;
+  }
+  // Normalize the svmProblem
+  // Save the nomalized BOW 
+  std::string path2norm = path2bdd + "/concatenate_norm_gauss.bow";
+  std::ofstream outnorm(path2norm.c_str());
+  for(int j=0; j<num_nodes; j++){
+    struct svm_node* node = nodes[j];
+    outnorm<<setprecision(0)<<labels[j]<<' ';
+    outnorm<<node[0].index<<':'<<node[0].value;
+    int i=1;
+    while(node[i].index != -1){
+      int index = node[i].index-1;
+      int value = node[i].value;
+      node[i].value = (value-means[index])/stand_devia[index];
+      outnorm<<' '<<index+1<<':'<<node[i].value;
+      i ++;
+    }
+    outnorm<<std::endl;
+  }
+}
+
+void normalize_one_bow_gauss(std::string path2bdd,struct svm_problem &svmProblem, int k){
+  double means[k];
+  double stand_devia[k];
+  std::string path2mean = path2bdd + "/gauss_mean.txt";
+  std::string path2stand = path2bdd + "/gauss_stand.txt";
+  std::ifstream inmean(path2mean.c_str());
+  std::ifstream instand(path2stand.c_str());
+  for(int i=0; i<k; i++){
+    inmean>>means[i];
+    instand>>stand_devia[i];
+  }
+  struct svm_node* node = svmProblem.x[0];
+  int i = 0;
+  while(node[i].index != -1){
+    int index = node[i].index - 1;
+    int value = node[i].value;
+    node[i].value = (value-means[index])/stand_devia[index];
+    i ++;
+  }
+}
+
 int print_scores(const struct svm_model *model,
 		 const struct svm_node *x){
   int nr_class = svm_get_nr_class(model);

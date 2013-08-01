@@ -218,10 +218,14 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	  KMfilterCenters ctrs(k, dataPts);  
 	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
 	  
-	  struct svm_problem svmProblem =
-	    bow_normalization(computeBOW(am[i].label,
-					 dataPts,
-					 ctrs));
+	  struct svm_problem svmProblem = computeBOW(am[i].label,
+						     dataPts,
+						     ctrs);
+	  // If we does not use the gaussian normalization
+	  // bow_normalization(svmProblem);
+	  
+	  // I think we have to make the gaussian normalization
+	  // out of the createSvmModel function...
 	  
 	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");
 	  exportProblem(svmProblem, path2BOW);
@@ -640,15 +644,12 @@ void predictActivity(std::string videoPath,
   activitiesMap *am;
   mapActivities(path2bdd,&am);
   
+  struct svm_problem svmProblem = computeBOW(0,
+					     dataPts,
+					     ctrs);
+  //svmProblem = bow_normalization(svmProblem);
+  normalize_one_bow_gauss(path2bdd, svmProblem, k); 
 
-  printf("Bad alloc\n");
-  struct svm_problem svmProblem =
-    bow_normalization(computeBOW(0,
-				 dataPts,
-				 ctrs));
-  printf("Bad alloc\n");
-  
-  
   std::string path2model (path2bdd + "/" + "svm.model");
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
   
