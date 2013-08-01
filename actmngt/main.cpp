@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
       }
       std::string bddName = argv[argc-2];
       std::string activity = argv[argc-1];
-      desc = getDesc(bddName);
+      desc = getDescID(bddName);
       addVideos(bddName,activity,nbVideos,videoPaths,maxPts);
     }
     else{
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]){
     }
     char* bddName = argv[2];
     k = atoi(argv[3]);
-    desc = getDesc(bddName);
+    desc = getDescID(bddName);
     dim = getDim(desc);
     trainBdd(argv[2], maxPts, k);
   }
@@ -124,9 +124,9 @@ int main(int argc, char* argv[]){
     }
     std::string videoPath = argv[2];
     std::string bddName = argv[3];
+    std::cout << bddName << std::endl;
     predictActivity(videoPath,bddName,maxPts);
   }
-  
   return EXIT_SUCCESS;
 }
 void help(){

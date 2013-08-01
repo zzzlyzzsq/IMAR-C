@@ -33,7 +33,7 @@ naokmeans.o: $(SRCDIRS)/naokmeans.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
 naosvm.o: $(SRCDIRS)/naosvm.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
-imconfig.o: $(SRCDIRS)/imconfig.c
+imconfig.o: $(SRCDIRS)/imconfig.cpp
 	$(CC) -Wall -o $@ -c $< $(CFLAGS)
 naodensetrack.o: $(SRCDIRS)/naodensetrack.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)

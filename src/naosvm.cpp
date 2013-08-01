@@ -468,7 +468,7 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
   }
   mc->calculFrequence();
   mc->output();
-  mc->exportMC(path2bdd);
+  mc->exportMC(path2bdd,"training_confusion_matrix.txt");
   
   free(svmProblem.x);
   free(svmProblem.y);
@@ -797,8 +797,8 @@ void MatrixC::output(){
 }
 
 void MatrixC::exportMC(std::string folder, std::string file){
-  std::string file(folder + file);
-  ofstream out(file.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
+  std::string MCfile(folder + file);
+  ofstream out(MCfile.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
   int num = this->num_labels;
   for(int i=0;i<num;i++){
     for(int j=0;j<num;j++){

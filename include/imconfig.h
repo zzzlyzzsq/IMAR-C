@@ -29,7 +29,7 @@ int searchMapIndex(int label, activitiesMap *am, int nbActivities);
 // Dimension of the feature points
 int getDim(int desc);
 void saveDescInfo(std::string folder, int desc);
-int getDesc(std::string descriptor);
+int getDescID(std::string folder);
 
 // Number of centers
 int getK(std::string kmeans);

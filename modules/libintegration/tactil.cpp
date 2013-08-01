@@ -92,14 +92,12 @@ void Tactil::onFrontHeadTouched(){
       sleep(duration);
       AL::ALValue video = videoRecorderProxy.stopRecording();
       qiLogInfo("Tactil") << "Predicting activity..." << std::endl;
-      std::string activityPredicted = integration(video[1],
-						"/home/nao/data/activity_recognition/training.means",
-                                                "/home/nao/data/activity_recognition/svm.model");
-     lp.stop(idLeds);
-     lp.on("FaceLeds");
-     //lp.off("LeftFaceLedsGreen");
-     //lp.off("RightFaceLedsGreen");
-     if(activityPredicted.compare("applaud") == 0){
+      std::string activityPredicted = integration(video[1],"/home/nao/data/activity_recognition");
+      lp.stop(idLeds);
+      lp.on("FaceLeds");
+      //lp.off("LeftFaceLedsGreen");
+      //lp.off("RightFaceLedsGreen");
+      if(activityPredicted.compare("applaud") == 0){
          applaudAnimation();
          rpp.goToPosture("Crouch",0.5f);
      }

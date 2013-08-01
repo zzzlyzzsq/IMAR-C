@@ -8,16 +8,15 @@ void listBdds(){
   DIR * repertoire = opendir("bdd");
   if (repertoire == NULL){
     std::cerr << "Impossible to open the BDDs directory!" << std::endl;
+    exit(EXIT_FAILURE);
   }
-  else{
-    struct dirent * ent;
-    while ( (ent = readdir(repertoire)) != NULL){
-      std::string file = ent->d_name;
-      if(file.compare(".") != 0 && file.compare("..") != 0)
-	std::cout << file << std::endl;
-    }
-    closedir(repertoire);
+  struct dirent * ent;
+  while ( (ent = readdir(repertoire)) != NULL){
+    std::string file = ent->d_name;
+    if(file.compare(".") != 0 && file.compare("..") != 0)
+      std::cout << file << std::endl;
   }
+  closedir(repertoire);
 }
 
 /**
@@ -151,14 +150,18 @@ void saveDescInfo(string bddName,int desc){
 }
 
 /**
- * \fn int getDesc(string bddName)
+ * \fn int getDescID(string bddName)
  * \brief get the descriptor number from the BDD
  * \param[in] folder The folder containing the descriptor file.
  * \return ID of the descriptor
  */
-int getDesc(std::string folder){
+int getDescID(std::string folder){
   std::string path2file(folder + "/desc.txt");
   ifstream in(path2file.c_str());
+  if(!in){
+    std::cerr << "Impossible to open the descriptor file!" << std::endl;
+    exit(EXIT_FAILURE);
+  }
   int desc;
   in >> desc;
   return desc;

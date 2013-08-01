@@ -619,7 +619,6 @@ void predictActivity(std::string videoPath,
   KMdata dataPts(dim,maxPts);
   
   int nPts = 0;
-  
   switch(desc){
   case 0: //HOG HOF
     nPts = extractHOGHOF(videoPath, dim, maxPts, &dataPts);
@@ -628,7 +627,10 @@ void predictActivity(std::string videoPath,
     nPts = extractMBH(videoPath, dim, maxPts, &dataPts);		
     break;
   }
-  
+  if(nPts == 0){
+    std::cerr << "No activity detected !" << std::endl;
+    exit(EXIT_FAILURE);
+  }
   dataPts.setNPts(nPts);
   dataPts.buildKcTree();
   
@@ -638,10 +640,14 @@ void predictActivity(std::string videoPath,
   activitiesMap *am;
   mapActivities(path2bdd,&am);
   
+
+  printf("Bad alloc\n");
   struct svm_problem svmProblem =
     bow_normalization(computeBOW(0,
 				 dataPts,
 				 ctrs));
+  printf("Bad alloc\n");
+  
   
   std::string path2model (path2bdd + "/" + "svm.model");
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());

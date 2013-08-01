@@ -47,7 +47,7 @@ std::string integration(std::string video, std::string folder){
 
     std::cout << "Creating the BOW histogram..."  << std::endl;
     execTime.begin = times(&execTime.sbegin);
-    struct svm_problem svmProblem = computeBOW(0,dataPts,ctrs);
+    struct svm_problem svmProblem = bow_normalization(computeBOW(0,dataPts,ctrs));
     execTime.end = times(&execTime.send);
     printTime(&execTime);
 
