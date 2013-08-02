@@ -23,7 +23,7 @@ typedef struct _svm_probability{
 } SvmProbability;
 
 // SVM prediction
-struct svm_model* createSvmModel(std::string path2bdd, int k);
+struct svm_model* createSvmModel(std::string folder, std::string bowFile, int k);
 void printProbability(struct svm_model* pModel, struct svm_node* nodes);
 
 // Import / Print
@@ -48,6 +48,10 @@ SvmProbability* svm_calculate_probability(int* labels,
 SvmProbability svm_vote(int* labels,
 			double* dec_values,
 			int nr_class);
+
+void destroy_svm_problem(struct svm_problem svmProblem);
+void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem);
+
 //confusion matrix
 class MatrixC{
  public:
@@ -67,18 +71,13 @@ class MatrixC{
 };
 
 
+
+
 // Normalization
 // Simple normalization which depends only of one bag of words
 void bow_simple_normalization(struct svm_problem &svmProblem);
 
 // Gaussian normalization
-void gaussian_normalization(std::string path2bdd,struct svm_problem &svmProblem,int k);
-
-// Normalize one point (gaussian)
-void bow_gaussian_normalization(std::string path2bdd, struct svm_problem &svmProblem, int k);
-
-void destroy_svm_problem(struct svm_problem svmProblem);
-void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem);
 void get_gaussian_parameters(int k,
 			     struct svm_problem svmProblem,
 			     double* means,
@@ -90,5 +89,13 @@ void save_gaussian_parameters(std::string path2bdd,
 void load_gaussian_parameters(std::string path2bdd,
 			      int k,
 			      double* means,
-			      double* stand_devia){
+			      double* stand_devia);
+void bow_gaussian_normalization(int k,
+				double* means,
+				double* stand_devia,
+				struct svm_problem &svmProblem);
+struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem);
+int get_svm_problem_labels(const struct svm_problem& svmProblem, int* labels);
+int getMaxIndex(const struct svm_problem& svmProblem);
+int getMinNumVideo(const struct svm_problem& svmProblem);
 #endif

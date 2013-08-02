@@ -422,8 +422,7 @@ void printNodes(struct svm_node* nodes){
  * \param[in] k The number of clusters (dimension of a BOW).
  * \return The SVM model.
  */
-struct svm_model* createSvmModel(std::string path2bdd, int k){
-  std::string bowFile(path2bdd + "/concatenate.bow");
+struct svm_model* createSvmModel(std::string folder, std::string bowFile, int k){
   // SVM PARAMETER
   struct svm_parameter svmParameter;
   svmParameter.svm_type = C_SVC;
@@ -453,12 +452,8 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
   // SVM PROBLEM
   cout << "Importing the problem..." << std::endl;
   struct svm_problem svmProblem = importProblem(bowFile,k);
-
-  // Normalize les BOW in svmProblem
-  gaussian_normalization(path2bdd,svmProblem,k);
-  
   struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
-
+  
   // Calculate the confusion matrix
   MatrixC *mc = new MatrixC(svmModel);
   double* py = svmProblem.y;
@@ -471,7 +466,7 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
   }
   mc->calculFrequence();
   mc->output();
-  mc->exportMC(path2bdd,"training_confusion_matrix.txt");
+  mc->exportMC(folder,"training_confusion_matrix.txt");
   
   free(svmProblem.x);
   free(svmProblem.y);
@@ -481,7 +476,7 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
 void bow_gaussian_normalization(int k,
 				double* means,
 				double* stand_devia,
-				struct svm_problem &svmProblem,
+				struct svm_problem &svmProblem
 				){
   struct svm_node* node = NULL;
   for(int a=0 ; a<svmProblem.l ; a++){
@@ -818,7 +813,7 @@ void MatrixC::output(){
 }
 
 void MatrixC::exportMC(std::string folder, std::string file){
-  std::string MCfile(folder + file);
+  std::string MCfile(folder + "/" + file);
   ofstream out(MCfile.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
   int num = this->num_labels;
   for(int i=0;i<num;i++){
@@ -904,11 +899,8 @@ void get_gaussian_parameters(int k,
 			     struct svm_problem svmProblem,
 			     double* means,
 			     double* stand_devia){
-  means = new double[k];
-  stand_devia = new double[k];
-  
   struct svm_node** nodes = svmProblem.x;
-  double* labels = svmProblem.y;
+  //double* labels = svmProblem.y;
   int num_nodes = svmProblem.l;
   int pointers[num_nodes];
   for(int i=0; i<num_nodes; i++)
@@ -955,8 +947,8 @@ void load_gaussian_parameters(std::string path2bdd,
 			      int k,
 			      double* means,
 			      double* stand_devia){
-  double means[k];
-  double stand_devia[k];
+  means = new double[k];
+  stand_devia =  new double[k];
   std::string path2mean = path2bdd + "/gauss_mean.txt";
   std::string path2stand = path2bdd + "/gauss_stand.txt";
   std::ifstream inmean(path2mean.c_str());
@@ -966,4 +958,112 @@ void load_gaussian_parameters(std::string path2bdd,
     inmean >> means[i];
     instand >> stand_devia[i];
   }
+}
+
+int get_svm_problem_labels(const struct svm_problem& svmProblem, int** labels){
+  int nrVectors = svmProblem.l;
+  
+  int* tmpLabels = new int[nrVectors];
+  int labelsIndex=0;
+  
+  for(int i=0 ; i<nrVectors ; i++){
+    int currentLabel = svmProblem.y[i];
+    bool labelExist = false;
+    int l=0;
+    while(l<labelsIndex && !labelExist){
+      if (tmpLabels[l] == svmProblem.y[i]){
+	labelExist = true;
+      }
+      l++;
+    }
+    if(!labelExist){
+      tmpLabels[labelsIndex] = currentLabel;
+      labelsIndex++;
+    }
+  }
+  
+  (*labels) = new int[labelsIndex];
+  for(int i=0 ; i<labelsIndex ; i++){
+    (*labels)[i] = tmpLabels[i];
+  }
+  delete []tmpLabels;
+  
+  return labelsIndex;
+}
+
+struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem){
+  int k = getMaxIndex(svmProblem);
+  
+  int *labels = NULL;
+  int nrLabels = get_svm_problem_labels(svmProblem,&labels);
+  
+  int min = getMinNumVideo(svmProblem);
+  int nrVectors = nrLabels*min;
+  
+  struct svm_problem equalizedProblem; 
+  equalizedProblem.l = nrVectors;
+  equalizedProblem.y =  new double[nrVectors];
+  equalizedProblem.x = new struct svm_node*[nrVectors];
+  for(int i=0 ; i<nrVectors ; i++){
+    equalizedProblem.x[i] = new struct svm_node[k+1];
+    // It is better to allocate following the number of index != 0 in svmProblem
+  }
+  int indexEP=0; // equalized problem
+  for(int i=0 ; i<nrLabels ; i++){
+    int currentLabel = labels[i];
+    int count=0;
+    int v=0;
+    while(v < svmProblem.l && count < min){
+      if(svmProblem.y[v] == currentLabel){
+	int d=0;
+	equalizedProblem.y[indexEP] = currentLabel;
+	while(d < k && svmProblem.x[v][d].index != -1){
+	  equalizedProblem.x[indexEP][d].index = svmProblem.x[v][d].index;
+	  equalizedProblem.x[indexEP][d].value = svmProblem.x[v][d].value;
+	  d++;
+	}
+	equalizedProblem.x[indexEP][d].index = -1;
+	count++;
+	indexEP++;
+      }
+      v++;
+    }
+  }
+  
+  delete[] labels;
+  return equalizedProblem;
+}  
+int getMinNumVideo(const struct svm_problem& svmProblem){
+  int* labels = NULL;
+  int nbActivities = get_svm_problem_labels(svmProblem, &labels);
+  
+  int minNumVideo = 0x7fffffff;
+  for(int i = 0 ; i < nbActivities ; i++){
+    int numOfFile = 0;
+    int label = labels[i];
+    for(int p=0 ; p<svmProblem.l ; p++){
+      if(svmProblem.y[p] == label){
+	numOfFile++;
+      }
+    }  
+    if(numOfFile < minNumVideo) minNumVideo = numOfFile;
+  }
+  delete []labels;
+  using std::cout;
+  using std::endl;
+  cout << "The minimal number of videos: " << minNumVideo << endl; 
+  return minNumVideo;
+}
+
+int getMaxIndex(const struct svm_problem& svmProblem){
+  int nrVectors = svmProblem.l;
+  int maxIndex = 0;
+  for(int i=0 ; i<nrVectors ; i++){
+    int d=0;
+    while(svmProblem.x[i][d].index != -1){
+      if(svmProblem.x[i][d].index > maxIndex) maxIndex = svmProblem.x[i][d].index;
+      d++;
+    }
+  }
+  return maxIndex;
 }

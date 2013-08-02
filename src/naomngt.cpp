@@ -156,6 +156,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::string path2bdd("bdd/" + bddName);
   std::string meansFile(path2bdd + "/" + "training.means");
   
+  std::cout << path2bdd << std::endl;
   int desc = getDescID(path2bdd);
   int dim = getDim(desc);
   
@@ -164,7 +165,8 @@ void trainBdd(std::string bddName, int maxPts, int k){
   int nbActivities = mapActivities(path2bdd,&am);
   
   // Création du fichier concatenate.stip
-  concatenate_features_points(nbActivities, am, path2bdd);
+  //concatenate_features_points(nbActivities, am, path2bdd);
+  
   
   // Creating the file training.means
   std::cout << "Computing KMeans..." << std::endl;
@@ -174,7 +176,6 @@ void trainBdd(std::string bddName, int maxPts, int k){
     k,
     meansFile);
   */
-  
   int subK = k/nbActivities;
   if(k%nbActivities != 0){
     k = subK * nbActivities;
@@ -189,11 +190,12 @@ void trainBdd(std::string bddName, int maxPts, int k){
 				      am,
 				      meansFile);
   
-  std::string cmd = "cp " + path2bdd + "/" + "training.means " + "out";
-  system(cmd.c_str());
-  
   std::cout << "Computing BOWs..." << std::endl;
   // Finally we have to compute BOWs
+  struct svm_problem svmProblem;
+  svmProblem.l = 0;
+  svmProblem.x = NULL;
+  svmProblem.y = NULL;
   for(int i = 0 ; i< nbActivities ; i++){
     string label = inttostring(am[i].label);
     string rep(path2bdd + "/" + label + "/stips");
@@ -206,7 +208,6 @@ void trainBdd(std::string bddName, int maxPts, int k){
     while ( (ent = readdir(repertoire)) != NULL){
       std::string file = ent->d_name;
       if(file.compare(".") != 0 && file.compare("..") != 0){
-	std::cout << file << std::endl;
 	std::string path2STIPs(path2bdd + "/" + label + "/stips/" + file);
 	
 	KMdata dataPts(dim,maxPts);
@@ -218,39 +219,47 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	  KMfilterCenters ctrs(k, dataPts);  
 	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
 	  
-	  struct svm_problem svmProblem = computeBOW(am[i].label,
-						     dataPts,
-						     ctrs);
-	  // If we does not use the gaussian normalization
-	  // bow_normalization(svmProblem);
-	  
-	  // I think we have to make the gaussian normalization
-	  // out of the createSvmModel function...
-	  
-	  std::string path2BOW(path2bdd + "/" + label + "/bow/" + file + ".bow");
-	  exportProblem(svmProblem, path2BOW);
-	}
+	  struct svm_problem svmBow = computeBOW(am[i].label,
+						 dataPts,
+						 ctrs);
+	  addBOW(svmBow,svmProblem);
+	  std::cout << svmProblem.l << " BOWs computed"<< std::endl;
+	  destroy_svm_problem(svmBow);	  
+ 	}
       }
     }
     closedir(repertoire);
   }
-  std::cout << "Done!" << std::endl;
+  
+  
+  //struct svm_problem svmProblem = importProblem(path2bdd + "/concatenate.bow", k);
+  // Now all Bag Of Words are saved in svmProblem
+  
+  // Extracting gaussian parameters
+  double *means=NULL, *stand_devia=NULL;
+  means = new double[k];
+  stand_devia = new double[k];
+  get_gaussian_parameters(k,svmProblem,means,stand_devia);
+  bow_gaussian_normalization(k,means,stand_devia,svmProblem);
 
-  // Create the svm BDD
-  // Création du fichier concatenate.bow
-  concatenate_bag_of_words(nbActivities, am, path2bdd);
+  // Equalizing problem
+  struct svm_problem equalizedProblem = equalizeSVMProblem(svmProblem);
+  
+  // Exporting problem
+  exportProblem(svmProblem, path2bdd + "/concatenate.bow");
+  exportProblem(equalizedProblem, path2bdd + "/concatenate.bow.equalized");
+  std::cout << "Done!" << std::endl;
   
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
-  struct svm_model* svmModel = createSvmModel(path2bdd,k);
+  struct svm_model* svmModel = createSvmModel(path2bdd,
+					      path2bdd + "/concatenate.bow.equalized",
+					      k);
   
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
   svm_save_model(fileToSaveModel.c_str(),svmModel);
   
-  // Copying the file in the out folder
-  cmd = "cp " + path2bdd + "/" + "svm.model " + "out";
-  system(cmd.c_str());
   std::cout << "Done!" <<endl;
 }
 
@@ -648,7 +657,9 @@ void predictActivity(std::string videoPath,
 					     dataPts,
 					     ctrs);
   //svmProblem = bow_normalization(svmProblem);
-  normalize_one_bow_gauss(path2bdd, svmProblem, k); 
+  double *means = NULL, *stand_devia = NULL;
+  load_gaussian_parameters(path2bdd,k,means,stand_devia);
+  bow_gaussian_normalization(k,means,stand_devia, svmProblem);
 
   std::string path2model (path2bdd + "/" + "svm.model");
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
@@ -660,6 +671,7 @@ void predictActivity(std::string videoPath,
   svm_predict_values(pSVMModel,
 		     svmProblem.x[0],
 		     dec_values);
+  destroy_svm_problem(svmProblem);
   
   int *labels = (int*) malloc(nr_class * sizeof(int));
   svm_get_labels(pSVMModel,labels);
@@ -922,71 +934,4 @@ int create_specifics_training_means(std::string path2bdd,
   return k;
 }
 
-int getMinNumVideo(int nbActivities, activitiesMap *am, std::string path2bdd){
-  int minNumVideo = 0x7fffffff;
-  for(int i = 0 ; i < nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/avi");
-    DIR * repertoire = opendir(rep.c_str());
-    if (repertoire == NULL){
-      std::cerr << "Impossible to open the videos directory!" << std::endl;
-    }
-    else{
-      struct dirent * ent;
-      int numOfFile = 0;
-      while( (ent = readdir(repertoire)) != NULL) numOfFile++;
-      if ( numOfFile < minNumVideo ) minNumVideo = numOfFile;
-    }
-  }
-  using std::cout;
-  using std::endl;
-  minNumVideo -= 2;
-  cout << "The minimal number of videos: " << minNumVideo << endl; 
-  return minNumVideo;
-}
 
-void concatenate_bag_of_words(int nbActivities, activitiesMap *am, std::string path2bdd){
-  // d'abord, on le supprime s'il existe  
-  std::string path2concatenate = path2bdd + "/" + "concatenate.bow";
-  DIR* repBDD = opendir(path2bdd.c_str());
-  if (repBDD == NULL){
-    std::cerr << "Impossible to open the BDD directory"<< std::endl;
-    exit(EXIT_FAILURE);
-  }
-  dirent *ent = NULL;
-  while ( (ent = readdir(repBDD)) != NULL){
-    std::string file = ent->d_name;
-    if(file.compare("concatenate.bow") == 0)
-      remove(path2concatenate.c_str());
-  }
-  closedir(repBDD);
-  
-  int minNrVideo = getMinNumVideo(nbActivities, am,path2bdd);
-  
-  // Puis on le créé
-  std::cout << "Creating the file concatenate.bow..."<<std::endl;
-  for(int i = 0 ; i< nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/bow");
-    DIR * repertoire = opendir(rep.c_str());
-    
-    if (repertoire == NULL){
-      std::cerr << "Impossible to open the bow directory!" << std::endl;
-    }
-    else{
-      struct dirent * ent;
-      int count = 0;
-      while ( (ent = readdir(repertoire)) != NULL){
-	std::string file = ent->d_name;
-	if(file.compare(".") != 0 && file.compare("..") != 0 && count < minNrVideo){
-	  string cmd("cat " + path2bdd + "/" + label + "/bow/" + file);
-	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.bow\n";
-	  system(cmd.c_str());
-	  count++;
-	}
-      }
-      closedir(repertoire);
-    }
-  }
-  std::cout << "Done!" << std::endl;
-}
