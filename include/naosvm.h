@@ -23,26 +23,19 @@ typedef struct _svm_probability{
 } SvmProbability;
 
 // SVM prediction
-
 struct svm_model* createSvmModel(std::string path2bdd, int k);
-
-// Gaussian normalization
-void gauss_normalization(std::string path2bdd,struct svm_problem &svmProblem,int k);
-
-// Normalize one point (gaussian)
-void normalize_one_bow_gauss(std::string path2bdd, struct svm_problem &svmProblem, int k);
-
 void printProbability(struct svm_model* pModel, struct svm_node* nodes);
 
 // Import / Print
 struct svm_problem importProblem(std::string file, int k);
-struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters& ctrs);
 void exportProblem(struct svm_problem svmProblem, std::string file);
 void exportProblemZero(struct svm_problem svmProblem, std::string file, int k);
-struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters& ctrs);
 void printProblem(struct svm_problem svmProblem);
 //void printNodes(struct svm_node* nodes);
 //struct svm_node* importNodes(char* file);
+
+struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters& ctrs);
+
 
 // Other
 int nrOfLines(std::string filename);
@@ -73,5 +66,29 @@ class MatrixC{
   double** m_fre;
 };
 
-struct svm_problem bow_normalization(struct svm_problem svmProblem);
+
+// Normalization
+// Simple normalization which depends only of one bag of words
+void bow_simple_normalization(struct svm_problem &svmProblem);
+
+// Gaussian normalization
+void gaussian_normalization(std::string path2bdd,struct svm_problem &svmProblem,int k);
+
+// Normalize one point (gaussian)
+void bow_gaussian_normalization(std::string path2bdd, struct svm_problem &svmProblem, int k);
+
+void destroy_svm_problem(struct svm_problem svmProblem);
+void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem);
+void get_gaussian_parameters(int k,
+			     struct svm_problem svmProblem,
+			     double* means,
+			     double* stand_devia);
+void save_gaussian_parameters(std::string path2bdd,
+			      int k,
+			      double* means,
+			      double* stand_devia);
+void load_gaussian_parameters(std::string path2bdd,
+			      int k,
+			      double* means,
+			      double* stand_devia){
 #endif

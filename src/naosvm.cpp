@@ -198,12 +198,11 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   bowHistogram = new float[k];
   for(int centre = 0; centre<k; centre++)
     bowHistogram[centre]=0;
-
+  
   // 3. Filling histogram
   for(int point = 0; point < nPts ; point++){
     bowHistogram[closeCtr[point]]++;
   }
-
   delete closeCtr;
   delete[] sqDist;
   
@@ -456,8 +455,8 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
   struct svm_problem svmProblem = importProblem(bowFile,k);
 
   // Normalize les BOW in svmProblem
-  gauss_normalization(path2bdd,svmProblem,k);
-
+  gaussian_normalization(path2bdd,svmProblem,k);
+  
   struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
 
   // Calculate the confusion matrix
@@ -479,85 +478,21 @@ struct svm_model* createSvmModel(std::string path2bdd, int k){
   
   return svmModel;
 }
-
-void gauss_normalization(std::string path2bdd,struct svm_problem &svmProblem,int k){
-  double means[k];
-  double stand_devia[k];
-  struct svm_node** nodes = svmProblem.x;
-  double* labels = svmProblem.y;
-  int num_nodes = svmProblem.l;
-  int pointers[num_nodes];
-  for(int i=0; i<num_nodes; i++)
-    pointers[i] = 0;
-  for(int i=0; i<k; i++){
-    double components[num_nodes]; 
-    double total = 0;
-    for(int j=0; j<num_nodes; j++){
-      struct svm_node* node = nodes[j];
-      components[j] = 0;
-      int pointer = pointers[j];
-      int index = node[pointer].index;
-      if(i+1 == index){
-        components[j] = node[pointer].value;
-        pointers[j] ++;
-      }
-      total += components[j];
-    }
-    means[i] = total/num_nodes;
-    double var = 0;
-    for(int j=0; j<num_nodes; j++){
-      var += (components[j]-means[i])*(components[j]-means[i]);
-    }
-    var /= num_nodes;
-    stand_devia[i] = sqrt(var);
-  }
-  // Save the gaussian parameters
-  std::string path2mean = path2bdd + "/gauss_mean.txt";
-  std::string path2stand = path2bdd + "/gauss_stand.txt";
-  std::ofstream outmean(path2mean.c_str());
-  std::ofstream outstand(path2stand.c_str());
-  for(int i=0; i<k; i++){
-    outmean<<means[i]<<std::endl;
-    outstand<<stand_devia[i]<<std::endl;
-  }
-  // Normalize the svmProblem
-  // Save the nomalized BOW 
-  std::string path2norm = path2bdd + "/concatenate_norm_gauss.bow";
-  std::ofstream outnorm(path2norm.c_str());
-  for(int j=0; j<num_nodes; j++){
-    struct svm_node* node = nodes[j];
-    outnorm<<setprecision(0)<<labels[j]<<' ';
-    outnorm<<node[0].index<<':'<<node[0].value;
-    int i=1;
+void bow_gaussian_normalization(int k,
+				double* means,
+				double* stand_devia,
+				struct svm_problem &svmProblem,
+				){
+  struct svm_node* node = NULL;
+  for(int a=0 ; a<svmProblem.l ; a++){
+    node = svmProblem.x[a];
+    int i = 0;
     while(node[i].index != -1){
-      int index = node[i].index-1;
+      int index = node[i].index - 1;
       int value = node[i].value;
       node[i].value = (value-means[index])/stand_devia[index];
-      outnorm<<' '<<index+1<<':'<<node[i].value;
       i ++;
     }
-    outnorm<<std::endl;
-  }
-}
-
-void normalize_one_bow_gauss(std::string path2bdd,struct svm_problem &svmProblem, int k){
-  double means[k];
-  double stand_devia[k];
-  std::string path2mean = path2bdd + "/gauss_mean.txt";
-  std::string path2stand = path2bdd + "/gauss_stand.txt";
-  std::ifstream inmean(path2mean.c_str());
-  std::ifstream instand(path2stand.c_str());
-  for(int i=0; i<k; i++){
-    inmean>>means[i];
-    instand>>stand_devia[i];
-  }
-  struct svm_node* node = svmProblem.x[0];
-  int i = 0;
-  while(node[i].index != -1){
-    int index = node[i].index - 1;
-    int value = node[i].value;
-    node[i].value = (value-means[index])/stand_devia[index];
-    i ++;
   }
 }
 
@@ -894,7 +829,7 @@ void MatrixC::exportMC(std::string folder, std::string file){
   }
 }
 
-struct svm_problem bow_normalization(struct svm_problem svmProblem){
+void bow_simple_normalization(struct svm_problem& svmProblem){
   int nrBows = svmProblem.l;
   int i;
   double sum;
@@ -913,5 +848,122 @@ struct svm_problem bow_normalization(struct svm_problem svmProblem){
       i++;
     }
   }
-  return svmProblem;
+}
+
+void destroy_svm_problem(struct svm_problem svmProblem){
+  free(svmProblem.y);
+  svmProblem.y = NULL;
+  
+  for(int a=0 ; a<svmProblem.l ; a++){
+    free(svmProblem.x[a]);
+    svmProblem.x[a] = NULL;
+  }
+  free(svmProblem.x);
+  svmProblem.x = NULL;
+}
+
+void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem){
+  if(!svmProblem.y || !svmProblem.x){
+    svmProblem.y=(double*)malloc(sizeof(double));
+    svmProblem.x=(struct svm_node**)malloc(sizeof(struct svm_node*));
+    if(!svmProblem.y || !svmProblem.x){
+      std::cerr << "Malloc error of svmProblem.x and svmProblem.y!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+  else{
+    svmProblem.y=(double*)realloc(svmProblem.y,(svmProblem.l+1)*sizeof(double));
+    svmProblem.x=(struct svm_node**)realloc(svmProblem.x,(svmProblem.l+1)*sizeof(struct svm_node*));
+    if(!svmProblem.y || !svmProblem.x){
+      std::cerr << "Re-Malloc error of svmProblem.x and svmProblem.y!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+  svmProblem.y[svmProblem.l] = svmBow.y[0];
+  int d=0;
+  while(svmBow.x[0][d].index != -1){
+    if(d==0&&(svmProblem.x[svmProblem.l]=(struct svm_node*) malloc(sizeof(struct svm_node))) == NULL){
+      std::cerr << "Malloc error of svmProblem.x[svmProblem.l]!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    else if((svmProblem.x[svmProblem.l] = 
+	     (struct svm_node*) realloc(svmProblem.x[svmProblem.l],
+					(d+1)*sizeof(struct svm_node))) == NULL){
+      std::cerr << "Re-Malloc error of svmProblem.x[svmProblem.l]!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    svmProblem.x[svmProblem.l][d].index = svmBow.x[0][d].index;
+    svmProblem.x[svmProblem.l][d].value = svmBow.x[0][d].value;
+    d++;
+  }
+  svmProblem.x[svmProblem.l][d].index = -1;
+  svmProblem.l++;
+}
+
+void get_gaussian_parameters(int k,
+			     struct svm_problem svmProblem,
+			     double* means,
+			     double* stand_devia){
+  means = new double[k];
+  stand_devia = new double[k];
+  
+  struct svm_node** nodes = svmProblem.x;
+  double* labels = svmProblem.y;
+  int num_nodes = svmProblem.l;
+  int pointers[num_nodes];
+  for(int i=0; i<num_nodes; i++)
+    pointers[i] = 0;
+  for(int i=0; i<k; i++){
+    double components[num_nodes]; 
+    double total = 0;
+    for(int j=0; j<num_nodes; j++){
+      struct svm_node* node = nodes[j];
+      components[j] = 0;
+      int pointer = pointers[j];
+      int index = node[pointer].index;
+      if(i+1 == index){
+        components[j] = node[pointer].value;
+        pointers[j] ++;
+      }
+      total += components[j];
+    }
+    means[i] = total/num_nodes;
+    double var = 0;
+    for(int j=0; j<num_nodes; j++){
+      var += (components[j]-means[i])*(components[j]-means[i]);
+    }
+    var /= num_nodes;
+    stand_devia[i] = sqrt(var);  
+  }
+}
+void save_gaussian_parameters(std::string path2bdd,
+			      int k,
+			      double* means,
+			      double* stand_devia){
+  // Save the gaussian parameters
+  std::string path2mean = path2bdd + "/gauss_mean.txt";
+  std::string path2stand = path2bdd + "/gauss_stand.txt";
+  std::ofstream outmean(path2mean.c_str());
+  std::ofstream outstand(path2stand.c_str());
+  for(int i=0; i<k; i++){
+    outmean<<means[i]<<std::endl;
+    outstand<<stand_devia[i]<<std::endl;
+  }
+}
+
+void load_gaussian_parameters(std::string path2bdd,
+			      int k,
+			      double* means,
+			      double* stand_devia){
+  double means[k];
+  double stand_devia[k];
+  std::string path2mean = path2bdd + "/gauss_mean.txt";
+  std::string path2stand = path2bdd + "/gauss_stand.txt";
+  std::ifstream inmean(path2mean.c_str());
+  std::ifstream instand(path2stand.c_str());
+  
+  for(int i=0; i<k; i++){
+    inmean >> means[i];
+    instand >> stand_devia[i];
+  }
 }
