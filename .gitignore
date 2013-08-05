@@ -18,6 +18,8 @@
 *.stip
 *.bow
 
+build-fabtc/
+build-fabtc/*
 
 archives/*
 tmp/*
