@@ -196,6 +196,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   svmProblem.l = 0;
   svmProblem.x = NULL;
   svmProblem.y = NULL;
+  
   for(int i = 0 ; i< nbActivities ; i++){
     string label = inttostring(am[i].label);
     string rep(path2bdd + "/" + label + "/stips");
@@ -240,26 +241,70 @@ void trainBdd(std::string bddName, int maxPts, int k){
   means = new double[k];
   stand_devia = new double[k];
   get_gaussian_parameters(k,svmProblem,means,stand_devia);
+  save_gaussian_parameters(path2bdd,
+			   k,
+			   means,
+			   stand_devia);
+  load_gaussian_parameters(path2bdd,
+			   k,
+			   means,
+			   stand_devia);
+  
   bow_gaussian_normalization(k,means,stand_devia,svmProblem);
-
+  //bow_simple_normalization(svmProblem);
+  
   // Equalizing problem
-  struct svm_problem equalizedProblem = equalizeSVMProblem(svmProblem);
+  struct svm_problem svmTest;
+  struct svm_problem equalizedProblem = equalizeSVMProblem(svmProblem,svmTest);
   
   // Exporting problem
   exportProblem(svmProblem, path2bdd + "/concatenate.bow");
-  exportProblem(equalizedProblem, path2bdd + "/concatenate.bow.equalized");
+  exportProblem(equalizedProblem, path2bdd + "/concatenate.bow.train");
+  exportProblem(svmTest,path2bdd + "/concatenate.bow.test");
+  
   std::cout << "Done!" << std::endl;
   
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
-  struct svm_model* svmModel = createSvmModel(path2bdd,
-					      path2bdd + "/concatenate.bow.equalized",
-					      k);
-  
+  struct svm_model* svmModel = create_svm_model(k, equalizedProblem);
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
   svm_save_model(fileToSaveModel.c_str(),svmModel);
   
+  /* Calculate the confusion matrix */
+  // 1- Training data
+  MatrixC trainMC = MatrixC(svmModel);
+  double* py = equalizedProblem.y;
+  int pnum = equalizedProblem.l;
+  struct svm_node** px = equalizedProblem.x;
+  for(int i=0; i<pnum; i++){
+    double lab_in = py[i];
+    double lab_out = svm_predict(svmModel,px[i]);
+    trainMC.addTransfer(lab_in,lab_out);
+  }
+  trainMC.calculFrequence();
+  trainMC.output();
+  trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
+  
+  // 2- Testing data
+  MatrixC testMC = MatrixC(svmModel);
+  py = svmTest.y;
+  pnum = svmTest.l;
+  px = svmTest.x;
+  for(int i=0; i<pnum; i++){
+    double lab_in = py[i];
+    double lab_out = svm_predict(svmModel,px[i]);
+    testMC.addTransfer(lab_in,lab_out);
+  }
+  testMC.calculFrequence();
+  testMC.output();
+  testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
+  
+  destroy_svm_problem(svmProblem);
+  destroy_svm_problem(svmTest);
+  destroy_svm_problem(equalizedProblem);
+  
+  svm_free_and_destroy_model(&svmModel);
   std::cout << "Done!" <<endl;
 }
 
@@ -651,16 +696,16 @@ void predictActivity(std::string videoPath,
   importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
     
   activitiesMap *am;
-  mapActivities(path2bdd,&am);
+  int nbActivities = mapActivities(path2bdd,&am);
   
   struct svm_problem svmProblem = computeBOW(0,
 					     dataPts,
 					     ctrs);
-  //svmProblem = bow_normalization(svmProblem);
-  double *means = NULL, *stand_devia = NULL;
-  load_gaussian_parameters(path2bdd,k,means,stand_devia);
+  // svmProblem = bow_normalization(svmProblem);
+  double means[k], stand_devia[k];
+  load_gaussian_parameters(path2bdd, k, means, stand_devia);
   bow_gaussian_normalization(k,means,stand_devia, svmProblem);
-
+  
   std::string path2model (path2bdd + "/" + "svm.model");
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
   
@@ -668,26 +713,16 @@ void predictActivity(std::string videoPath,
   int nr_couples = nr_class*(nr_class-1)/2;
   
   double* dec_values = (double*) malloc(nr_couples * sizeof(double));
-  svm_predict_values(pSVMModel,
-		     svmProblem.x[0],
-		     dec_values);
-  destroy_svm_problem(svmProblem);
-  
-  int *labels = (int*) malloc(nr_class * sizeof(int));
-  svm_get_labels(pSVMModel,labels);
-  
-  std::cout << "computing proba ..." << std::endl;
-  SvmProbability* svmP = svm_calculate_probability(labels, dec_values, nr_class);
-  
-  free(labels);
+  int label = svm_predict_values(pSVMModel,
+				 svmProblem.x[0],
+				 dec_values);
   free(dec_values);
-  
-  std::cout << "label\t proba" << std::endl;
-  for(int i=0 ; i<nr_class ;i++){
-    std::cout << svmP[i].label << "\t";
-    std::cout << svmP[i].probability << std::endl;
-  }
-  free(svmP);
+  destroy_svm_problem(svmProblem);
+  int index = searchMapIndex(label, am, nbActivities);
+  std::cout << "Activity predicted: ";
+  std::cout << am[index].activity << "(" << am[index].label << ")";
+  std::cout << std::endl;
+
   svm_free_and_destroy_model(&pSVMModel);
 }
 

@@ -415,14 +415,14 @@ void printNodes(struct svm_node* nodes){
   }*/
 
 /**
- * \fn struct svm_model* createSvmModel(std::string bowFile, int k)
+ * \fn struct svm_model* create_svm_model(std::string bowFile, int k)
  * \brief Create the SVM model of the activities present in a file.
  *
  * \param[in] bowFile The name of the file containing the BOWs.
  * \param[in] k The number of clusters (dimension of a BOW).
  * \return The SVM model.
  */
-struct svm_model* createSvmModel(std::string folder, std::string bowFile, int k){
+struct svm_model* create_svm_model(int k, struct svm_problem svmProblem){
   // SVM PARAMETER
   struct svm_parameter svmParameter;
   svmParameter.svm_type = C_SVC;
@@ -447,31 +447,7 @@ struct svm_model* createSvmModel(std::string folder, std::string bowFile, int k)
   svmParameter.shrinking = 1;	/* use the shrinking heuristics */
   svmParameter.probability = 0; /* do probability estimates */
   
-  //  cross_validation = 0;
-  
-  // SVM PROBLEM
-  cout << "Importing the problem..." << std::endl;
-  struct svm_problem svmProblem = importProblem(bowFile,k);
-  struct svm_model* svmModel = svm_train(&svmProblem,&svmParameter);
-  
-  // Calculate the confusion matrix
-  MatrixC *mc = new MatrixC(svmModel);
-  double* py = svmProblem.y;
-  int pnum = svmProblem.l;
-  struct svm_node** px = svmProblem.x;
-  for(int i=0; i<pnum; i++){
-    double lab_in = py[i];
-    double lab_out = svm_predict(svmModel,px[i]);
-    mc->addTransfer(lab_in,lab_out);
-  }
-  mc->calculFrequence();
-  mc->output();
-  mc->exportMC(folder,"training_confusion_matrix.txt");
-  
-  free(svmProblem.x);
-  free(svmProblem.y);
-  
-  return svmModel;
+  return svm_train(&svmProblem,&svmParameter);
 }
 void bow_gaussian_normalization(int k,
 				double* means,
@@ -947,23 +923,21 @@ void load_gaussian_parameters(std::string path2bdd,
 			      int k,
 			      double* means,
 			      double* stand_devia){
-  means = new double[k];
-  stand_devia =  new double[k];
   std::string path2mean = path2bdd + "/gauss_mean.txt";
   std::string path2stand = path2bdd + "/gauss_stand.txt";
   std::ifstream inmean(path2mean.c_str());
   std::ifstream instand(path2stand.c_str());
   
   for(int i=0; i<k; i++){
-    inmean >> means[i];
-    instand >> stand_devia[i];
+    inmean >> (means)[i];
+    instand >> (stand_devia)[i];
   }
 }
 
 int get_svm_problem_labels(const struct svm_problem& svmProblem, int** labels){
   int nrVectors = svmProblem.l;
   
-  int* tmpLabels = new int[nrVectors];
+  int tmpLabels [nrVectors];
   int labelsIndex=0;
   
   for(int i=0 ; i<nrVectors ; i++){
@@ -986,20 +960,21 @@ int get_svm_problem_labels(const struct svm_problem& svmProblem, int** labels){
   for(int i=0 ; i<labelsIndex ; i++){
     (*labels)[i] = tmpLabels[i];
   }
-  delete []tmpLabels;
   
   return labelsIndex;
 }
 
-struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem){
+struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem, struct svm_problem& svmRest){
   int k = getMaxIndex(svmProblem);
   
   int *labels = NULL;
   int nrLabels = get_svm_problem_labels(svmProblem,&labels);
   
+
+
   int min = getMinNumVideo(svmProblem);
   int nrVectors = nrLabels*min;
-  
+
   struct svm_problem equalizedProblem; 
   equalizedProblem.l = nrVectors;
   equalizedProblem.y =  new double[nrVectors];
@@ -1008,23 +983,46 @@ struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem){
     equalizedProblem.x[i] = new struct svm_node[k+1];
     // It is better to allocate following the number of index != 0 in svmProblem
   }
-  int indexEP=0; // equalized problem
+
+  svmRest.l = svmProblem.l - nrVectors;
+  svmRest.y = new double[svmRest.l];
+  svmRest.x = new struct svm_node*[svmRest.l];
+  for(int i=0 ; i<svmRest.l ; i++){
+    svmRest.x[i] = new struct svm_node[k+1];
+    // It is better to allocate following the number of index != 0 in svmProblem
+  }
+  
+  int indexEP=0; // Equalized problem
+  int indexRP=0; // Rest problem
   for(int i=0 ; i<nrLabels ; i++){
     int currentLabel = labels[i];
     int count=0;
     int v=0;
-    while(v < svmProblem.l && count < min){
+    while(v < svmProblem.l){
       if(svmProblem.y[v] == currentLabel){
-	int d=0;
-	equalizedProblem.y[indexEP] = currentLabel;
-	while(d < k && svmProblem.x[v][d].index != -1){
-	  equalizedProblem.x[indexEP][d].index = svmProblem.x[v][d].index;
-	  equalizedProblem.x[indexEP][d].value = svmProblem.x[v][d].value;
-	  d++;
+	if(count < min){
+	  int d=0;
+	  equalizedProblem.y[indexEP] = currentLabel;
+	  while(d < k && svmProblem.x[v][d].index != -1){
+	    equalizedProblem.x[indexEP][d].index = svmProblem.x[v][d].index;
+	    equalizedProblem.x[indexEP][d].value = svmProblem.x[v][d].value;
+	    d++;
+	  }
+	  equalizedProblem.x[indexEP][d].index = -1;
+	  count++;
+	  indexEP++;
 	}
-	equalizedProblem.x[indexEP][d].index = -1;
-	count++;
-	indexEP++;
+	else{
+	  int d=0;
+	  svmRest.y[indexRP] = currentLabel;
+	  while(d < k && svmProblem.x[v][d].index != -1){
+	    svmRest.x[indexRP][d].index = svmProblem.x[v][d].index;
+	    svmRest.x[indexRP][d].value = svmProblem.x[v][d].value;
+	    d++;
+	  }
+	  svmRest.x[indexRP][d].index = -1;
+	  indexRP++;
+	}
       }
       v++;
     }

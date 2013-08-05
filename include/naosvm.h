@@ -23,7 +23,7 @@ typedef struct _svm_probability{
 } SvmProbability;
 
 // SVM prediction
-struct svm_model* createSvmModel(std::string folder, std::string bowFile, int k);
+struct svm_model* create_svm_model(int k, struct svm_problem svmProblem);
 void printProbability(struct svm_model* pModel, struct svm_node* nodes);
 
 // Import / Print
@@ -94,7 +94,10 @@ void bow_gaussian_normalization(int k,
 				double* means,
 				double* stand_devia,
 				struct svm_problem &svmProblem);
-struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem);
+
+// Extra functionalities
+struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem,
+				      struct svm_problem& svmTest);
 int get_svm_problem_labels(const struct svm_problem& svmProblem, int* labels);
 int getMaxIndex(const struct svm_problem& svmProblem);
 int getMinNumVideo(const struct svm_problem& svmProblem);
