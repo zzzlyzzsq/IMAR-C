@@ -87,9 +87,7 @@ int main(int argc, char* argv[]){
     }
     char* bddName = argv[2];
     k = atoi(argv[3]);
-    desc = getDescID(bddName);
-    dim = getDim(desc);
-    trainBdd(argv[2], maxPts, k);
+    trainBdd(bddName, maxPts, k);
   }
   else if(function.compare("delete") == 0){ 
     std::string todelete(argv[2]);
