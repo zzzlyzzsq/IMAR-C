@@ -100,14 +100,14 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
   }
   
   // Extract STIPs from the videos and save them in the repertory /path/to/bdd/label/
-  string stipspath(path2bdd + "/" + strlabel + "/stips");
+  string fpointspath(path2bdd + "/" + strlabel + "/fp");
   j = nbFiles + 1;
   
   for(int i=0 ; i<nbVideos ; i++){
     KMdata dataPts(dim,maxPts);
     string idFile = inttostring(j);
     string videoInput(copypath + "/" + strlabel + idFile + ".avi");
-    string stipOutput(stipspath + "/" + strlabel + idFile + ".stip");
+    string fpOutput(fpointspath + "/" + strlabel + "-" + idFile + ".fp");
     int nPts;
     switch(desc){
     case 0: //HOG HOF
@@ -119,7 +119,7 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
     }
     if(nPts != 0){
       dataPts.setNPts(nPts);
-      exportSTIPs(stipOutput, dim,dataPts);
+      exportSTIPs(fpOutput, dim,dataPts);
     }
     j++;
   }
@@ -164,11 +164,27 @@ void trainBdd(std::string bddName, int maxPts, int k){
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
   
-  // Création du fichier concatenate.stip
-  //concatenate_features_points(nbActivities, am, path2bdd);
-  
+  // Creation of the file concatenate.stip
+  // and the files concatenate.train.stip
+  // and concatenate.test.stip per activities
+  int nrVideosByActivities = 10; // as an option
+  int minNrVideo = 8;
+  if(nrVideosByActivities >= minNrVideo - 1){
+    nrVideosByActivities = minNrVideo - 1;
+  }
+  std::cout << "Using " << nrVideosByActivities;
+  std::cout << " videos per activity for the training phase." << std::endl;
+  std::vector <std::string> trainingFiles;
+  std::vector <std::string> testingFiles;
+  concatenate_features_points(nbActivities,
+			      am,
+			      path2bdd,
+			      nrVideosByActivities,
+			      trainingFiles,
+			      testingFiles);
   
   // Creating the file training.means
+  // It will only use concatenate files
   std::cout << "Computing KMeans..." << std::endl;
   /*createTrainingMeans(path2bdd + "/" + "concatenate.stips",
     dim,
@@ -192,14 +208,21 @@ void trainBdd(std::string bddName, int maxPts, int k){
   
   std::cout << "Computing BOWs..." << std::endl;
   // Finally we have to compute BOWs
-  struct svm_problem svmProblem;
-  svmProblem.l = 0;
-  svmProblem.x = NULL;
-  svmProblem.y = NULL;
-  
+  struct svm_problem svmTrainProblem;
+  svmTrainProblem.l = 0;
+  svmTrainProblem.x = NULL;
+  svmTrainProblem.y = NULL;
+  struct svm_problem svmTestProblem;
+  svmTestProblem.l = 0;
+  svmTestProblem.x = NULL;
+  svmTestProblem.y = NULL;
   for(int i = 0 ; i< nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/stips");
+    std::string label = inttostring(am[i].label);
+    std::string activity = am[i].activity;
+    std::cout << "BOW of the activity ";
+    std::cout<< activity << "(" << label << ")..." << std::endl;
+    
+    string rep(path2bdd + "/" + label + "/fp");
     DIR * repertoire = opendir(rep.c_str());
     if (!repertoire){
       std::cerr << "Impossible to open the stips directory!" << std::endl;
@@ -209,7 +232,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
     while ( (ent = readdir(repertoire)) != NULL){
       std::string file = ent->d_name;
       if(file.compare(".") != 0 && file.compare("..") != 0){
-	std::string path2STIPs(path2bdd + "/" + label + "/stips/" + file);
+	std::string path2STIPs(path2bdd + "/" + label + "/fp/" + file);
 	
 	KMdata dataPts(dim,maxPts);
 	int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
@@ -223,8 +246,25 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	  struct svm_problem svmBow = computeBOW(am[i].label,
 						 dataPts,
 						 ctrs);
-	  addBOW(svmBow,svmProblem);
-	  std::cout << svmProblem.l << " BOWs computed"<< std::endl;
+	  std::vector<std::string>::iterator inTrain =
+	    std::find(trainingFiles.begin(), trainingFiles.end(), file);
+	  std::vector<std::string>::iterator inTest =
+	    std::find(testingFiles.begin(), testingFiles.end(), file);
+	  if(inTrain != trainingFiles.end() && inTest != testingFiles.end()){
+	    std::cout << *inTrain << " and " << *inTest << std::endl;
+	    std::cerr << "Error: trainingFiles and testingFiles contain same files!" << std::endl;
+	    exit(EXIT_FAILURE);
+	  }
+	  if(inTrain != trainingFiles.end()){
+	    addBOW(svmBow,svmTrainProblem);
+	  }
+	  else if(inTest != testingFiles.end()){
+	    addBOW(svmBow,svmTestProblem);
+	  }
+	  else{
+	    std::cerr << "Error: the file does not exist!" << std::endl;
+	    exit(EXIT_FAILURE);
+	  }
 	  destroy_svm_problem(svmBow);	  
  	}
       }
@@ -240,7 +280,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   double *means=NULL, *stand_devia=NULL;
   means = new double[k];
   stand_devia = new double[k];
-  get_gaussian_parameters(k,svmProblem,means,stand_devia);
+  get_gaussian_parameters(k,svmTrainProblem,means,stand_devia);
   save_gaussian_parameters(path2bdd,
 			   k,
 			   means,
@@ -249,24 +289,21 @@ void trainBdd(std::string bddName, int maxPts, int k){
 			   k,
 			   means,
 			   stand_devia);
+  bow_simple_normalization(svmTrainProblem);  
+  //bow_gaussian_normalization(k,means,stand_devia,svmTrainProblem);
+  bow_simple_normalization(svmTestProblem);
+  //bow_gaussian_normalization(k,means,stand_devia,svmTestProblem);
   
-  bow_gaussian_normalization(k,means,stand_devia,svmProblem);
-  //bow_simple_normalization(svmProblem);
-  
-  // Equalizing problem
-  struct svm_problem svmTest;
-  struct svm_problem equalizedProblem = equalizeSVMProblem(svmProblem,svmTest);
   
   // Exporting problem
-  exportProblem(svmProblem, path2bdd + "/concatenate.bow");
-  exportProblem(equalizedProblem, path2bdd + "/concatenate.bow.train");
-  exportProblem(svmTest,path2bdd + "/concatenate.bow.test");
+  exportProblem(svmTrainProblem, path2bdd + "/concatenate.bow.train");
+  exportProblem(svmTestProblem,path2bdd + "/concatenate.bow.test");
   
   std::cout << "Done!" << std::endl;
   
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
-  struct svm_model* svmModel = create_svm_model(k, equalizedProblem);
+  struct svm_model* svmModel = create_svm_model(k, svmTrainProblem);
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
   svm_save_model(fileToSaveModel.c_str(),svmModel);
@@ -274,9 +311,9 @@ void trainBdd(std::string bddName, int maxPts, int k){
   /* Calculate the confusion matrix */
   // 1- Training data
   MatrixC trainMC = MatrixC(svmModel);
-  double* py = equalizedProblem.y;
-  int pnum = equalizedProblem.l;
-  struct svm_node** px = equalizedProblem.x;
+  double* py = svmTrainProblem.y;
+  int pnum = svmTrainProblem.l;
+  struct svm_node** px = svmTrainProblem.x;
   for(int i=0; i<pnum; i++){
     double lab_in = py[i];
     double lab_out = svm_predict(svmModel,px[i]);
@@ -288,9 +325,9 @@ void trainBdd(std::string bddName, int maxPts, int k){
   
   // 2- Testing data
   MatrixC testMC = MatrixC(svmModel);
-  py = svmTest.y;
-  pnum = svmTest.l;
-  px = svmTest.x;
+  py = svmTestProblem.y;
+  pnum = svmTestProblem.l;
+  px = svmTestProblem.x;
   for(int i=0; i<pnum; i++){
     double lab_in = py[i];
     double lab_out = svm_predict(svmModel,px[i]);
@@ -300,10 +337,8 @@ void trainBdd(std::string bddName, int maxPts, int k){
   testMC.output();
   testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
   
-  destroy_svm_problem(svmProblem);
-  destroy_svm_problem(svmTest);
-  destroy_svm_problem(equalizedProblem);
-  
+  destroy_svm_problem(svmTrainProblem);
+  destroy_svm_problem(svmTestProblem);
   svm_free_and_destroy_model(&svmModel);
   std::cout << "Done!" <<endl;
 }
@@ -395,7 +430,7 @@ void addActivity(std::string activityName, std::string bddName){
   string activityFolder(path2bdd + "/" + strID);
   string activityAVIFolder(path2bdd + "/" + strID + "/avi");
   string activityBOWFolder(path2bdd + "/" + strID + "/bow");
-  string activitySTIPSFolder(path2bdd + "/" + strID + "/stips");
+  string activitySTIPSFolder(path2bdd + "/" + strID + "/fp");
   mkdir(activityFolder.c_str(),S_IRWXU|S_IRGRP|S_IXGRP); // rwx pour user
   mkdir(activityAVIFolder.c_str(),S_IRWXU|S_IRGRP|S_IXGRP); // rwx pour user
   mkdir(activityBOWFolder.c_str(),S_IRWXU|S_IRGRP|S_IXGRP); // rwx pour user
@@ -446,7 +481,7 @@ void deleteActivity(std::string activityName, std::string bddName){
   string activityFolder(path2bdd + "/" + strID);
   string activityAVIFolder(path2bdd + "/" + strID + "/avi");
   string activityBOWFolder(path2bdd + "/" + strID + "/bow");
-  string activitySTIPSFolder(path2bdd + "/" + strID + "/stips");
+  string activitySTIPSFolder(path2bdd + "/" + strID + "/fp");
   // avi
   emptyFolder(activityAVIFolder);
   rmdir(activityAVIFolder.c_str());
@@ -585,7 +620,8 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
   while ( (ent = readdir(repBDD)) != NULL){
     std::string file = ent->d_name;
     std::string f = path2bdd + "/" + file;
-    if((file.compare("concatenate.stips") == 0) ||
+    if((file.compare("concatenate.fp.test") == 0) ||
+       (file.compare("concatenate.fp.train") == 0) ||
        (file.compare("concatenate.bow") == 0) ||
        (file.compare("svm.model") == 0) ||
        (file.compare("training.means") == 0))
@@ -599,7 +635,7 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
   // supression des stips
   for(int i = 0 ; i< nbActivities ; i++){
     string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/stips");
+    string rep(path2bdd + "/" + label + "/fp");
     string cmd("rm " + rep + "/*"); 
     system(cmd.c_str());
   }  
@@ -617,7 +653,7 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
   for(int i = 0 ; i< nbActivities ; i++){
     std::string label = inttostring(am[i].label);
     std::string avipath(path2bdd + "/" + label + "/avi");
-    std::string stipspath(path2bdd + "/" +  label + "/stips");
+    std::string stipspath(path2bdd + "/" +  label + "/fp");
     DIR * repertoire = opendir(avipath.c_str());
     if (repertoire == NULL){
       std::cerr << "Impossible to open the BDDs directory!" << std::endl;
@@ -632,7 +668,7 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
         // Extract STIPs from the videos and save them in the repertory /path/to/bdd/label/
         KMdata dataPts(dim,maxPts);
         string videoInput(avipath + "/" + file);
-        string stipOutput(stipspath + "/" + label + idFile + ".stip");
+        string stipOutput(stipspath + "/" + label + "-" + idFile + ".fp");
 	int nPts;
 	cout << videoInput << std::endl;
 	switch(desc){
@@ -790,10 +826,24 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
 }
 #endif // TRANSFER_TO_ROBOT_NAO
 
-void concatenate_features_points(int nbActivities, activitiesMap *am, std::string path2bdd){
-  std::cout << "Creating the file concatenate.stips...";
-  // d'abord, on le supprime s'il existe  
-  std::string path2concatenate(path2bdd + "/" + "concatenate.stips");
+void concatenate_features_points(int nbActivities,
+				 activitiesMap *am,
+				 std::string path2bdd,
+				 int nrVideosByActivities,
+				 std::vector <std::string>& trainingFiles,
+				 std::vector <std::string>& testingFiles){
+  // First we calculate (randomly) the feature points per activities
+  concatenate_features_points_per_activities(nbActivities,
+					     am,
+					     path2bdd,
+					     nrVideosByActivities,
+					     trainingFiles,
+					     testingFiles);
+  
+  std::cout << "Creating files concatenate.fp.train and concatenate.fp.test" << std::endl;
+  // first we delete them if they exist
+  std::string path2CTrain(path2bdd + "/" + "concatenate.fp.train");
+  std::string path2CTest(path2bdd + "/" + "concatenate.fp.test");
   DIR * repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
     std::cerr << "Impossible top open the BDD directory"<< std::endl;
@@ -802,27 +852,36 @@ void concatenate_features_points(int nbActivities, activitiesMap *am, std::strin
   struct dirent *ent;
   while ( (ent = readdir(repBDD)) != NULL){
     std::string file = ent->d_name;
-    if(file.compare("concatenate.stips") == 0){
-      remove(path2concatenate.c_str());
+    if(file.compare("concatenate.fp.test") == 0 ){
+      remove(path2CTest.c_str());
+    }
+    if(file.compare("concatenate.fp.train") == 0 ){
+      remove(path2CTrain.c_str());
     }
   }
   closedir(repBDD);
   
   for(int i = 0 ; i< nbActivities ; i++){
     string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/stips");
+    string rep(path2bdd + "/" + label);
+    // int nrVideos = nbOfFiles(rep);
     DIR * repertoire = opendir(rep.c_str());
-    
     if (repertoire == NULL){
-      std::cerr << "Impossible to open the stips directory!" << std::endl;
+      std::cerr << "Impossible to open the feature points directory!" << std::endl;
     }
     else{
       struct dirent * ent;
       while ( (ent = readdir(repertoire)) != NULL){
 	std::string file = ent->d_name;
-	if(file.compare(".") != 0 && file.compare("..") != 0){
-	  string cmd("cat " + path2bdd + "/" + label + "/stips/" + file);
-	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.stips";
+	std::string cmd;
+	if(file.compare("concatenate." + label + ".fp.train") == 0){
+	  cmd = "cat " + path2bdd + "/" + label + "/" + file;
+	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.fp.train";
+	  system(cmd.c_str());
+	}
+	if(file.compare("concatenate." + label + ".fp.test" ) == 0){
+	  cmd = "cat " + path2bdd + "/" + label + "/" + file;
+	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.fp.test";
 	  system(cmd.c_str());
 	}
       }
@@ -830,6 +889,113 @@ void concatenate_features_points(int nbActivities, activitiesMap *am, std::strin
     }
   }
 }
+void concatenate_features_points_per_activities(int nbActivities,
+						activitiesMap *am,
+						std::string path2bdd,
+						int nrVideosByActivities,
+						std::vector <std::string>& trainingFiles,
+						std::vector <std::string>& testingFiles){
+  std::cout << "Creating files concatenate.label.fp.train";
+  std::cout << " and concatenate.label.fp.test for each activities" << std::endl;
+  
+  // first we delete them if they exist
+  for(int i=0 ; i<nbActivities ; i++){
+    std::string label(inttostring(am[i].label));
+    std::string rep(path2bdd + "/" + label);
+    std::string path2CTrain(rep + "/concatenate." + label + ".fp.train");
+    std::string path2CTest(rep +"/concatenate." + label + ".fp.test");
+
+    // We open the directory folder/label
+    DIR * repBDD = opendir(rep.c_str());
+    if (repBDD == NULL){
+      std::cerr << "Impossible top open the BDD directory"<< std::endl;
+      exit(EXIT_FAILURE);
+    }
+    struct dirent *ent;
+    while ( (ent = readdir(repBDD)) != NULL){
+      std::string file = ent->d_name;
+      if(file.compare("concatenate." + label + ".fp.test") == 0 ){
+	remove(path2CTest.c_str());
+      }
+      if(file.compare("concatenate." + label + ".fp.train") == 0 ){
+	remove(path2CTrain.c_str());
+      }
+    }
+    closedir(repBDD);
+  }
+  for(int i = 0 ; i< nbActivities ; i++){
+    string label = inttostring(am[i].label);
+    string rep(path2bdd + "/" + label + "/fp");
+    int nrVideos = nbOfFiles(rep);
+    
+    int randomVector[nrVideosByActivities];
+    srand(time(NULL)); // initialisation of rand
+    for(int s=0; s<nrVideosByActivities;s++){
+      int r = (int) rand()%(nrVideos);
+      int index = 0;
+      while(index<s && randomVector[index] != r){
+	index++;
+      }
+      if(s==0 || randomVector[index] != r)
+	randomVector[s] = r;
+      else{
+	s--;
+      }
+    }
+    
+    DIR * repertoire = opendir(rep.c_str());
+    if (repertoire == NULL){
+      std::cerr << "Impossible to open the feature points directory!" << std::endl;
+    }
+    else{
+      struct dirent * ent;
+      int count=0;
+      int trainCount=0;
+      while ( (ent = readdir(repertoire)) != NULL){
+	std::string file = ent->d_name;
+	if(file.compare(".") != 0 && file.compare("..") != 0){
+	  bool goodCount = false;
+	  int s=0;
+	  // We search if the file corresponds to the random tirage
+	  while(s<nrVideosByActivities && !goodCount){
+	    if(randomVector[s] == count){
+	      goodCount = true;
+	    }
+	    s++;
+	  }
+	  std::string cmd;
+	  // If it corresponds, we add the feature points in the the training file
+	  if(trainCount < nrVideosByActivities && goodCount){
+	    trainingFiles.push_back(file);
+	    cmd = "cat " + path2bdd + "/" + label + "/fp/" + file;
+	    cmd = cmd + " >> " + path2bdd + "/" + label + "/concatenate." + label + ".fp.train";
+	    system(cmd.c_str());
+	    trainCount++;
+	  }
+	  else{ // If not, we save the feature points in the testing file
+	    testingFiles.push_back(file);
+	    cmd = "cat " + path2bdd + "/" + label + "/fp/" + file;
+	    cmd = cmd + " >> " + path2bdd + "/" + label + "/concatenate." + label + ".fp.test";
+	    system(cmd.c_str());
+	  }
+	  count++;
+	}
+      }
+      closedir(repertoire);
+    }
+  }
+  
+  // Saving trainingFiles and testingFiles in the folder
+  std::string path2TrainingFile(path2bdd + "/files.train");
+  std::string path2TestingFile(path2bdd + "/files.test");
+  ofstream outTrain(path2TrainingFile.c_str(), ios::out);
+  for (std::vector<string>::iterator it = trainingFiles.begin() ; it != trainingFiles.end(); ++it)
+    outTrain << *it << std::endl;  
+  ofstream outTest(path2TestingFile.c_str(), ios::out);
+  for (std::vector<string>::iterator it = testingFiles.begin() ; it != testingFiles.end(); ++it)
+    outTest << *it << std::endl;  
+}
+
 int create_specifics_training_means(std::string path2bdd,
 				    int dim,
 				    int maxPts,
@@ -842,53 +1008,55 @@ int create_specifics_training_means(std::string path2bdd,
   int k = nr_class*subK;
   
   double ***vDataPts = (double ***) malloc(nr_class*sizeof(double**));
-  int *nrFP = (int *) malloc(nr_class*sizeof(int));
   if(!vDataPts){
     std::cerr << "Memory allocation error: vDataPts" << std::endl;
     exit(EXIT_FAILURE);
   }
+  int nrFP[nr_class]; // number of feature points for each class
   for(int i=0 ; i<nr_class ; i++){
-    std::string rep(path2bdd + "/" + inttostring(am[i].label) + "/stips"); // FP = feature points
+    std::string label(inttostring(am[i].label));
+    std::string rep(path2bdd + "/" + label); // FP = feature points
     DIR * repertoire = opendir(rep.c_str());
     if (!repertoire){
-      std::cerr << "Impossible to open the stips directory!" << std::endl;
+      std::cerr << "Impossible to open the feature points directory!" << std::endl;
       exit(EXIT_FAILURE);
     }
-    struct dirent * ent;
-    nrFP[i] = 0;
-    while ((ent = readdir(repertoire)) != NULL){
-      std::string file = ent->d_name;
-      if(file.compare(".") != 0 && file.compare("..") != 0){
-	std::cout << file << std::endl;
-	std::string path2FP(rep + "/" + file);
-	KMdata kmData(dim,maxPts);
-	int nPts = 0;
-	if((nPts = importSTIPs(path2FP,dim,maxPts,&kmData)) != 0){
-	  nrFP[i] += nPts;
-	  if(nrFP[i]-nPts == 0)
-	    vDataPts[i] = (double**) malloc(nPts*sizeof(double*));
-	  else
-	    vDataPts[i] = (double**) realloc(vDataPts[i],nrFP[i]*sizeof(double*));
-	  if(!vDataPts[i]){
-	    std::cerr << "Memory allocation error while importing features points" << std::endl;
-	    exit(EXIT_FAILURE);
-	  }
-	  int index =0;
-	  for(int n=(nrFP[i] - nPts) ; n<nrFP[i] ; n++){
-	    vDataPts[i][n] = (double*) malloc(dim*sizeof(double));
-	    if(!vDataPts[i][n]){
-	      std::cerr << "Memory allocation error" << std::endl;
-	      exit(EXIT_FAILURE);
-	    }
-	    for(int d=0 ; d<dim ; d++){
-	      vDataPts[i][n][d] = kmData[index][d];
-	    }
-	    index++;
-	  }
-	} // else we read the next file because no points were detected
-      } 
+    // Searching the file concatenate.label.fp.train
+    struct dirent * ent = readdir(repertoire);
+    std::string file(ent->d_name);
+    while (ent &&
+	   (file.compare("concatenate." + label + ".fp.train")) != 0){
+      ent = readdir(repertoire);
+      file = ent->d_name;
     }
-    if(nrFP[i] == 0){
+    if(!ent){
+      std::cerr << "No file concatenate.label.fp.train" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    std::string path2FP(rep + "/" + file);
+    KMdata kmData(dim,maxPts);
+    std::cout << path2FP << std::endl;
+    nrFP[i] = 0;
+    // Importing the feature points
+    if((nrFP[i] = importSTIPs(path2FP,dim,maxPts,&kmData)) != 0){
+      vDataPts[i] = (double**) malloc(nrFP[i]*sizeof(double*));
+      if(!vDataPts[i]){
+	std::cerr << "Memory allocation error while importing features points" << std::endl;
+	exit(EXIT_FAILURE);
+      }
+      // Saving them in vDataPts
+      for(int n=0 ; n<nrFP[i] ; n++){
+	vDataPts[i][n] = (double*) malloc(dim*sizeof(double));
+	if(!vDataPts[i][n]){
+	  std::cerr << "Memory allocation error" << std::endl;
+	  exit(EXIT_FAILURE);
+	}
+	for(int d=0 ; d<dim ; d++){
+	  vDataPts[i][n][d] = kmData[n][d];
+	}
+      }
+    }
+    else{ // ie. nrFP[i] == 0
       std::cerr << "A class does not contain features points!" << std::endl;
       exit(EXIT_FAILURE);
     }
@@ -900,6 +1068,7 @@ int create_specifics_training_means(std::string path2bdd,
     ttFP += nrFP[i];
   }
   
+  // Memory allocation of the centers
   double** vCtrs = (double**) malloc(k*sizeof(double*));
   if(!vCtrs){
     std::cerr << "Ctrs memory allocation error" << std::endl;
@@ -912,7 +1081,9 @@ int create_specifics_training_means(std::string path2bdd,
       exit(EXIT_FAILURE);
     }
   }
-  int ic = 3;
+  
+  // Doing the KMeans algorithm for each activities
+  int ic = 3; // the iteration coefficient (Ivan's algorithm)
   int currCenter = 0;
   for(int i=0 ; i<nr_class ; i++){
     KMdata kmData(dim,nrFP[i]);
@@ -931,7 +1102,11 @@ int create_specifics_training_means(std::string path2bdd,
     }
   }
   
+  std::cout << "Concatenate KMdata" << std::endl;
   // Concatenate all the KMdata
+  /* In reality it is not necessary
+     but the objectif KMfilterCenters must be initialized with
+     the KMdata */
   KMdata dataPts(dim,ttFP);
   int nPts = 0;
   for (int i=0 ; i<nr_class ; i++){
@@ -949,7 +1124,6 @@ int create_specifics_training_means(std::string path2bdd,
     free(vDataPts[i]);
   }
   free(vDataPts);
-  free(nrFP);
   dataPts.buildKcTree();
   
   // Returning the true centers
@@ -968,5 +1142,3 @@ int create_specifics_training_means(std::string path2bdd,
   
   return k;
 }
-
-

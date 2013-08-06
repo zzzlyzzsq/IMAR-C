@@ -48,8 +48,21 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
 #endif
 
 
-void concatenate_features_points(int nbActivities, activitiesMap *am, std::string path2bdd);
-void concatenate_bag_of_words(int nbActivities, activitiesMap *am, std::string path2bdd);
+void concatenate_features_points(int nbActivities,
+				 activitiesMap *am,
+				 std::string path2bdd,
+				 int nrVideosByActivities,
+				 std::vector <std::string>& trainingFiles,
+				 std::vector <std::string>& testingFiles);
+void concatenate_features_points_per_activities(int nbActivities,
+						activitiesMap *am,
+						std::string path2bdd,
+						int nrVideosByActivities,
+						std::vector <std::string>& trainingFiles,
+						std::vector <std::string>& testingFiles);
+void concatenate_bag_of_words(int nbActivities,
+			      activitiesMap *am,
+			      std::string path2bdd);
 int getMinNumVideo(int nbActivities, activitiesMap *am, std::string path2bdd);
 int create_specifics_training_means(std::string path2bdd,
 				    int dim,
