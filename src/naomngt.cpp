@@ -186,13 +186,13 @@ void trainBdd(std::string bddName, int maxPts, int k){
   // Creating the file training.means
   // It will only use concatenate files
   std::cout << "Computing KMeans..." << std::endl;
-  /*createTrainingMeans(path2bdd + "/" + "concatenate.stips",
-    dim,
-    maxPts,
-    k,
-    meansFile);
-  */
-  int subK = k/nbActivities;
+  createTrainingMeans(path2bdd + "/" + "concatenate.fp.train",
+		      dim,
+		      maxPts,
+		      k,
+		      meansFile);
+  
+  /*int subK = k/nbActivities;
   if(k%nbActivities != 0){
     k = subK * nbActivities;
   }
@@ -205,7 +205,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
 				      nbActivities,
 				      am,
 				      meansFile);
-  
+  */
   std::cout << "Computing BOWs..." << std::endl;
   // Finally we have to compute BOWs
   struct svm_problem svmTrainProblem;
@@ -314,28 +314,36 @@ void trainBdd(std::string bddName, int maxPts, int k){
   double* py = svmTrainProblem.y;
   int pnum = svmTrainProblem.l;
   struct svm_node** px = svmTrainProblem.x;
+  double rate = 0;
   for(int i=0; i<pnum; i++){
     double lab_in = py[i];
     double lab_out = svm_predict(svmModel,px[i]);
     trainMC.addTransfer(lab_in,lab_out);
+    if(lab_in == lab_out)
+      rate++;
   }
+  rate/=pnum;
   trainMC.calculFrequence();
-  trainMC.output();
   trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
+  std::cout << "Train recognition rate: " << rate << "%" << std::endl;
   
   // 2- Testing data
   MatrixC testMC = MatrixC(svmModel);
   py = svmTestProblem.y;
   pnum = svmTestProblem.l;
   px = svmTestProblem.x;
+  rate = 0;
   for(int i=0; i<pnum; i++){
     double lab_in = py[i];
     double lab_out = svm_predict(svmModel,px[i]);
     testMC.addTransfer(lab_in,lab_out);
+    if(lab_in == lab_out)
+      rate++;
   }
+  rate /= pnum;
   testMC.calculFrequence();
-  testMC.output();
   testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
+  std::cout << "Test recognition rate: " << rate << "%" << std::endl;  
   
   destroy_svm_problem(svmTrainProblem);
   destroy_svm_problem(svmTestProblem);
@@ -1142,3 +1150,233 @@ int create_specifics_training_means(std::string path2bdd,
   
   return k;
 }
+void testBdd(std::string bddName, int maxPts, int k, int nrTests){
+  std::string path2bdd("bdd/" + bddName);
+  std::string meansFile(path2bdd + "/" + "training.means");
+  
+  std::cout << path2bdd << std::endl;
+  int desc = getDescID(path2bdd);
+  int dim = getDim(desc);
+  
+  // ouverture du fichier d'équivalence label <-> activités
+  activitiesMap *am;
+  int nbActivities = mapActivities(path2bdd,&am);
+  int labels[nbActivities];
+  for(int i=0 ; i<nbActivities ; i++){
+    labels[i] = am[i].label;
+  }
+  
+  // Creation of the file concatenate.stip
+  // and the files concatenate.train.stip
+  // and concatenate.test.stip per activities
+  int nrVideosByActivities = 10; // as an option
+  int minNrVideo = 8;
+  if(nrVideosByActivities >= minNrVideo - 1){
+    nrVideosByActivities = minNrVideo - 1;
+  }
+  std::cout << "Using " << nrVideosByActivities;
+  std::cout << " videos per activity for the training phase." << std::endl;
+  
+  MatrixC trainMC = MatrixC(nbActivities,labels);
+  double trainRate = 0;
+  int nrTrain = 0;
+  
+  MatrixC testMC = MatrixC(nbActivities,labels);
+  double testRate = 0;
+  int nrTest = 0;
+  
+  std::string KMAlgorithm;
+  std::string normalization;
+  for(int test=0 ; test < nrTests ; test++){
+    std::vector <std::string> trainingFiles;
+    std::vector <std::string> testingFiles;
+    concatenate_features_points(nbActivities,
+				am,
+				path2bdd,
+				nrVideosByActivities,
+				trainingFiles,
+				testingFiles);
+  
+    // Creating the file training.means
+    // It will only use concatenate files
+    std::cout << "Computing KMeans..." << std::endl;
+    /* createTrainingMeans(path2bdd + "/" + "concatenate.fp.train",
+			dim,
+			maxPts,
+			k,
+			meansFile);*/
+    KMAlgorithm = "specifical";
+    int subK = k/nbActivities;
+    if(k%nbActivities != 0){
+      k = subK * nbActivities;
+    }
+    saveKinfo(path2bdd,k);
+    std::cout << "k=" << k << " & subK=" << subK << std::endl;
+    k = create_specifics_training_means(path2bdd,
+					dim,
+					maxPts,
+					subK,
+					nbActivities,
+					am,
+					meansFile);
+      
+    std::cout << "Computing BOWs..." << std::endl;
+    // Finally we have to compute BOWs
+    struct svm_problem svmTrainProblem;
+    svmTrainProblem.l = 0;
+    svmTrainProblem.x = NULL;
+    svmTrainProblem.y = NULL;
+    struct svm_problem svmTestProblem;
+    svmTestProblem.l = 0;
+    svmTestProblem.x = NULL;
+    svmTestProblem.y = NULL;
+    
+    for(int i = 0 ; i< nbActivities ; i++){
+      std::string label = inttostring(am[i].label);
+      std::string activity = am[i].activity;
+      std::cout << "BOW of the activity ";
+      std::cout<< activity << "(" << label << ")..." << std::endl;
+    
+      string rep(path2bdd + "/" + label + "/fp");
+      DIR * repertoire = opendir(rep.c_str());
+      if (!repertoire){
+	std::cerr << "Impossible to open the stips directory!" << std::endl;
+	exit(EXIT_FAILURE);
+      }
+      struct dirent * ent;
+      while ( (ent = readdir(repertoire)) != NULL){
+	std::string file = ent->d_name;
+	if(file.compare(".") != 0 && file.compare("..") != 0){
+	  std::string path2STIPs(path2bdd + "/" + label + "/fp/" + file);
+	
+	  KMdata dataPts(dim,maxPts);
+	  int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
+	  if(nPts != 0){
+	    dataPts.setNPts(nPts);
+	    dataPts.buildKcTree();
+	  
+	    KMfilterCenters ctrs(k, dataPts);  
+	    importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
+	  
+	    struct svm_problem svmBow = computeBOW(am[i].label,
+						   dataPts,
+						   ctrs);
+	    std::vector<std::string>::iterator inTrain =
+	      std::find(trainingFiles.begin(), trainingFiles.end(), file);
+	    std::vector<std::string>::iterator inTest =
+	      std::find(testingFiles.begin(), testingFiles.end(), file);
+	    if(inTrain != trainingFiles.end() && inTest != testingFiles.end()){
+	      std::cout << *inTrain << " and " << *inTest << std::endl;
+	      std::cerr << "Error: trainingFiles and testingFiles contain same files!" << std::endl;
+	      exit(EXIT_FAILURE);
+	    }
+	    if(inTrain != trainingFiles.end()){
+	      addBOW(svmBow,svmTrainProblem);
+	    }
+	    else if(inTest != testingFiles.end()){
+	      addBOW(svmBow,svmTestProblem);
+	    }
+	    else{
+	      std::cerr << "Error: the file does not exist!" << std::endl;
+	      exit(EXIT_FAILURE);
+	    }
+	    destroy_svm_problem(svmBow);	  
+	  }
+	}
+      }
+      closedir(repertoire);
+    }
+  
+  
+    //struct svm_problem svmProblem = importProblem(path2bdd + "/concatenate.bow", k);
+    // Now all Bag Of Words are saved in svmProblem
+  
+    // Extracting gaussian parameters
+    double *means=NULL, *stand_devia=NULL;
+    means = new double[k];
+    stand_devia = new double[k];
+    get_gaussian_parameters(k,svmTrainProblem,means,stand_devia);
+    save_gaussian_parameters(path2bdd,
+			     k,
+			     means,
+			     stand_devia);
+    load_gaussian_parameters(path2bdd,
+			     k,
+			     means,
+			     stand_devia);
+    bow_simple_normalization(svmTrainProblem);  
+    //bow_gaussian_normalization(k,means,stand_devia,svmTrainProblem);
+    bow_simple_normalization(svmTestProblem);
+    //bow_gaussian_normalization(k,means,stand_devia,svmTestProblem);
+    normalization = "bow_simple_normalization";
+    
+    // Exporting problem
+    exportProblem(svmTrainProblem, path2bdd + "/concatenate.bow.train");
+    exportProblem(svmTestProblem,path2bdd + "/concatenate.bow.test");
+  
+    std::cout << "Done!" << std::endl;
+  
+    // Créer le fichier svm model
+    std::cout << "Generating the SVM model..." << std::endl;
+    struct svm_model* svmModel = create_svm_model(k, svmTrainProblem);
+    std::cout << "Saving the SVM model..." << std::endl;
+    std::string fileToSaveModel(path2bdd + "/svm.model");
+    svm_save_model(fileToSaveModel.c_str(),svmModel);
+    
+    /* Calculate the confusion matrix */
+    // 1- Training data
+    double* py = svmTrainProblem.y;
+    int pnum = svmTrainProblem.l;
+    struct svm_node** px = svmTrainProblem.x;
+    for(int i=0; i<pnum; i++){
+      double lab_in = py[i];
+      double lab_out = svm_predict(svmModel,px[i]);
+      trainMC.addTransfer(lab_in,lab_out);
+      if(lab_in == lab_out)
+	trainRate++;
+      nrTrain++;
+    }
+    
+    // 2- Testing data
+    py = svmTestProblem.y;
+    pnum = svmTestProblem.l;
+    px = svmTestProblem.x;
+    for(int i=0; i<pnum; i++){
+      double lab_in = py[i];
+      double lab_out = svm_predict(svmModel,px[i]);
+      testMC.addTransfer(lab_in,lab_out);
+      if(lab_in == lab_out)
+	testRate++;
+      nrTest++;
+    }
+    
+    destroy_svm_problem(svmTrainProblem);
+    destroy_svm_problem(svmTestProblem);
+    svm_free_and_destroy_model(&svmModel);
+    svmModel = NULL;
+  }
+  trainRate /= (double) nrTrain;
+  testRate /= (double) nrTest;
+  
+  trainMC.calculFrequence();
+  trainMC.exportMC(path2bdd,"training_confusion_matrix.means.txt");
+  
+  testMC.calculFrequence();
+  testMC.exportMC(path2bdd,"testing_confusion_matrix.means.txt");
+  
+  std::cout << "#######################################" << std::endl;
+  std::cout << "######## RESUME OF THE TEST ###########" << std::endl;
+  std::cout << "#######################################" << std::endl;
+  std::cout << "Number of tests: " << nrTests << std::endl;
+  std::cout << "Descriptor ID: " << desc << std::endl;
+  std::cout << "Number of means: " << k << std::endl;
+  std::cout << "KMeans algorithm used: " << KMAlgorithm << std::endl;
+  std::cout << "Normalization used: " << normalization << std::endl;
+  std::cout << "Train recognition rate:" << std::endl;
+  std::cout << "\t tau_train=" << trainRate*100 << "%" << std::endl;
+  std::cout << "\t total number of train BOWs=" << nrTrain << std::endl;
+  std::cout << "Test recognition rate:" << std::endl;
+  std::cout << "\t tau_test=" << testRate*100 << "%" << std::endl;
+  std::cout << "\t total number of test BOWs=" << nrTest << std::endl;
+}
+

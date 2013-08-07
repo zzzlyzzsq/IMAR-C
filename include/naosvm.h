@@ -56,6 +56,7 @@ void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem);
 class MatrixC{
  public:
   MatrixC(const svm_model* model);
+  MatrixC(int nr_class, int* labels);
   ~MatrixC();
   void output();
   void exportMC(std::string folder, std::string file);

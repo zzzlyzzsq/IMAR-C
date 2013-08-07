@@ -32,6 +32,7 @@ void addVideos(std::string bddName,std::string activity,int nbVideos, std::strin
 std::string inttostring(int int2str);
 void trainBdd(std::string bddName, int maxPts, int k);
 void addLabel(int label, std::string file, int k);
+void testBdd(std::string bddName, int maxPts, int k, int nrTests);
 
 void addBdd(std::string bddName,int desc);
 void addActivity(std::string activityName, std::string bddName);

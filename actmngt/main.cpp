@@ -24,6 +24,15 @@ int main(int argc, char* argv[]){
     return EXIT_SUCCESS;
   }
   std::string function = argv[1];
+  if(function.compare("test") == 0){ // test BDD
+    if(argc != 4){
+      std::cerr << "Test: Bad arguments!" << std::endl;
+      return EXIT_FAILURE;
+    }
+    char* bddName = argv[2];
+    k = atoi(argv[3]);
+    testBdd(bddName, maxPts, k, 100);    
+  }
   if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
     if(argc == 4){
       desc = atoi(argv[3]);

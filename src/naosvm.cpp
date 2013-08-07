@@ -705,6 +705,27 @@ MatrixC::MatrixC(double* labs_with_repeat,int num_of_labs){
   }
 }
 */
+MatrixC::MatrixC(int nr_class, int* labels){
+  int n = this->num_labels = nr_class;
+  this->labels = new double[n];
+  for(int i=0; i<n; i++){
+    this->labels[i] = labels[i];
+  }
+  this->m = new int*[n];
+  for(int i=0; i<n; i++){
+    this->m[i] = new int[n];
+  }
+  this->m_fre = new double*[n];
+  for(int i=0; i<n; i++){
+    this->m_fre[i] = new double[n];
+  }
+  for(int i=0; i<n; i++){
+    for(int j=0; j<n; j++){
+      this->m[i][j] = 0;
+      this->m_fre[i][j] = .0;
+    }
+  }
+}
 MatrixC::MatrixC(const svm_model* model){
   int n = this->num_labels = model->nr_class;
   this->labels = new double[n];
@@ -758,6 +779,7 @@ void MatrixC::calculFrequence(){
     int total = 0;
     for(int j=0; j<num; j++){
       total += this->m[i][j];
+      std::cerr << m[i][j] << std::endl;
     }
     for(int j=0; j<num; j++){
       this->m_fre[i][j] = (double)this->m[i][j]/(double)total;
