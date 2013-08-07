@@ -903,6 +903,8 @@ void concatenate_features_points_per_activities(int nbActivities,
 						int nrVideosByActivities,
 						std::vector <std::string>& trainingFiles,
 						std::vector <std::string>& testingFiles){
+  srand(time(NULL)); // initialisation of rand
+  
   std::cout << "Creating files concatenate.label.fp.train";
   std::cout << " and concatenate.label.fp.test for each activities" << std::endl;
   
@@ -937,7 +939,6 @@ void concatenate_features_points_per_activities(int nbActivities,
     int nrVideos = nbOfFiles(rep);
     
     int randomVector[nrVideosByActivities];
-    srand(time(NULL)); // initialisation of rand
     for(int s=0; s<nrVideosByActivities;s++){
       int r = (int) rand()%(nrVideos);
       int index = 0;
@@ -1304,10 +1305,10 @@ void testBdd(std::string bddName, int maxPts, int k, int nrTests){
 			     k,
 			     means,
 			     stand_devia);
-    bow_simple_normalization(svmTrainProblem);  
-    //bow_gaussian_normalization(k,means,stand_devia,svmTrainProblem);
-    bow_simple_normalization(svmTestProblem);
-    //bow_gaussian_normalization(k,means,stand_devia,svmTestProblem);
+    //bow_simple_normalization(svmTrainProblem);  
+    bow_gaussian_normalization(k,means,stand_devia,svmTrainProblem);
+    //bow_simple_normalization(svmTestProblem);
+    bow_gaussian_normalization(k,means,stand_devia,svmTestProblem);
     normalization = "bow_simple_normalization";
     
     // Exporting problem
