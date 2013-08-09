@@ -164,6 +164,7 @@ void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCen
   // ic : iteration coefficient
   int nrPhases = 3;
   for(int i=0 ; i<nrPhases ; i++){
+    std::cerr<<"phase:"<<i<<std::endl;
     int maxIter = (int) pow(2,(nrPhases-1-i));
     int sampleSize = floor(nPts/maxIter);
     
@@ -189,6 +190,7 @@ void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCen
     }
     else{
       // Filling the random vector permiting to sampling "uniformly" (as more as we can) the data  
+      std::cerr<<"ok++"<<std::endl; 
       randomVector = (int*) malloc(sampleSize * sizeof(int));
       srand(time(NULL)); // initialisation of rand
       for(int s=0; s<sampleSize ;s++){
@@ -203,7 +205,7 @@ void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCen
 	  s--;
 	}
       }
-      
+      std::cerr<<"ok--"<<std::endl; 
       // Filling subDataPts
       for(int s=0; s<sampleSize ; s++){
 	for(int d=0 ; d<dim ; d++){
@@ -215,30 +217,29 @@ void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCen
     subDataPts.buildKcTree();
     
     // Allocate centers with subData
-    KMfilterCenters* newCtrs = new KMfilterCenters(k, subDataPts);
+    KMfilterCenters newCtrs(k, subDataPts);
     
     // Initializing the centers (randomly for the first iteration)
     if(i==0){
-      (*newCtrs).genRandom(); 
+      (newCtrs).genRandom(); 
     }
     else{
       for(int c = 0; c < k ; c++){
 	for(int d=0 ; d<dim ; d++){
-	  (*newCtrs)[c][d] = centersBuffer[c][d];
+	  (newCtrs)[c][d] = centersBuffer[c][d];
 	}
       } 
     }
     for(int iteration = 0  ; iteration < ic*maxIter ; iteration++){ // ic : iteration coefficient
-      (*newCtrs).lloyd1Stage();
+      (newCtrs).lloyd1Stage();
     }
     
     // Saving the old centers in centersBuffer
     for(int c = 0; c < k ; c++){
       for(int d=0 ; d<dim ; d++){
-	centersBuffer[c][d] = (*newCtrs)[c][d];
+	centersBuffer[c][d] = (newCtrs)[c][d];
       }
     }
-    delete newCtrs;
     
     if(i==nrPhases-1){
       for(int c = 0; c < k ; c++){
@@ -250,6 +251,11 @@ void kmIvanAlgorithm(int ic, int dim,  const KMdata& dataPts, int k, KMfilterCen
     free(randomVector);
     randomVector = NULL;
   }
+
+  for(int c=0 ; c<k ; c++){
+    free(centersBuffer[c]);
+  }
+  free(centersBuffer);
 }
 
 /**

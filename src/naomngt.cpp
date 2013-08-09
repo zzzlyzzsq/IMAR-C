@@ -233,7 +233,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
       std::string file = ent->d_name;
       if(file.compare(".") != 0 && file.compare("..") != 0){
 	std::string path2STIPs(path2bdd + "/" + label + "/fp/" + file);
-	
+  std::cerr<<path2STIPs<<std::endl;	
 	KMdata dataPts(dim,maxPts);
 	int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
 	if(nPts != 0){
@@ -242,7 +242,6 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	  
 	  KMfilterCenters ctrs(k, dataPts);  
 	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
-	  
 	  struct svm_problem svmBow = computeBOW(am[i].label,
 						 dataPts,
 						 ctrs);
@@ -265,6 +264,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	    std::cerr << "Error: the file does not exist!" << std::endl;
 	    exit(EXIT_FAILURE);
 	  }
+
 	  destroy_svm_problem(svmBow);	  
  	}
       }
@@ -302,13 +302,28 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::cout << "Done!" << std::endl;
   
   // Créer le fichier svm model
+  /*
   std::cout << "Generating the SVM model..." << std::endl;
   struct svm_model* svmModel = create_svm_model(k, svmTrainProblem);
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
   svm_save_model(fileToSaveModel.c_str(),svmModel);
+ */ 
+  // Modefied for ovr
+  struct svm_parameter svmParameter;
+  get_svm_parameter(k,svmParameter);
+  struct svm_model** svmModel = svm_train_ovr(&svmTrainProblem,&svmParameter);
   
+  std::string fileToSaveModel = path2bdd;
+  for(int i=0; i<nbActivities; i++){
+    std::stringstream ss;
+    ss << i;
+    fileToSaveModel = fileToSaveModel + "/svm_ovr_" + ss.str() + ".model";
+    svm_save_model(fileToSaveModel.c_str(),svmModel[i]);
+  }
+
   /* Calculate the confusion matrix */
+  /*
   // 1- Training data
   MatrixC trainMC = MatrixC(svmModel);
   double* py = svmTrainProblem.y;
@@ -344,10 +359,20 @@ void trainBdd(std::string bddName, int maxPts, int k){
   testMC.calculFrequence();
   testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
   std::cout << "Test recognition rate: " << rate << "%" << std::endl;  
+  */
   
   destroy_svm_problem(svmTrainProblem);
   destroy_svm_problem(svmTestProblem);
-  svm_free_and_destroy_model(&svmModel);
+  //svm_free_and_destroy_model(&svmModel);
+  
+  // Modified for ovr
+  for(int i=0;i<nbActivities;i++){
+    svm_free_and_destroy_model(&svmModel[i]);
+    delete [] svmModel;
+  }
+  free(am);
+  delete means;
+  delete stand_devia;
   std::cout << "Done!" <<endl;
 }
 

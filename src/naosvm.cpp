@@ -845,14 +845,14 @@ void bow_simple_normalization(struct svm_problem& svmProblem){
 
 void destroy_svm_problem(struct svm_problem svmProblem){
   free(svmProblem.y);
-  svmProblem.y = NULL;
+  //svmProblem.y = NULL;
   
   for(int a=0 ; a<svmProblem.l ; a++){
     free(svmProblem.x[a]);
-    svmProblem.x[a] = NULL;
+    //svmProblem.x[a] = NULL;
   }
   free(svmProblem.x);
-  svmProblem.x = NULL;
+  //svmProblem.x = NULL;
 }
 
 void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem){
@@ -1086,4 +1086,76 @@ int getMaxIndex(const struct svm_problem& svmProblem){
     }
   }
   return maxIndex;
+}
+
+// svm training funciton using the strategy one-vs-rest
+svm_model **svm_train_ovr(const svm_problem *prob, const svm_parameter *param){
+  int nr_class;
+  vector<double> label;
+  label = get_labels_from_prob(prob);
+  nr_class = label.size();
+  int l = prob->l;
+  svm_model **model = new svm_model*[nr_class];
+  if(nr_class == 1){
+    std::cerr<<"Training data in only one class.Aborting!"<<std::endl;
+    exit(EXIT_FAILURE);
+  }
+  double *temp_y = new double[l];
+  for(int i=0;i<nr_class;i++){
+    double label_class = label[i];
+    for(int j=0;j<l;j++) temp_y[j] = prob->y[j];
+    for(int j=0;j<l;j++){
+      if(label_class != prob->y[j]){
+        prob->y[j] = 0;
+      }
+    }
+    model[i] = svm_train(prob,param);
+    for(int j=0;j<l;j++) prob->y[j] =  temp_y[j];
+  }
+  delete [] temp_y;
+  return model;
+}
+
+void get_svm_parameter(int k,struct svm_parameter &svmParameter){
+  // SVM PARAMETER
+  svmParameter.svm_type = C_SVC;
+  svmParameter.kernel_type = RBF;
+  //  svm.degree
+  svmParameter.gamma = 1.0/k;
+  // double coef0;
+  
+  /* For training only : */
+  svmParameter.cache_size = 100; // in MB
+  svmParameter.eps = 1e-3; // stopping criteria
+  svmParameter.C = 1;
+  
+  // change the penalty for some classes
+  svmParameter.nr_weight = 0;
+  svmParameter.weight_label = NULL;
+  svmParameter.weight = NULL;
+    
+  //  double nu; // for NU_SVC, ONE_CLASS, and NU_SVR
+  //  double p;	// for EPSILON_SVR 
+  
+  svmParameter.shrinking = 1;	/* use the shrinking heuristics */
+  svmParameter.probability = 0; /* do probability estimates */
+}
+
+std::vector<double> get_labels_from_prob(const svm_problem *prob){
+  int l = prob->l;
+  double *y = prob->y;
+  vector<double> labels;
+  for(int i=0; i<l; i++){
+    bool exist = false;
+    for(std::vector<double>::iterator itr = labels.begin(); itr != labels.end();itr++){
+      if(y[i] == *itr){
+        exist = true;
+        break;
+      }
+    }
+    if(!exist){
+      labels.push_back(y[i]);
+    }
+  }
+  return labels;
 }
