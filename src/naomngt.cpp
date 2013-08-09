@@ -903,6 +903,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
 	       path2bdd, meansFile,
 	       trainMC, testMC
 	       );
+  delete [] am;
   trainMC.calculFrequence();
   trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
   testMC.calculFrequence();
@@ -1177,8 +1178,6 @@ void km_svm_train(int nrVideosByActivities,
     svm_free_and_destroy_model(&svmModel[i]);
   }
   delete [] svmModel;
-  
-  free(am);
   delete means;
   delete stand_devia;
   destroy_svm_problem(svmTrainProblem);
