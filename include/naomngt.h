@@ -73,4 +73,10 @@ int create_specifics_training_means(std::string path2bdd,
 				    activitiesMap* am,
 				    // std::vector <std::string> rejects,
 				    std::string meansFile);
+void km_svm_train(int nrVideosByActivities,
+		  int dim, int maxPts, int k,
+		  int nbActivities, activitiesMap *am,
+		  std::string path2bdd, std::string meansFile,
+		  MatrixC& trainMC, MatrixC& testMC
+		  );
 #endif

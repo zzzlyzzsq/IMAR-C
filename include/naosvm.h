@@ -45,9 +45,10 @@ double entropy(double x, double lambda);
 SvmProbability* svm_calculate_probability(int* labels,
 					  double* dec_values,
 					  int nr_class);
-SvmProbability svm_vote(int* labels,
-			double* dec_values,
-			int nr_class);
+void svm_vote(int nrClass,
+	      int votes[],
+	      double decisionValues[]
+	      );
 
 void destroy_svm_problem(struct svm_problem svmProblem);
 void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem);
@@ -67,12 +68,13 @@ class MatrixC{
  private:
   int** m;
   double* labels;
-  int num_labels;
   double** m_fre;
+ public:
+  int num_labels;
+  int nrTest;
+  int nrRecognition;
+  double recognitionRate;
 };
-
-
-
 
 // Normalization
 // Simple normalization which depends only of one bag of words

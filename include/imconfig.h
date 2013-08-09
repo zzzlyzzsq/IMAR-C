@@ -31,6 +31,10 @@ int getDim(int desc);
 void saveDescInfo(std::string folder, int desc);
 int getDescID(std::string folder);
 
+// Probabiliy Estimation
+double getTrainProbability(std::string folder);
+void saveTrainProbability(std::string folder, double p);
+
 // Number of centers
 int getK(std::string kmeans);
 void saveKinfo(std::string folder, int k);

@@ -520,191 +520,9 @@ double entropy(double x, double lambda){
   return - log(cosh(lambda*x)) + (lambda*x)*tanh(lambda*x);
 }
 
-SvmProbability* svm_calculate_probability(int* labels,
-					  double* dec_values,
-					  int nr_class){
-  int nr_couples = (nr_class)*(nr_class-1)/2;
-  double* current_dec_values = (double*) malloc(nr_couples*sizeof(double));
-  for(int i=0 ; i<nr_couples ;i++){
-    current_dec_values[i] = dec_values[i];
-  }
-  int* current_labels = (int*) malloc(nr_class*sizeof(int));
-  for(int i=0 ; i<nr_class ;i++){
-    current_labels[i] = labels[i];
-  }
-  
-  SvmProbability* svmProbabilities = (SvmProbability*) malloc(nr_class*sizeof(SvmProbability));
-  SvmProbability svmProbability;  
-  
-  bool labelVoted;
-  int* labelsVoted = (int*) malloc(nr_class*sizeof(int));
-  
-  int i = 0;
-  double probabilitiesSum = 0;
-  int index;
-  // Make a vote (nr_class-1) times
-  while(i<nr_class-1){
-    // The vote
-    svmProbability = svm_vote(current_labels,current_dec_values,nr_class-i);
-    svmProbability.probability = svmProbability.probability*(1-probabilitiesSum);
-    svmProbabilities[i] = svmProbability;
-    std::cout << "Vote " << i+1 <<":"<< std::endl;
-    std::cout << "Label: " << svmProbability.label << std::endl;
-    std::cout << "Probability: " << svmProbability.probability << std::endl;
-    
-    probabilitiesSum += svmProbability.probability;
-    labelsVoted[i] = svmProbability.label;
-    i++;
-
-    free(current_labels);
-    current_labels = NULL;
-    free(current_dec_values);
-    current_dec_values = NULL;    
-    
-    int nonVoted = 0;
-    // Filling new current_labels
-    current_labels = (int*) malloc((nr_class-i) * sizeof(int));
-    for(int l=0 ; l<nr_class ; l++){
-      labelVoted = false;
-      for(int m=0 ; m<i; m++){
-	if(labels[l] == labelsVoted[m])
-	  labelVoted = true;
-      }
-      if(!labelVoted){
-	current_labels[nonVoted] = labels[l];
-	nonVoted++;
-      }
-    }
-    
-    // Filling new current_dec_values
-    nr_couples = (nr_class - i)*(nr_class - i - 1)/2;
-    current_dec_values = (double*) malloc(nr_couples*sizeof(double));
-
-    index = 0; // for browsing dec_values
-    int p = 0; // for browsing current_dec_values
-    for(int k=0 ; k<nr_class ; k++){
-      labelVoted = false;
-      for(int m=0 ; m<i ; m++){ // i+1 = number of votes
-	if(labels[k] == labelsVoted[m])
-	  labelVoted = true;
-      }
-      if(!labelVoted){
-	for(int l=k+1;l<nr_class;l++){
-	  labelVoted = false;
-	  for(int m=0 ; m<i ; m++){
-	    if(labels[l] == labelsVoted[m])
-	      labelVoted = true;
-	  }
-	  if(!labelVoted){
-	    current_dec_values[p] = dec_values[index];
-	    p++;
-	  }
-	  index++;
-	}
-      }
-      else{
-	// It is the number of iteration of the sub-loop
-	index += nr_class-k-1;
-      }
-    }
-  }
-  
-  int indice=0;
-  for(int i=0 ; i < nr_class ; i++){
-    labelVoted = false;
-    for(int j=0 ; j<nr_class - 1;j++){
-      if(labels[i] == labelsVoted[j]){
-	labelVoted = true;
-      }
-    }
-    if(!labelVoted){
-      indice = i;
-    }
-  }
-  free(labelsVoted);
-  svmProbability.label = labels[indice];
-  svmProbability.probability = (1-probabilitiesSum);
-  svmProbabilities[nr_class-1] = svmProbability;
-  return svmProbabilities;
-}
-SvmProbability svm_vote(int* labels,
-			double* dec_values,
-			int nr_class){
-  SvmProbability svmProbability;
-  int* votes = (int*) malloc(nr_class * sizeof(int));
-  // Initialization to zero
-  for(int i=0 ; i<nr_class ; i++){
-    votes[i] = 0;
-  }
-  
-  // Voting
-  int p=0;
-  for(int i=0 ; i<nr_class ; i++){
-    for(int j=i+1;j<nr_class;j++){
-      if(dec_values[p] > 0)
-	++votes[i];
-      else
-	++votes[j];
-      p++;
-    }
-  }
-  
-  // Election
-  int indice = 0;
-  int max = votes[0];
-  for(int i=1 ; i<nr_class ; i++){
-    if(votes[i] > max){
-      max = votes[i];
-      indice = i;
-    }
-  }
-  free(votes); 
-
-  // Probability of the vote
-  svmProbability.label = labels[indice];
-  svmProbability.probability = max*1.0/(nr_class-1);
-
-  return svmProbability;
-}
-
 /**
  * the definitions of class MatrixC
  */
-/*
-MatrixC::MatrixC(double* labs_with_repeat,int num_of_labs){
-  const int MAX_NUM_LABS = 100;
-  labels = new double[MAX_NUM_LABS];
-  this->num_labels = 0;
-  for(int i=0; i<num_of_labs; i++){
-    bool exist = false; 
-    for(int j=0; j<num_labels; j++){
-      if(this->labels[j] == labs_with_repeat[i]){
-        exist = true;
-        break;
-      }
-    }
-    if(!exist){
-      this->num_labels++;
-      labels[this->num_labels - 1] = labs_with_repeat[i];
-    }
-  }
-  
-  this->m = new int*[this->num_labels];
-  for(int i=0; i<this->num_labels; i++){
-    this->m[i] = new int[this->num_labels];
-  }
-  this->m_fre = new double*[this->num_labels];
-  for(int i=0; i<this->num_labels; i++){
-    this->m_fre[i] = new double[this->num_labels];
-  }
-  for(int i=0; i<this->num_labels; i++){
-    for(int j=0; j<this->num_labels; j++){
-      this->m[i][j] = 0;
-      this->m_fre[i][j] = .0;
-    }
-  }
-}
-*/
 MatrixC::MatrixC(int nr_class, int* labels){
   int n = this->num_labels = nr_class;
   this->labels = new double[n];
@@ -725,6 +543,9 @@ MatrixC::MatrixC(int nr_class, int* labels){
       this->m_fre[i][j] = .0;
     }
   }
+  
+  this->nrTest = 0;
+  this->nrRecognition = 0;
 }
 MatrixC::MatrixC(const svm_model* model){
   int n = this->num_labels = model->nr_class;
@@ -746,8 +567,10 @@ MatrixC::MatrixC(const svm_model* model){
       this->m_fre[i][j] = .0;
     }
   }
+  
+  this->nrTest = 0;
+  this->nrRecognition = 0;
 }
-
 MatrixC::~MatrixC(){
   delete [] this->labels;
   for(int i=0; i<this->num_labels; i++){
@@ -757,7 +580,6 @@ MatrixC::~MatrixC(){
   delete [] this->m;
   delete [] this->m_fre;
 }
-
 int MatrixC::getIndex(double lab){
   for(int i=0; i<this->num_labels; i++){
     if(this->labels[i] == lab){
@@ -766,30 +588,28 @@ int MatrixC::getIndex(double lab){
   }
   return -1;
 }
-
 void MatrixC::addTransfer(double lab_in,double lab_out){
   int index_in = this->getIndex(lab_in);
   int index_out = this->getIndex(lab_out);
   this->m[index_in][index_out]++;
+  if(lab_in == lab_out) this->nrRecognition++;
+  this->nrTest++;
 }
-
 void MatrixC::calculFrequence(){
   int num = this->num_labels;
   for(int i=0; i<num; i++){
     int total = 0;
     for(int j=0; j<num; j++){
       total += this->m[i][j];
-      std::cerr << m[i][j] << std::endl;
     }
     for(int j=0; j<num; j++){
       this->m_fre[i][j] = (double)this->m[i][j]/(double)total;
     }
   }
+  this->recognitionRate = (double)this->nrRecognition / (double)this->nrTest;  
 }
 
-double** MatrixC::getMatrix(){
-  return this->m_fre;
-}
+double** MatrixC::getMatrix(){return this->m_fre;}
 
 void MatrixC::output(){
   using namespace std;
@@ -1086,4 +906,26 @@ int getMaxIndex(const struct svm_problem& svmProblem){
     }
   }
   return maxIndex;
+}
+
+void svm_vote(int nr_class,
+	      int votes[],
+	      double dec_values[])
+	      {
+  // Initialization to zero
+  for(int i=0 ; i<nr_class ; i++){
+    votes[i] = 0;
+  }
+  
+  // Voting
+  int p=0;
+  for(int i=0 ; i<nr_class ; i++){
+    for(int j=i+1;j<nr_class;j++){
+      if(dec_values[p] > 0)
+	++votes[i];
+      else
+	++votes[j];
+      p++;
+    }
+  }
 }

@@ -138,6 +138,31 @@ int getDim(int desc){
 }
 
 /**
+ * \fn double getTrainProbability(std::string folder)
+ * \brief Get the training probability.
+ * \param[in] folder The folder containing the probability file.
+ * \return Number of centers
+ */
+double getTrainProbability(std::string folder){
+  std::string path2file(folder + "/train_probability.txt");
+  ifstream in(path2file.c_str());
+  double p;
+  in >> p;
+  return p;
+}
+/**
+ * \fn void saveTrainProbability(std::string folder,int k)
+ * \bref Save the training probability in the folder.
+ * \param[in] folder The folder which will contain kmeans.txt.
+ * \param[in] k Number of means.
+ */
+void saveTrainProbability(std::string folder, double p){
+  std::string path2file(folder + "/train_probability.txt");
+  ofstream out(path2file.c_str(), ios::out);
+  out << p << std::endl;
+}
+
+/**
  * \fn void saveDescInfo(string bddName,int desc)
  * \bref save the descriptor information into the BDD
  * \param[in] bddName the BDD name
