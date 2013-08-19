@@ -34,8 +34,9 @@ int main(int argc, char* argv[]){
   }
   else if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
     if(argc == 4){
+      int scale_num = 2;
       std::string desc = argv[3];
-      refreshBdd(argv[2],desc);
+      refreshBdd(argv[2],scale_num,desc);
     }
     else{
       std::cerr << "Refresh: Bad arguments!" << std::endl;
@@ -55,8 +56,9 @@ int main(int argc, char* argv[]){
     if(argc == 5 && (subfunction.compare("bdd") == 0)){
       // add bdd
       std::string bddName(argv[3]);
+      int scale_num = 2;
       std::string desc = argv[4];
-      addBdd(bddName,desc);
+      addBdd(bddName,scale_num,desc);
       // saveDescInfo(bddName,desc);
     }
     else if(argc == 5 && subfunction.compare("activity") == 0){

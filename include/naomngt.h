@@ -36,14 +36,14 @@ void trainBdd(std::string bddName, int k);
 void addLabel(int label, std::string file, int k);
 void testBdd(std::string bddName, int k, int nrTests);
 
-void addBdd(std::string bddName, std::string descriptor);
+void addBdd(std::string bddName, int scale_num, std::string descriptor);
 void addActivity(std::string activityName, std::string bddName);
 
 void deleteBdd(std::string bddName);
 void deleteActivity(std::string activityName, std::string bddName);
 
 void emptyFolder(std::string folder);
-void refreshBdd(std::string bddName, std::string descriptor);
+void refreshBdd(std::string bddName, int scale_num, std::string descriptor);
 void predictActivity(std::string videoPath, std::string bddName);
 
 #ifdef TRANSFER_TO_ROBOT_NAO

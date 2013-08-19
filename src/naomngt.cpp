@@ -64,6 +64,7 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
   std::string bddConfiguration(path2bdd + "/imconfig.xml");
   bdd.load_bdd_configuration(bddConfiguration.c_str());
   int maxPts = bdd.getMaxPts();
+  int scale_num = bdd.getScaleNum();
   std::string descriptor = bdd.getDescriptor();
   int dim = bdd.getDim();
     
@@ -102,12 +103,9 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
     string fpOutput(fpointspath + "/" + strlabel + "-" + idFile + ".fp");
     int nPts;
     
-    // HOGHOF
-    if(descriptor.compare("hoghof") == 0)
-      nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
-    // MBH
-    else if(descriptor.compare("mbh") == 0)
-      nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
+    nPts = extract_feature_points(videoInput,
+				  scale_num, descriptor, dim,
+				  maxPts, &dataPts);		
     if(nPts != 0){
       dataPts.setNPts(nPts);
       exportSTIPs(fpOutput, dim,dataPts);
@@ -243,7 +241,7 @@ void deleteActivity(std::string activityName, std::string bddName){
  * \param[in] bddName The name of the BDD we want to create.
  * \param[in] descriptor The descriptor used for extracting the feature points
  */
-void addBdd(std::string bddName, std::string descriptor){
+void addBdd(std::string bddName, int scale_num, std::string descriptor){
   // On vérifie que la BDD n'existe pas
   DIR * repertoire = opendir("bdd");
   if (repertoire == NULL){
@@ -277,7 +275,7 @@ void addBdd(std::string bddName, std::string descriptor){
   
   // Saving parameters
   IMbdd bdd = IMbdd(bddName);
-  bdd.changeDenseTrackSettings(-1,
+  bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       getDim(descriptor));
   bdd.write_bdd_configuration("imconfig.xml");
@@ -336,14 +334,14 @@ void emptyFolder(std::string folder){
  * \param[in] dim The STIPs dimension.
  * \param[in] maxPts The maximum number of STIPs we can extract.
  */
-void refreshBdd(std::string bddName, std::string descriptor){
+void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
   std::string path2bdd("bdd/" + bddName);
   
   int dim = getDim(descriptor);
   
   // Saving the new new descriptor with its dimension
   IMbdd bdd = IMbdd(bddName);
-  bdd.changeDenseTrackSettings(-1,
+  bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       dim);
   bdd.write_bdd_configuration("imconfig.xml");
@@ -403,12 +401,9 @@ void refreshBdd(std::string bddName, std::string descriptor){
 	int nPts;
 	cout << videoInput << std::endl;
 	
-	// HOGHOF
-	if(descriptor.compare("hoghof") == 0)
-	  nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
-	// MBH
-	else if(descriptor.compare("mbh") == 0)
-	  nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
+	nPts = extract_feature_points(videoInput,
+				      scale_num, descriptor, dim,
+				      maxPts, &dataPts);		
 	if(nPts != 0){
 	  dataPts.setNPts(nPts);
 	  exportSTIPs(stipOutput, dim, dataPts);
@@ -440,6 +435,7 @@ void predictActivity(std::string videoPath,
   IMbdd bdd(bddName);
   std::string bddConfiguration(path2bdd + "/imconfig.xm");
   bdd.load_bdd_configuration(bddConfiguration.c_str());
+  int scale_num = bdd.getScaleNum();
   std::string descriptor = bdd.getDescriptor();
   int dim = bdd.getDim();
   int k = bdd.getK();
@@ -450,13 +446,9 @@ void predictActivity(std::string videoPath,
   // Computing feature points
   KMdata dataPts(dim,maxPts);
   int nPts = 0;
-
-  // HOGHOF
-  if(descriptor.compare("hoghof") == 0)
-    nPts = extractHOGHOF(videoPath, dim, maxPts, &dataPts);
-  // MBH
-  else if(descriptor.compare("mbh") == 0)
-    nPts = extractMBH(videoPath, dim, maxPts, &dataPts);		
+  nPts = extract_feature_points(videoPath,
+				scale_num, descriptor, dim,
+				maxPts, &dataPts);		
   if(nPts == 0){
     std::cerr << "No activity detected !" << std::endl;
     exit(EXIT_FAILURE);

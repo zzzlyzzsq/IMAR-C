@@ -128,6 +128,13 @@ void ReleDescMat( DescMat* descMat);
 void InitDescInfo(DescInfo* descInfo, int nBins, int flag, int orientation, int size, int nxy_cell, int nt_cell, float min_flow);
 void usage();
 //void arg_parse(int argc, char** argv);
-int extractHOGHOF(std::string video, int dim, int maxPts, KMdata* dataPts);
-int extractMBH(std::string video, int dim, int maxPts, KMdata* dataPts);
+//int extractHOGHOF(std::string video, int dim, int maxPts, KMdata* dataPts);
+//int extractMBH(std::string video, int dim, int maxPts, KMdata* dataPts);
+int extract_feature_points(std::string video,
+			   int scale_num,
+			   std::string descriptor,
+			   int dim,
+			   int maxPts,
+			   KMdata* dataPts);
+
 #endif /*DENSETRACK_H_*/
