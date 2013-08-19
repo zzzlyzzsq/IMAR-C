@@ -27,7 +27,7 @@ bool labelExist(int label, activitiesMap *am, int nbActivities);
 int searchMapIndex(int label, activitiesMap *am, int nbActivities);
 
 // Dimension of the feature points
-int getDim(int desc);
+int getDim(std::string descriptor);
 void saveDescInfo(std::string folder, int desc);
 int getDescID(std::string folder);
 

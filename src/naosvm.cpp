@@ -910,9 +910,9 @@ int getMaxIndex(const struct svm_problem& svmProblem){
   return maxIndex;
 }
 
-void svm_vote(int nr_class,
-	      int votes[],
-	      double dec_values[]){
+int svm_vote(int nr_class,
+	     int votes[],
+	     double dec_values[]){
   // Initialization to zero
   for(int i=0 ; i<nr_class ; i++){
     votes[i] = 0;
@@ -929,8 +929,15 @@ void svm_vote(int nr_class,
       p++;
     }
   }
+  
+  // Electing
+  int indexMax=0;
+  for(int i=1 ; i<nr_class ; i++){
+    if(votes[i] > votes[indexMax])
+      indexMax = i;
+  }
+  return indexMax;
 }
-
 // svm training funciton using the strategy one-vs-rest
 svm_model **svm_train_ovr(const svm_problem *prob, const svm_parameter *param){
   int nr_class;

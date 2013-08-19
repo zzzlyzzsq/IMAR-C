@@ -45,7 +45,8 @@ double entropy(double x, double lambda);
 SvmProbability* svm_calculate_probability(int* labels,
 					  double* dec_values,
 					  int nr_class);
-void svm_vote(int nrClass,
+// return index of label elected
+int svm_vote(int nrClass,
 	      int votes[],
 	      double decisionValues[]
 	      );
