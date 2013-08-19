@@ -203,7 +203,7 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   for(int point = 0; point < nPts ; point++){
     bowHistogram[closeCtr[point]]++;
   }
-  delete closeCtr;
+  delete[] closeCtr;
   delete[] sqDist;
   
   // 5. Exporting the BOW in the structure svmProblem
@@ -239,7 +239,7 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
     // It is the end of the table we do not need to add a value
     idActivity++;
   }
-  delete bowHistogram;
+  delete[] bowHistogram;
 
   return svmProblem; 
 }
@@ -676,32 +676,34 @@ void destroy_svm_problem(struct svm_problem svmProblem){
 }
 
 void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem){
-  if(!svmProblem.y || !svmProblem.x){
+  if(svmProblem.y==NULL || svmProblem.x==NULL){
     svmProblem.y=(double*)malloc(sizeof(double));
     svmProblem.x=(struct svm_node**)malloc(sizeof(struct svm_node*));
-    if(!svmProblem.y || !svmProblem.x){
+    if(svmProblem.y==NULL || svmProblem.x==NULL){
       std::cerr << "Malloc error of svmProblem.x and svmProblem.y!" << std::endl;
       exit(EXIT_FAILURE);
     }
   }
   else{
-    svmProblem.y=(double*)realloc(svmProblem.y,(svmProblem.l+1)*sizeof(double));
-    svmProblem.x=(struct svm_node**)realloc(svmProblem.x,(svmProblem.l+1)*sizeof(struct svm_node*));
-    if(!svmProblem.y || !svmProblem.x){
+    double *tmpy=(double*)realloc(svmProblem.y,(svmProblem.l+1)*sizeof(double));
+    struct svm_node** tmpx=(struct svm_node**)realloc(svmProblem.x,(svmProblem.l+1)*sizeof(struct svm_node*));
+    if(tmpy==NULL || tmpx==NULL){
       std::cerr << "Re-Malloc error of svmProblem.x and svmProblem.y!" << std::endl;
       exit(EXIT_FAILURE);
     }
+    svmProblem.y = tmpy;
+    svmProblem.x = tmpx;
   }
   svmProblem.y[svmProblem.l] = svmBow.y[0];
   int d=0;
   while(svmBow.x[0][d].index != -1){
-    if(d==0&&(svmProblem.x[svmProblem.l]=(struct svm_node*) malloc(sizeof(struct svm_node))) == NULL){
+    if(d==0&&(svmProblem.x[svmProblem.l]=(struct svm_node*) malloc(2*sizeof(struct svm_node))) == NULL){
       std::cerr << "Malloc error of svmProblem.x[svmProblem.l]!" << std::endl;
       exit(EXIT_FAILURE);
     }
     else if((svmProblem.x[svmProblem.l] = 
 	     (struct svm_node*) realloc(svmProblem.x[svmProblem.l],
-					(d+1)*sizeof(struct svm_node))) == NULL){
+					(d+2)*sizeof(struct svm_node))) == NULL){
       std::cerr << "Re-Malloc error of svmProblem.x[svmProblem.l]!" << std::endl;
       exit(EXIT_FAILURE);
     }
@@ -955,6 +957,30 @@ svm_model **svm_train_ovr(const svm_problem *prob, const svm_parameter *param){
   }
   delete [] temp_y;
   return model;
+}
+
+// svm predictor using the one-vs-rest strategy
+double svm_predict_ovr(const svm_model** models, const svm_node* x,int nbr_class){
+  double *decvs = new double[nbr_class];
+  double *preds = new double[nbr_class];
+  for(int i=0;i<nbr_class;i++){
+    preds[i] = svm_predict_values(models[i],x,&decvs[i]); 
+    if(decvs[i]<0 && preds[i]>0)
+      decvs[i] = -decvs[i];
+  }
+  double maxvalue = decvs[0];
+  double label = preds[0];
+  for(int i=1;i<nbr_class;i++){
+    if(decvs[i]>maxvalue){
+      maxvalue = decvs[i];
+      label = preds[i];
+    }
+  }
+  if(label <= 0)
+    std::cerr<<"predict ovr failed!"<<endl;
+  delete [] decvs;
+  delete [] preds;
+  return label;
 }
 
 void get_svm_parameter(int k,struct svm_parameter &svmParameter){
