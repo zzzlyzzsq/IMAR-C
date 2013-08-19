@@ -53,14 +53,20 @@ bool fileExist(std::string file, std::string folder){
  * \param[in] activity The name of the activity.
  * \param[in] nbVideos The number of videos we want to add.
  * \param[in] videoPaths The different paths to the videos.
- * \param[in] desc The descriptor number 
- * \param[in] maxPts The maximum vectors we want to compute.
  */
-void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths, int maxPts){
+void addVideos(std::string bddName, std::string activity, int nbVideos, std::string* videoPaths){
   std::string path2bdd("bdd/" + bddName);
-  int desc = getDescID(path2bdd);
-  int dim = getDim(desc);
   
+  //int desc = getDescID(path2bdd);
+  //int dim = getDim(desc);
+  
+  IMbdd bdd(bddName);
+  std::string bddConfiguration(path2bdd + "/imconfig.xml");
+  bdd.load_bdd_configuration(bddConfiguration.c_str());
+  int maxPts = bdd.getMaxPts();
+  std::string descriptor = bdd.getDescriptor();
+  int dim = bdd.getDim();
+    
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
   int i = 0;
@@ -95,14 +101,13 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
     string videoInput(copypath + "/" + strlabel + idFile + ".avi");
     string fpOutput(fpointspath + "/" + strlabel + "-" + idFile + ".fp");
     int nPts;
-    switch(desc){
-    case 0: //HOG HOF
+    
+    // HOGHOF
+    if(descriptor.compare("hoghof") == 0)
       nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
-      break;
-    case 1: //MBH
+    // MBH
+    else if(descriptor.compare("mbh") == 0)
       nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
-      break;
-    }
     if(nPts != 0){
       dataPts.setNPts(nPts);
       exportSTIPs(fpOutput, dim,dataPts);
@@ -236,8 +241,9 @@ void deleteActivity(std::string activityName, std::string bddName){
  * \brief Creates a new BDD.
  *
  * \param[in] bddName The name of the BDD we want to create.
+ * \param[in] descriptor The descriptor used for extracting the feature points
  */
-void addBdd(std::string bddName, int desc){
+void addBdd(std::string bddName, std::string descriptor){
   // On vérifie que la BDD n'existe pas
   DIR * repertoire = opendir("bdd");
   if (repertoire == NULL){
@@ -268,9 +274,13 @@ void addBdd(std::string bddName, int desc){
     exit(EXIT_FAILURE);
   }
   out.close();
-
-  // création du fichier desc.txt
-  saveDescInfo(bddName,desc);
+  
+  // Saving parameters
+  IMbdd bdd = IMbdd(bddName);
+  bdd.changeDenseTrackSettings(-1,
+			       descriptor,
+			       getDim(descriptor));
+  bdd.write_bdd_configuration("imconfig.xml");
 }
 /**
  * \fn void deleteBdd(std::string bddName)
@@ -326,10 +336,19 @@ void emptyFolder(std::string folder){
  * \param[in] dim The STIPs dimension.
  * \param[in] maxPts The maximum number of STIPs we can extract.
  */
-void refreshBdd(std::string bddName, int desc, int maxPts){
+void refreshBdd(std::string bddName, std::string descriptor){
   std::string path2bdd("bdd/" + bddName);
   
-  int dim = getDim(desc);
+  int dim = getDim(descriptor);
+  
+  // Saving the new new descriptor with its dimension
+  IMbdd bdd = IMbdd(bddName);
+  bdd.changeDenseTrackSettings(-1,
+			       descriptor,
+			       dim);
+  bdd.write_bdd_configuration("imconfig.xml");
+
+  int maxPts = bdd.getMaxPts();
   
   // Supression des fichiers concatenate.stips, concatenate.bow, svm.model et training.means
   DIR* repBDD = opendir(path2bdd.c_str());
@@ -360,8 +379,6 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
     string cmd("rm " + rep + "/*"); 
     system(cmd.c_str());
   }  
-  // save the descriptor number
-  saveDescInfo(bddName,desc);
   
   // Extracting STIPs for each videos
   for(int i = 0 ; i< nbActivities ; i++){
@@ -385,14 +402,13 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
         string stipOutput(stipspath + "/" + label + "-" + idFile + ".fp");
 	int nPts;
 	cout << videoInput << std::endl;
-	switch(desc){
-	case 0: //HOG HOF
+	
+	// HOGHOF
+	if(descriptor.compare("hoghof") == 0)
 	  nPts = extractHOGHOF(videoInput, dim, maxPts, &dataPts);
-	  break;
-	case 1: //MBH
+	// MBH
+	else if(descriptor.compare("mbh") == 0)
 	  nPts = extractMBH(videoInput, dim, maxPts, &dataPts);		
-	  break;
-	}
 	if(nPts != 0){
 	  dataPts.setNPts(nPts);
 	  exportSTIPs(stipOutput, dim, dataPts);
@@ -416,25 +432,31 @@ void refreshBdd(std::string bddName, int desc, int maxPts){
  * \return The name of the activity.
  */
 void predictActivity(std::string videoPath,
-		     std::string bddName,
-		     int maxPts
+		     std::string bddName
 		     ){
   std::string path2bdd("bdd/" + bddName);   
-  int desc = getDescID(path2bdd);
-  int dim = getDim(desc);
-  int k = getK(path2bdd);
-  //double p = getProbability(folder);
-  KMdata dataPts(dim,maxPts);
   
+  // Loading parameters
+  IMbdd bdd(bddName);
+  std::string bddConfiguration(path2bdd + "/imconfig.xm");
+  bdd.load_bdd_configuration(bddConfiguration.c_str());
+  std::string descriptor = bdd.getDescriptor();
+  int dim = bdd.getDim();
+  int k = bdd.getK();
+  int maxPts = bdd.getMaxPts();
+  
+  double p = getTrainProbability(path2bdd);
+  
+  // Computing feature points
+  KMdata dataPts(dim,maxPts);
   int nPts = 0;
-  switch(desc){
-  case 0: //HOG HOF
+
+  // HOGHOF
+  if(descriptor.compare("hoghof") == 0)
     nPts = extractHOGHOF(videoPath, dim, maxPts, &dataPts);
-    break;
-  case 1: //MBH
+  // MBH
+  else if(descriptor.compare("mbh") == 0)
     nPts = extractMBH(videoPath, dim, maxPts, &dataPts);		
-    break;
-  }
   if(nPts == 0){
     std::cerr << "No activity detected !" << std::endl;
     exit(EXIT_FAILURE);
@@ -451,12 +473,12 @@ void predictActivity(std::string videoPath,
   struct svm_problem svmProblem = computeBOW(0,
 					     dataPts,
 					     ctrs);
-  // svmProblem = bow_normalization(svmProblem);
   double means[k], stand_devia[k];
   load_gaussian_parameters(path2bdd, k, means, stand_devia);
-  bow_gaussian_normalization(k,means,stand_devia, svmProblem);
+  bow_simple_normalization(svmProblem);
+  //bow_gaussian_normalization(k,means,stand_devia, svmProblem);
   
-  std::string path2model (path2bdd + "/" + "svm.model");
+  std::string path2model (path2bdd + "/" + bdd.getModel());
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
   
   int nr_class = svm_get_nr_class(pSVMModel);
@@ -466,13 +488,29 @@ void predictActivity(std::string videoPath,
   int label = svm_predict_values(pSVMModel,
 				 svmProblem.x[0],
 				 dec_values);
+  // Computing probabilities
+  double* probabilities = new double[nbActivities];
+  int* votes = new int[nbActivities];
+  svm_vote(nbActivities, votes, dec_values);
+  double sum=0;
+  for(int i=0 ; i<nbActivities ; i++){
+    probabilities[i] = pow(p*(1-p),nbActivities-votes[i]);
+    sum += probabilities[i];
+  }
+  for(int i=0 ; i<nbActivities ; i++){
+    probabilities[i] /= (double) sum;
+    std::cout << "Label: " << pSVMModel->label[i];
+    std::cout << "(" << probabilities[i] << ")" << std::endl;
+  }
+  delete probabilities;
+  delete votes;
+  
   free(dec_values);
   destroy_svm_problem(svmProblem);
   int index = searchMapIndex(label, am, nbActivities);
   std::cout << "Activity predicted: ";
   std::cout << am[index].activity << "(" << am[index].label << ")";
   std::cout << std::endl;
-
   svm_free_and_destroy_model(&pSVMModel);
 }
 
@@ -526,6 +564,11 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
   
   std::string kmeansFile(path2bdd + "/" + "kmeans.txt");
   std::string rKMeansFile(remoteFolder + "/" + "kmeans.txt");
+
+  std::string meansNormalizationFile(path2bdd + "/" + "");
+  std::string rMeansNormalizationFile(remoteFolder+ "/" + "");
+  
+  
   
   if(FtpPut(meansFile.c_str(),rMeansFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
      FtpPut(svmFile.c_str(),rSvmFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
@@ -867,14 +910,21 @@ int create_specifics_training_means(std::string path2bdd,
  * \param[in] maxPts The maximum number of points we want to compute.
  * \param[in] k The number of cluster (means).
  */
-void trainBdd(std::string bddName, int maxPts, int k){
+void trainBdd(std::string bddName, int k){
   std::string path2bdd("bdd/" + bddName);
   std::string meansFile(path2bdd + "/" + "training.means");
   
-  std::cout << path2bdd << std::endl;
-  int desc = getDescID(path2bdd);
-  int dim = getDim(desc);
+  //std::cout << path2bdd << std::endl;
+  //int desc = getDescID(path2bdd);
+  //int dim = getDim(desc);
+  // Loading the DenseTrack settings
+  IMbdd bdd = IMbdd(bddName);
+  bdd.load_bdd_configuration("imconfig.xml");
   
+  int dim = bdd.getDim();
+  int maxPts = bdd.getMaxPts();
+  std::string descriptor = bdd.getDescriptor();
+
   // ouverture du fichier d'équivalence label <-> activités
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
@@ -912,7 +962,7 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::cout << "#######################################" << std::endl;
   std::cout << "######## RESUME OF THE TEST ###########" << std::endl;
   std::cout << "#######################################" << std::endl;
-  std::cout << "Descriptor ID: " << desc << std::endl;
+  std::cout << "Descriptor ID: " << descriptor << std::endl;
   std::cout << "Number of means: " << k << std::endl;
   std::cout << "Train recognition rate:" << std::endl;
   std::cout << "\t tau_train=" << trainMC.recognitionRate*100 << "%" << std::endl;
@@ -922,13 +972,17 @@ void trainBdd(std::string bddName, int maxPts, int k){
   std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
 }
 
-void testBdd(std::string bddName, int maxPts, int k, int nrTests){
+void testBdd(std::string bddName, int k, int nrTests){
   std::string path2bdd("bdd/" + bddName);
   std::string meansFile(path2bdd + "/" + "training.means");
   
-  std::cout << path2bdd << std::endl;
-  int desc = getDescID(path2bdd);
-  int dim = getDim(desc);
+  //  std::cout << path2bdd << std::endl;
+  // Loading BDD
+  IMbdd bdd = IMbdd(bddName);
+  bdd.load_bdd_configuration("imconfig.xml");
+  int dim = bdd.getDim();
+  int maxPts = bdd.getMaxPts();
+  std::string descriptor = bdd.getDescriptor();
   
   // ouverture du fichier d'équivalence label <-> activités
   activitiesMap *am;
@@ -973,7 +1027,7 @@ void testBdd(std::string bddName, int maxPts, int k, int nrTests){
   std::cout << "######## RESUME OF THE TEST ###########" << std::endl;
   std::cout << "#######################################" << std::endl;
   std::cout << "Number of tests: " << nrTests << std::endl;
-  std::cout << "Descriptor ID: " << desc << std::endl;
+  std::cout << "Descriptor ID: " << descriptor << std::endl;
   std::cout << "Number of means: " << k << std::endl;
   std::cout << "Train recognition rate:" << std::endl;
   std::cout << "\t tau_train=" << trainMC.recognitionRate*100 << "%" << std::endl;
@@ -1007,10 +1061,9 @@ void km_svm_train(int nrVideosByActivities,
      meansFile);*/
   int subK = k/nbActivities;
   if(k%nbActivities != 0){
-    k = subK * nbActivities;
+    std::cerr << "k is not divisible by nbActivities !" << std::endl;
+    exit(EXIT_FAILURE);
   }
-  saveKinfo(path2bdd,k);
-  std::cout << "k=" << k << " & subK=" << subK << std::endl;
   k = create_specifics_training_means(path2bdd,
 				      dim,
 				      maxPts,
@@ -1117,13 +1170,13 @@ void km_svm_train(int nrVideosByActivities,
   
   // Créer le fichier svm model
   std::cout << "Generating the SVM model..." << std::endl;
-  /*struct svm_model* svmModel = create_svm_model(k, svmTrainProblem);
+  struct svm_model* svmModel = create_svm_model(k, svmTrainProblem);
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
   svm_save_model(fileToSaveModel.c_str(),svmModel);
-  */
+  
   // Modefied for ovr
-  struct svm_parameter svmParameter;
+  /*struct svm_parameter svmParameter;
   get_svm_parameter(k,svmParameter);
   struct svm_model** svmModel = svm_train_ovr(&svmTrainProblem,&svmParameter);
     
@@ -1134,32 +1187,34 @@ void km_svm_train(int nrVideosByActivities,
     fileToSaveModel = fileToSaveModel + "/svm_ovr_" + ss.str() + ".model";
     svm_save_model(fileToSaveModel.c_str(),svmModel[i]);
   }
-  
+  */
   /* Calculate the confusion matrix & the probability estimation */
-  /*
   double p=0;
+
   // 1- Training data
   double* py = svmTrainProblem.y;
   int pnum = svmTrainProblem.l;
   struct svm_node** px = svmTrainProblem.x;
+  int nr_couples = nbActivities*(nbActivities-1)/2;
+  double *dec_values = new double[nr_couples];
+  int* votes = new int[nbActivities];
   for(int i=0; i<pnum; i++){
     double lab_in = py[i];
-    double lab_out = svm_predict(svmModel,px[i]);
-    int nr_couples = nbActivities*(nbActivities-1)/2;
-    double *dec_values = new double[nr_couples];
-    double label = svm_predict_values(svmModel,px[i],
-				      dec_values);
+    double lab_out = svm_predict_values(svmModel,px[i],dec_values);
     trainMC.addTransfer(lab_in,lab_out);
-    int* votes = new int[nbActivities];
-    svm_vote(nbActivities, votes, dec_values);
+    int indexMax  = svm_vote(nbActivities, votes, dec_values);
     int index = 0;
-    while((int) svmModel->label[i] != label) index++;
+    while((int) svmModel->label[index] != lab_in) index++;
     p += ((double) votes[index]) / ((double) (nbActivities -1));
-    delete votes;
+    /*std::cout << "Maximum of the vote: " << svmModel->label[indexMax] << std::endl;
+      std::cout << "Label elected by svm: " << lab_out << std::endl;
+      std::cout << "True label: " << lab_int << std::endl;*/
   }
+  delete votes;
+  delete dec_values;
   p /= (double) pnum;
   saveTrainProbability(path2bdd,p);
-  
+
   // 2- Testing data
   py = svmTestProblem.y;
   pnum = svmTestProblem.l;
@@ -1169,14 +1224,14 @@ void km_svm_train(int nrVideosByActivities,
     double lab_out = svm_predict(svmModel,px[i]);
     testMC.addTransfer(lab_in,lab_out);
   }
-  */
 
   // Free and destroy svmModel
-  //svm_free_and_destroy_model(&svmModel);
+  svm_free_and_destroy_model(&svmModel);
+
   // Modified for ovr
-  for(int i=0;i<nbActivities;i++){
+  /*for(int i=0;i<nbActivities;i++){
     svm_free_and_destroy_model(&svmModel[i]);
-  }
+    }*/
   delete [] svmModel;
   delete means;
   delete stand_devia;

@@ -23,26 +23,28 @@
 #include "naosvm.h"
 #include "naodensetrack.h"
 #include "imconfig.h"
+#include "imbdd.h"
+
 using namespace std;
 
 int nbOfFiles(std::string path);
 bool fileExist(std::string file, std::string folder);
 
-void addVideos(std::string bddName,std::string activity,int nbVideos, std::string* videoPaths, int maxPts);
+void addVideos(std::string bddName,std::string activity,int nbVideos, std::string* videoPaths);
 std::string inttostring(int int2str);
-void trainBdd(std::string bddName, int maxPts, int k);
+void trainBdd(std::string bddName, int k);
 void addLabel(int label, std::string file, int k);
-void testBdd(std::string bddName, int maxPts, int k, int nrTests);
+void testBdd(std::string bddName, int k, int nrTests);
 
-void addBdd(std::string bddName,int desc);
+void addBdd(std::string bddName, std::string descriptor);
 void addActivity(std::string activityName, std::string bddName);
 
 void deleteBdd(std::string bddName);
 void deleteActivity(std::string activityName, std::string bddName);
 
 void emptyFolder(std::string folder);
-void refreshBdd(std::string bddName, int dim, int maxPts);
-void predictActivity(std::string videoPath, std::string bddName, int maxPts);
+void refreshBdd(std::string bddName, std::string descriptor);
+void predictActivity(std::string videoPath, std::string bddName);
 
 #ifdef TRANSFER_TO_ROBOT_NAO
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);

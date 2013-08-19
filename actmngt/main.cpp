@@ -14,15 +14,14 @@ using namespace std;
 
 void help();
 
-int main(int argc, char* argv[]){  
-  int desc = 1;// descriptor type
-  int dim = 0;
-  int k = 200;
-  int maxPts = 1000000;
+int main(int argc, char* argv[]){
+  int dim,k;
+  
   if(argc<3){
     help();
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
   }
+  
   std::string function = argv[1];
   if(function.compare("test") == 0){ // test BDD
     if(argc != 4){
@@ -31,19 +30,19 @@ int main(int argc, char* argv[]){
     }
     char* bddName = argv[2];
     k = atoi(argv[3]);
-    testBdd(bddName, maxPts, k, 100);    
+    testBdd(bddName, k, 100);    
   }
-  if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
+  else if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
     if(argc == 4){
-      desc = atoi(argv[3]);
-      refreshBdd(argv[2],desc,maxPts);
+      std::string desc = argv[3];
+      refreshBdd(argv[2],desc);
     }
     else{
       std::cerr << "Refresh: Bad arguments!" << std::endl;
       return EXIT_FAILURE;
     }
   }
-  if(function.compare("list") == 0){ // It permits to inform user
+  else if(function.compare("list") == 0){ // It permits to inform user
     if(argc == 3)
       listBdds();
     else if(argc == 4)
@@ -56,9 +55,9 @@ int main(int argc, char* argv[]){
     if(argc == 5 && (subfunction.compare("bdd") == 0)){
       // add bdd
       std::string bddName(argv[3]);
-      desc = atoi(argv[4]);
+      std::string desc = argv[4];
       addBdd(bddName,desc);
-      saveDescInfo(bddName,desc);
+      // saveDescInfo(bddName,desc);
     }
     else if(argc == 5 && subfunction.compare("activity") == 0){
       // add activity
@@ -81,8 +80,8 @@ int main(int argc, char* argv[]){
       }
       std::string bddName = argv[argc-2];
       std::string activity = argv[argc-1];
-      desc = getDescID(bddName);
-      addVideos(bddName,activity,nbVideos,videoPaths,maxPts);
+      //std::string desc = getDescID(bddName);
+      addVideos(bddName,activity,nbVideos,videoPaths);
     }
     else{
       std::cerr << "add: Bad arguments!" << std::endl;
@@ -96,7 +95,7 @@ int main(int argc, char* argv[]){
     }
     char* bddName = argv[2];
     k = atoi(argv[3]);
-    trainBdd(bddName, maxPts, k);
+    trainBdd(bddName, k);
   }
   else if(function.compare("delete") == 0){ 
     std::string todelete(argv[2]);
@@ -112,7 +111,7 @@ int main(int argc, char* argv[]){
     }
   }
 #ifdef TRANSFER_TO_ROBOT_NAO
-	  else if(function.compare("transfer") == 0){
+  else if(function.compare("transfer") == 0){
     if(argc != 6){
       std::cerr << "Transfer: bad arguments!" << std::endl;
       return EXIT_FAILURE;
@@ -132,7 +131,7 @@ int main(int argc, char* argv[]){
     std::string videoPath = argv[2];
     std::string bddName = argv[3];
     std::cout << bddName << std::endl;
-    predictActivity(videoPath,bddName,maxPts);
+    predictActivity(videoPath,bddName);
   }
   return EXIT_SUCCESS;
 }
@@ -158,6 +157,7 @@ void help(){
   std::cout << "\t ./naomngt refresh <bdd_name> <descriptor type>" << std::endl;
 	
   std::cout << "Descriptor type:" << std::endl;
-  std::cout << "\t 0 : HOG and HOF" << std::endl;
-  std::cout << "\t 1 : MBHx and MBHy" << std::endl;
+  std::cout << "\t hoghof : HOG and HOF" << std::endl;
+  std::cout << "\t mbh : MBHx and MBHy" << std::endl;
+  std::cout << "\t all : HOG, HOF, MBHx and MBHy" << std::endl;
 }
