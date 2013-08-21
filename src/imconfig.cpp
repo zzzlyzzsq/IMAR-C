@@ -127,13 +127,19 @@ int searchMapIndex(int label, activitiesMap *am, int nbActivities){
  * \param[in] desc Descriptor ID
  * \return Feature points dimension
  */
-int getDim(int desc){
-  switch(desc){
-  case 0:
-    return 204;//HOG HOF
-  case 1:
-    return 192;//MBH
-  }
+int getDim(std::string descriptor){
+  int dimHOGHOF = 204;
+  int dimMBH = 192;
+  // HOG HOF
+  if(descriptor.compare("hoghof") == 0)
+    return dimHOGHOF;
+  
+  // MBH
+  if(descriptor.compare("mbh") == 0)
+    return dimMBH;
+  
+  if(descriptor.compare("all") == 0)
+    return dimHOGHOF + dimMBH;
   return -1;
 }
 

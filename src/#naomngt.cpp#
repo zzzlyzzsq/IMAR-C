@@ -1219,7 +1219,7 @@ void km_svm_train(int nrVideosByActivities,
     /*std::cout << "Maximum of the vote: " << svmModel->label[indexMax] << std::endl;
       std::cout << "Label elected by svm: " << lab_out << std::endl;
       std::cout << "True label: " << lab_int << std::endl;*/
-    delete []probs;
+    delete []probs;{{{
   }
   delete votes;
   delete dec_values;
