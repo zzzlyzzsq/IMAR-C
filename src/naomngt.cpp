@@ -267,7 +267,7 @@ void addBdd(std::string bddName, int scale_num, std::string descriptor){
   mkdir(path2bdd.c_str(),S_IRWXU|S_IRGRP|S_IXGRP); // rwx pour user
   
   // création du fichier mapping.txt
-  std::string file = (path2bdd+"/"+"mapping.txt");
+  std::string file = (path2bdd+ "/" + "mapping.txt");
   
   ofstream out(file.c_str(), ios::out);  // ouverture en écriture avec effacement du fichier ouvert
   if(!out){
@@ -282,7 +282,7 @@ void addBdd(std::string bddName, int scale_num, std::string descriptor){
 			       descriptor,
 			       getDim(descriptor));
   
-  bdd.write_bdd_configuration(path2bdd.c_str(),"/imconfig.xml");
+  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
 }
 /**
  * \fn void deleteBdd(std::string bddName)
@@ -926,6 +926,7 @@ void trainBdd(std::string bddName, int k){
   bdd.changeKMSettings("specifical",
 		       k,
 		       "training.means");
+  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // Loading feature points settings
   std::string descriptor = bdd.getDescriptor();

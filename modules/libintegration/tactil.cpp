@@ -78,21 +78,28 @@ void Tactil::onFrontHeadTouched(){
 
 
       int duration = 2;
-      videoRecorderProxy.setResolution(0); // kQQVGA ( 160 * 120 ). 0
-      videoRecorderProxy.setFrameRate(10);
+      videoRecorderProxy.setResolution(2);
+      // kQQVGA ( 160 * 120 ) 0
+      // kQVGA (320 * 240) 1
+      // kVGA (640 * 480) 2
+      videoRecorderProxy.setFrameRate(30);
 
       std::string videoOutput("recording-");
-      int nrVideos = nbOfFiles("/home/nao/recordings/cameras");
-      //ile(fileExist(videoOutput+inttostring(nrVideos),"/home/nao/recordings/cameras")){
-      //  nrVideos++;
-      //}
+      int nrVideos = nbOfFiles("/home/nao/recordings/cameras/kVGA");
       videoOutput = videoOutput + inttostring(nrVideos);
+      // Warning: it can delete existant videos
 
-      videoRecorderProxy.startRecording("/home/nao/recordings/cameras",videoOutput);
+      // Recording kVGA video
+      videoRecorderProxy.startRecording("/home/nao/recordings/cameras/kVGA",videoOutput);
       sleep(duration);
       AL::ALValue video = videoRecorderProxy.stopRecording();
+
+      // Decreasing quality into kQQVGA for the treatment
+      videoOutput = videoOutput + ".kQQVGA.avi";
+      decrease_quality(video[1],"/home/nao/recordings/cameras/kQQVGA/" + videoOutput);
       qiLogInfo("Tactil") << "Predicting activity..." << std::endl;
-      std::string activityPredicted = integration(video[1],"/home/nao/data/activity_recognition");
+      std::string activityPredicted = integration("/home/nao/recordings/cameras/kQQVGA/" + videoOutput,
+                                                  "/home/nao/data/activity_recognition");
       lp.stop(idLeds);
       lp.on("FaceLeds");
       //lp.off("LeftFaceLedsGreen");
@@ -115,6 +122,58 @@ void Tactil::onFrontHeadTouched(){
   fMemoryProxy.subscribeToEvent("startRecognition",
                                 "Tactil",
                                 "onFrontHeadTouched");
+}
+void Tactil::decrease_quality(std::string vInput, std::string vOutput){
+    cv::VideoCapture capture(vInput);
+    double fpsOut = 10;
+    double fpsIn = capture.get(CV_CAP_PROP_FPS);
+    double ratio = fpsOut/fpsIn;
+    std::cout << "Ratio fpsIn/fpsOut=" << ratio << std::endl;
+    if(ratio > 1){
+      std::cerr << "You cannot have a fps output superior of the original video!" << std::endl;
+    }
+
+    cv::Size fsize(160,120);
+    // 120*106 = QQVGA Quarter-QVGA
+    // 320*240 = QVGA Quarter Video Graphics Array
+    // 640*480 = VGA Video Graphics Array
+
+    int frameCount = capture.get(CV_CAP_PROP_FRAME_COUNT);
+    int fourcc = capture.get(CV_CAP_PROP_FOURCC);
+
+    cv::VideoWriter writer(vOutput,
+                           fourcc,
+                           fpsOut,
+                           fsize);
+    if(!writer.isOpened()){
+      std::cerr << "Error while opening Writer!" << std::endl;
+    }
+    cv::Mat mat;
+    cv::Mat mConverted(fsize.height,fsize.width, CV_8UC1);
+    int maxFrames = ratio*frameCount;
+
+    // Randomizing the frames
+    int values[frameCount];
+    for(int i=0 ; i<frameCount ; i++){
+      values[i] = i;
+    }
+    std::random_shuffle(values, values + frameCount);
+    std::sort(values, values + maxFrames);
+
+    for(int i=0 ; i<maxFrames ; i++){
+      capture.set(CV_CAP_PROP_POS_FRAMES, (double) values[i]);
+      capture >> mat;
+      resize(mat,mConverted,fsize);
+      writer << mConverted;
+    }
+
+    std::cout << "INPUT: " << vInput << std::endl;
+    std::cout << "* Number of frames: " << frameCount << std::endl;
+    std::cout << "* Frames per second: " << fpsIn << std::endl;
+
+    std::cout << "OUTPUT: " << vOutput << std::endl;
+    std::cout << "* Number of frames: " << maxFrames << std::endl;
+    std::cout << "* Frames per second: " << fpsOut << std::endl;
 }
 
 void Tactil::helloAnimation(){

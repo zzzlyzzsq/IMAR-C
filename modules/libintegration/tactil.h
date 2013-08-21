@@ -51,6 +51,7 @@ class Tactil : public AL::ALModule
     void helloAnimation();
     void applaudAnimation();
 
+    void decrease_quality(std::string videoInput, std::string videoOutput);
   private:
     AL::ALMemoryProxy fMemoryProxy;
     AL::ALTextToSpeechProxy ttsp;
