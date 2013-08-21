@@ -1151,10 +1151,11 @@ void km_svm_train(int nrVideosByActivities,
   // Now all Bag Of Words are saved in svmProblem
   
   // Normalization step
-  std::string normalization("gaussian");
+  std::string normalization("gaussian"); // simple either gaussian either both either ""
   bdd.changeNormalizationSettings(normalization,
 				  "means.txt",
 				  "stand_devia.txt");
+  bdd.show_bdd_configuration();
   double *means=NULL, *stand_devia=NULL;
   means = new double[k];
   stand_devia = new double[k];
@@ -1178,14 +1179,8 @@ void km_svm_train(int nrVideosByActivities,
   
   std::cout << "Done!" << std::endl;
   
-  // Créer le fichier svm model
-  /*std::cout << "Generating the SVM model..." << std::endl;
-  struct svm_model* svmModel = create_svm_model(k, svmTrainProblem);
-  std::cout << "Saving the SVM model..." << std::endl;
-  std::string fileToSaveModel(path2bdd + "/svm.model");
-  svm_save_model(fileToSaveModel.c_str(),svmModel);*/
-
   // SVM model one versus the rest
+  std::cout << "Generating the SVM model..." << std::endl;
   struct svm_parameter svmParameter;
   get_svm_parameter(k,svmParameter);
   struct svm_model** svmModel = svm_train_ovr(&svmTrainProblem,&svmParameter);
@@ -1195,55 +1190,52 @@ void km_svm_train(int nrVideosByActivities,
     std::stringstream ss;
     ss << i;
     fileToSaveModel = fileToSaveModel + "/svm_ovr_" + ss.str() + ".model";
+    std::cout << "Saving the SVM model..."<<i<< std::endl;
     svm_save_model(fileToSaveModel.c_str(),svmModel[i]);
   }
   
   /* Calculate the confusion matrix & the probability estimation */
-  double p=0;
   
+  std::cerr<<"Training Data"<<std::endl;
   // 1- Training data
   double* py = svmTrainProblem.y;
   int pnum = svmTrainProblem.l;
   struct svm_node** px = svmTrainProblem.x;
-  int nr_couples = nbActivities*(nbActivities-1)/2;
-  double *dec_values = new double[nr_couples];
-  int* votes = new int[nbActivities];
   for(int i=0; i<pnum; i++){
     double* probs = new double[nbActivities];
     double lab_in = py[i];
-    double lab_out = svm_predict_ovr_probs(svmModel,px[i],probs);
+    double lab_out = svm_predict_ovr_probs(svmModel,px[i],nbActivities,probs,2);
     trainMC.addTransfer(lab_in,lab_out);
-    int indexMax  = svm_vote(nbActivities, votes, dec_values);
-    int index = 0;
-    while((int) svmModel->label[index] != lab_in) index++;
-    p += ((double) votes[index]) / ((double) (nbActivities -1));
-    /*std::cout << "Maximum of the vote: " << svmModel->label[indexMax] << std::endl;
-      std::cout << "Label elected by svm: " << lab_out << std::endl;
-      std::cout << "True label: " << lab_int << std::endl;*/
-    delete []probs;
+    std::cerr<<"Probs: ";
+    for(int j=0; j<pnum; j++){
+      std::cerr<<setw(5)<<probs[j]<<" "; 
+    }
+    std::cerr<<std::endl;
+    delete [] probs;
   }
-  delete votes;
-  delete dec_values;
-  p /= (double) pnum;
-  saveTrainProbability(path2bdd,p);
 
+  std::cerr<<"Testing Data"<<std::endl;
   // 2- Testing data
   py = svmTestProblem.y;
   pnum = svmTestProblem.l;
   px = svmTestProblem.x;
   for(int i=0; i<pnum; i++){
+    double* probs = new double[nbActivities];
     double lab_in = py[i];
-    double lab_out = svm_predict(svmModel,px[i]);
+    double lab_out = svm_predict_ovr_probs(svmModel,px[i],nbActivities,probs,2);
+    std::cerr<<"Probs: ";
+    for(int j=0; j<pnum; j++){
+      std::cerr<<setprecision(2)<<probs[j]<<" "; 
+    }
+    std::cerr<<std::endl;
     testMC.addTransfer(lab_in,lab_out);
+    delete [] probs;
   }
 
-  // Free and destroy svmModel
-  svm_free_and_destroy_model(&svmModel);
-
   // Modified for ovr
-  /*for(int i=0;i<nbActivities;i++){
+  for(int i=0;i<nbActivities;i++){
     svm_free_and_destroy_model(&svmModel[i]);
-    }*/
+  }
   delete [] svmModel;
   destroy_svm_problem(svmTrainProblem);
   destroy_svm_problem(svmTestProblem);
