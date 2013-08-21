@@ -104,7 +104,8 @@ struct svm_problem equalizeSVMProblem(const struct svm_problem& svmProblem,
 int get_svm_problem_labels(const struct svm_problem& svmProblem, int* labels);
 int getMaxIndex(const struct svm_problem& svmProblem);
 int getMinNumVideo(const struct svm_problem& svmProblem);
-svm_model **svm_train_ovr(const svm_problem *prob, const svm_parameter *param);
+svm_model **svm_train_ovr(const svm_problem *prob, svm_parameter *param);
+double svm_predict_ovr_probs(struct svm_model** models, const svm_node* x, int nbr_class, double* probs,double lamda);
 void get_svm_parameter(int k, struct svm_parameter &svmParameter);
 std::vector<double> get_labels_from_prob(const svm_problem *prob);
 #endif

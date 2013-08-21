@@ -932,7 +932,7 @@ void svm_vote(int nr_class,
 }
 
 // svm training funciton using the strategy one-vs-rest
-svm_model **svm_train_ovr(const svm_problem *prob, const svm_parameter *param){
+svm_model **svm_train_ovr(const svm_problem *prob, svm_parameter *param){
   int nr_class;
   vector<double> label;
   label = get_labels_from_prob(prob);
@@ -944,42 +944,69 @@ svm_model **svm_train_ovr(const svm_problem *prob, const svm_parameter *param){
     exit(EXIT_FAILURE);
   }
   double *temp_y = new double[l];
+  param->weight = new double[2];
+  param->weight_label = new int[2];
   for(int i=0;i<nr_class;i++){
     double label_class = label[i];
     for(int j=0;j<l;j++) temp_y[j] = prob->y[j];
+    param->nr_weight = 2;
+    param->weight_label[1] = ceil(label_class);
+    param->weight_label[0] = 0;
+    param->weight[0] = param->weight[1] = 0;
     for(int j=0;j<l;j++){
       if(label_class != prob->y[j]){
         prob->y[j] = 0;
+        param->weight[0] += 1;
+      }
+      else{
+        param->weight[1] += 1;
       }
     }
+    param->weight[0] = 1/sqrt(param->weight[0]);
+    param->weight[1] = 1/sqrt(param->weight[1]);
     model[i] = svm_train(prob,param);
     for(int j=0;j<l;j++) prob->y[j] =  temp_y[j];
   }
   delete [] temp_y;
+  delete [] param->weight;
+  delete [] param->weight_label;
   return model;
 }
 
-// svm predictor using the one-vs-rest strategy
-double svm_predict_ovr(const svm_model** models, const svm_node* x,int nbr_class){
+// svm predictor using the one-vs-rest strategy returning the probilities
+double svm_predict_ovr_probs(svm_model** models, const svm_node* x,int nbr_class, double* probs, double lamda){
+  if(lamda <= 0){
+    std::cerr<<"ERROR: svm_predict_ovr_probs(): lamda must be positive!"<<std::endl;
+    exit(EXIT_FAILURE);
+  }
   double *decvs = new double[nbr_class];
-  double *preds = new double[nbr_class];
+  double *labels = new double[nbr_class];
+  double totalExpDecv = 0;
   for(int i=0;i<nbr_class;i++){
-    preds[i] = svm_predict_values(models[i],x,&decvs[i]); 
-    if(decvs[i]<0 && preds[i]>0)
+    labels[i] = models[i]->label[0]+models[i]->label[1];
+    double label_pred = svm_predict_values(models[i],x,&(decvs[i])); 
+
+    if(decvs[i]<0 && label_pred>0)
       decvs[i] = -decvs[i];
+    if(decvs[i]>0 && label_pred<=0)
+      decvs[i] = -decvs[i];
+    
+    probs[i] = exp(lamda*decvs[i]);
+    totalExpDecv += probs[i];
+  }
+  for(int i=0;i<nbr_class;i++){
+    probs[i] = probs[i]/totalExpDecv;
   }
   double maxvalue = decvs[0];
-  double label = preds[0];
+  double label = labels[0];
   for(int i=1;i<nbr_class;i++){
     if(decvs[i]>maxvalue){
       maxvalue = decvs[i];
-      label = preds[i];
+      label = labels[i];
     }
   }
-  if(label <= 0)
-    std::cerr<<"predict ovr failed!"<<endl;
   delete [] decvs;
-  delete [] preds;
+  delete [] labels;
   return label;
 }
 
