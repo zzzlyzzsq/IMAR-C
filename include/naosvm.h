@@ -14,6 +14,7 @@
 #include <string>
 #include "svm.h"
 #include "KMlocal.h"
+#include "imbdd.h"
 
 using namespace std;
 
@@ -86,12 +87,10 @@ void get_gaussian_parameters(int k,
 			     struct svm_problem svmProblem,
 			     double* means,
 			     double* stand_devia);
-void save_gaussian_parameters(std::string path2bdd,
-			      int k,
+void save_gaussian_parameters(const IMbdd& bdd,
 			      double* means,
 			      double* stand_devia);
-void load_gaussian_parameters(std::string path2bdd,
-			      int k,
+void load_gaussian_parameters(const IMbdd& bdd,
 			      double* means,
 			      double* stand_devia);
 void bow_gaussian_normalization(int k,
@@ -106,6 +105,7 @@ int get_svm_problem_labels(const struct svm_problem& svmProblem, int* labels);
 int getMaxIndex(const struct svm_problem& svmProblem);
 int getMinNumVideo(const struct svm_problem& svmProblem);
 svm_model **svm_train_ovr(const svm_problem *prob, const svm_parameter *param);
+double svm_predict_ovr(const svm_model** models, const svm_node* x,int nbr_class);
 void get_svm_parameter(int k, struct svm_parameter &svmParameter);
 std::vector<double> get_labels_from_prob(const svm_problem *prob);
 #endif

@@ -60,14 +60,17 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
   //int desc = getDescID(path2bdd);
   //int dim = getDim(desc);
   
+  // Loading the bdd
   IMbdd bdd(bddName);
-  std::string bddConfiguration(path2bdd + "/imconfig.xml");
-  bdd.load_bdd_configuration(bddConfiguration.c_str());
+  bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+  
+  // Saving its parameters
   int maxPts = bdd.getMaxPts();
   int scale_num = bdd.getScaleNum();
   std::string descriptor = bdd.getDescriptor();
   int dim = bdd.getDim();
     
+  // Loading the mapping file to get the video label
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
   int i = 0;
@@ -78,7 +81,7 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
   }
   int label = am[i].label;
   delete []am;
- 
+  
   // Import videos in the selected database
   string strlabel = inttostring(label);
   
@@ -278,7 +281,8 @@ void addBdd(std::string bddName, int scale_num, std::string descriptor){
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       getDim(descriptor));
-  bdd.write_bdd_configuration("imconfig.xml");
+  
+  bdd.write_bdd_configuration(path2bdd.c_str(),"/imconfig.xml");
 }
 /**
  * \fn void deleteBdd(std::string bddName)
@@ -344,8 +348,8 @@ void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       dim);
-  bdd.write_bdd_configuration("imconfig.xml");
-
+  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+  
   int maxPts = bdd.getMaxPts();
   
   // Supression des fichiers concatenate.stips, concatenate.bow, svm.model et training.means
@@ -433,8 +437,7 @@ void predictActivity(std::string videoPath,
   
   // Loading parameters
   IMbdd bdd(bddName);
-  std::string bddConfiguration(path2bdd + "/imconfig.xm");
-  bdd.load_bdd_configuration(bddConfiguration.c_str());
+  bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   int scale_num = bdd.getScaleNum();
   std::string descriptor = bdd.getDescriptor();
   int dim = bdd.getDim();
@@ -466,9 +469,10 @@ void predictActivity(std::string videoPath,
 					     dataPts,
 					     ctrs);
   double means[k], stand_devia[k];
-  load_gaussian_parameters(path2bdd, k, means, stand_devia);
-  bow_simple_normalization(svmProblem);
-  //bow_gaussian_normalization(k,means,stand_devia, svmProblem);
+  load_gaussian_parameters(bdd, means, stand_devia);
+  // simple, gaussian, both, nothing
+  if(bdd.getNormalization().compare("") != 0)
+    bow_normalization(bdd,svmProblem);
   
   std::string path2model (path2bdd + "/" + bdd.getModel());
   struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
@@ -595,7 +599,7 @@ void concatenate_features_points(int nbActivities,
   std::string path2CTest(path2bdd + "/" + "concatenate.fp.test");
   DIR * repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
-    std::cerr << "Impossible top open the BDD directory"<< std::endl;
+    std::cerr << "Impossible to open the BDD directory"<< std::endl;
     exit(EXIT_FAILURE);
   }
   struct dirent *ent;
@@ -659,7 +663,7 @@ void concatenate_features_points_per_activities(int nbActivities,
     // We open the directory folder/label
     DIR * repBDD = opendir(rep.c_str());
     if (repBDD == NULL){
-      std::cerr << "Impossible top open the BDD directory"<< std::endl;
+      std::cerr << "Impossible to open the BDD directory"<< std::endl;
       exit(EXIT_FAILURE);
     }
     struct dirent *ent;
@@ -746,17 +750,20 @@ void concatenate_features_points_per_activities(int nbActivities,
     outTest << *it << std::endl;  
 }
 
-int create_specifics_training_means(std::string path2bdd,
-				    int dim,
-				    int maxPts,
+int create_specifics_training_means(IMbdd bdd,
 				    int subK,
 				    int nr_class,
-				    activitiesMap* am,
+				    activitiesMap* am
 				    //std::vector <std::string> rejects,
-				    std::string meansFile){
+				    ){
+  std::string path2bdd(bdd.getFolder());
+  int dim = bdd.getDim();
+  int maxPts = bdd.getMaxPts();
+  
   // The total number of centers
   int k = nr_class*subK;
   
+  std::cout << "k=" << k << std::endl;
   double ***vDataPts = (double ***) malloc(nr_class*sizeof(double**));
   if(!vDataPts){
     std::cerr << "Memory allocation error: vDataPts" << std::endl;
@@ -785,7 +792,6 @@ int create_specifics_training_means(std::string path2bdd,
     }
     std::string path2FP(rep + "/" + file);
     KMdata kmData(dim,maxPts);
-    std::cout << path2FP << std::endl;
     nrFP[i] = 0;
     // Importing the feature points
     if((nrFP[i] = importSTIPs(path2FP,dim,maxPts,&kmData)) != 0){
@@ -888,7 +894,8 @@ int create_specifics_training_means(std::string path2bdd,
   }
   free(vCtrs);
   
-  exportCenters(meansFile, dim, k, ctrs);
+  exportCenters(bdd.getFolder() + "/" + bdd.getKMeansFile(),
+		dim, k, ctrs);
   
   return k;
 }
@@ -904,17 +911,23 @@ int create_specifics_training_means(std::string path2bdd,
  */
 void trainBdd(std::string bddName, int k){
   std::string path2bdd("bdd/" + bddName);
-  std::string meansFile(path2bdd + "/" + "training.means");
+  std::string KMeansFile(path2bdd + "/" + "training.means");
   
   //std::cout << path2bdd << std::endl;
   //int desc = getDescID(path2bdd);
   //int dim = getDim(desc);
   // Loading the DenseTrack settings
+
+  // Loading BDD
   IMbdd bdd = IMbdd(bddName);
-  bdd.load_bdd_configuration("imconfig.xml");
+  bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
-  int dim = bdd.getDim();
-  int maxPts = bdd.getMaxPts();
+  // Saving KMeans settings
+  bdd.changeKMSettings("specifical",
+		       k,
+		       "training.means");
+  
+  // Loading feature points settings
   std::string descriptor = bdd.getDescriptor();
 
   // ouverture du fichier d'équivalence label <-> activités
@@ -930,8 +943,8 @@ void trainBdd(std::string bddName, int k){
   // and concatenate.test.stip per activities
   int nrVideosByActivities = 10; // as an option
   int minNrVideo = 8;
-  if(nrVideosByActivities > minNrVideo){
-    nrVideosByActivities = minNrVideo;
+  if(nrVideosByActivities > minNrVideo - 1){
+    nrVideosByActivities = minNrVideo - 1;
   }
   std::cout << "Using " << nrVideosByActivities;
   std::cout << " videos per activity for the training phase." << std::endl;
@@ -940,9 +953,8 @@ void trainBdd(std::string bddName, int k){
   MatrixC testMC = MatrixC(nbActivities,labels);
   
   km_svm_train(nrVideosByActivities,
-	       dim, maxPts, k,
 	       nbActivities, am,
-	       path2bdd, meansFile,
+	       bdd,
 	       trainMC, testMC
 	       );
   delete [] am;
@@ -964,16 +976,23 @@ void trainBdd(std::string bddName, int k){
   std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
 }
 
-void testBdd(std::string bddName, int k, int nrTests){
+void testBdd(std::string bddName, 
+	     int k, 
+	     int nrTests){
   std::string path2bdd("bdd/" + bddName);
-  std::string meansFile(path2bdd + "/" + "training.means");
+  std::string KMeansFile(path2bdd + "/" + "training.means");
   
   //  std::cout << path2bdd << std::endl;
   // Loading BDD
   IMbdd bdd = IMbdd(bddName);
-  bdd.load_bdd_configuration("imconfig.xml");
-  int dim = bdd.getDim();
-  int maxPts = bdd.getMaxPts();
+  bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+  
+  // Saving KMeans settings
+  bdd.changeKMSettings("specifical",
+		       k,
+		       "training.means");
+  
+  // Loading feature points settings
   std::string descriptor = bdd.getDescriptor();
   
   // ouverture du fichier d'équivalence label <-> activités
@@ -998,13 +1017,10 @@ void testBdd(std::string bddName, int k, int nrTests){
   MatrixC trainMC = MatrixC(nbActivities,labels);
   MatrixC testMC = MatrixC(nbActivities,labels);
   
-  std::string KMAlgorithm;
-  std::string normalization;
   for(int t=0 ; t<nrTests ; t++){
     km_svm_train(nrVideosByActivities,
-		 dim, maxPts, k,
 		 nbActivities, am,
-		 path2bdd, meansFile,
+		 bdd,
 		 trainMC, testMC
 		 );
   }
@@ -1029,20 +1045,19 @@ void testBdd(std::string bddName, int k, int nrTests){
   std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
 }
 void km_svm_train(int nrVideosByActivities,
-		  int dim, int maxPts, int k,
 		  int nbActivities, activitiesMap *am,
-		  std::string path2bdd, std::string meansFile,
+		  IMbdd& bdd,
 		  MatrixC& trainMC, MatrixC& testMC
 		  ){
   std::vector <std::string> trainingFiles;
   std::vector <std::string> testingFiles;
   concatenate_features_points(nbActivities,
 			      am,
-			      path2bdd,
+			      bdd.getFolder(),
 			      nrVideosByActivities,
 			      trainingFiles,
 			      testingFiles);
-  
+  int k = bdd.getK();
   // Creating the file training.means
   // It will only use concatenate files
   std::cout << "Computing KMeans..." << std::endl;
@@ -1056,14 +1071,10 @@ void km_svm_train(int nrVideosByActivities,
     std::cerr << "k is not divisible by nbActivities !" << std::endl;
     exit(EXIT_FAILURE);
   }
-  k = create_specifics_training_means(path2bdd,
-				      dim,
-				      maxPts,
-				      subK,
-				      nbActivities,
-				      am,
-				      meansFile);
-  
+  create_specifics_training_means(bdd,
+				  subK,
+				  nbActivities, am);
+    
   std::cout << "Computing BOWs..." << std::endl;
   // Finally we have to compute BOWs
   struct svm_problem svmTrainProblem;
@@ -1075,6 +1086,9 @@ void km_svm_train(int nrVideosByActivities,
   svmTestProblem.x = NULL;
   svmTestProblem.y = NULL;
   
+  std::string path2bdd(bdd.getFolder());
+  int dim = bdd.getDim();
+  int maxPts = bdd.getMaxPts();
   for(int i = 0 ; i< nbActivities ; i++){
     std::string label = inttostring(am[i].label);
     std::string activity = am[i].activity;
@@ -1135,25 +1149,28 @@ void km_svm_train(int nrVideosByActivities,
   //struct svm_problem svmProblem = importProblem(path2bdd + "/concatenate.bow", k);
   // Now all Bag Of Words are saved in svmProblem
   
-  // Extracting gaussian parameters
+  // Normalization step
+  std::string normalization("gaussian");
+  bdd.changeNormalizationSettings(normalization,
+				  "means.txt",
+				  "stand_devia.txt");
   double *means=NULL, *stand_devia=NULL;
   means = new double[k];
   stand_devia = new double[k];
-  get_gaussian_parameters(k,svmTrainProblem,means,stand_devia);
-  save_gaussian_parameters(path2bdd,
-			   k,
+  get_gaussian_parameters(k,
+			  svmTrainProblem,
+			  means,
+			  stand_devia);
+  save_gaussian_parameters(bdd,
 			   means,
 			   stand_devia);
-  load_gaussian_parameters(path2bdd,
-			   k,
-			   means,
-			   stand_devia);
+  delete means;
+  delete stand_devia;
+  if(normalization.compare("") !=0){
+    bow_normalization(bdd,svmTrainProblem);
+    bow_normalization(bdd,svmTestProblem);
+  }
   
-  bow_simple_normalization(svmTrainProblem);  
-  // bow_gaussian_normalization(k,means,stand_devia,svmTrainProblem);
-  bow_simple_normalization(svmTestProblem);
-  // bow_gaussian_normalization(k,means,stand_devia,svmTestProblem);
-    
   // Exporting problem
   exportProblem(svmTrainProblem, path2bdd + "/concatenate.bow.train");
   exportProblem(svmTestProblem,path2bdd + "/concatenate.bow.test");
@@ -1166,7 +1183,7 @@ void km_svm_train(int nrVideosByActivities,
   std::cout << "Saving the SVM model..." << std::endl;
   std::string fileToSaveModel(path2bdd + "/svm.model");
   svm_save_model(fileToSaveModel.c_str(),svmModel);
-  
+
   // Modefied for ovr
   /*struct svm_parameter svmParameter;
   get_svm_parameter(k,svmParameter);
@@ -1225,9 +1242,24 @@ void km_svm_train(int nrVideosByActivities,
     svm_free_and_destroy_model(&svmModel[i]);
     }*/
   delete [] svmModel;
-  delete means;
-  delete stand_devia;
   destroy_svm_problem(svmTrainProblem);
   destroy_svm_problem(svmTestProblem);
   svmModel = NULL;
+}
+
+void bow_normalization(const IMbdd& bdd, struct svm_problem& svmProblem){
+  std::string normalization(bdd.getNormalization());
+  if(normalization.compare("simple") == 0 || normalization.compare("both") == 0)
+    bow_simple_normalization(svmProblem);
+  if(normalization.compare("gaussian") == 0|| normalization.compare("both") == 0){
+    int k = bdd.getK();
+    double means[k], stand_devia[k];
+    load_gaussian_parameters(bdd,
+			     means,
+			     stand_devia);
+    bow_gaussian_normalization(k,
+			       means,
+			       stand_devia,
+			       svmProblem);
+  }
 }

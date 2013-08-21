@@ -1,7 +1,8 @@
 /**
  * \file naomngt.h
- * \author Fabien ROUALDES (Institut Mines-Télécom)
- * \date 17/07/2013
+ * \author Fabien ROUALDES
+ * \author Huilong HE
+ * \date 20/08/2013
  */
 #ifndef _NAOMNGT_H_
 #define _NAOMNGT_H_ 
@@ -34,7 +35,9 @@ void addVideos(std::string bddName,std::string activity,int nbVideos, std::strin
 std::string inttostring(int int2str);
 void trainBdd(std::string bddName, int k);
 void addLabel(int label, std::string file, int k);
-void testBdd(std::string bddName, int k, int nrTests);
+void testBdd(std::string bddName,
+	     int k,
+	     int nrTests);
 
 void addBdd(std::string bddName, int scale_num, std::string descriptor);
 void addActivity(std::string activityName, std::string bddName);
@@ -67,18 +70,17 @@ void concatenate_bag_of_words(int nbActivities,
 			      activitiesMap *am,
 			      std::string path2bdd);
 int getMinNumVideo(int nbActivities, activitiesMap *am, std::string path2bdd);
-int create_specifics_training_means(std::string path2bdd,
-				    int dim,
-				    int maxPts,
+int create_specifics_training_means(IMbdd bdd,
 				    int subK,
 				    int nr_class,
-				    activitiesMap* am,
+				    activitiesMap* am
 				    // std::vector <std::string> rejects,
-				    std::string meansFile);
+				    );
 void km_svm_train(int nrVideosByActivities,
-		  int dim, int maxPts, int k,
 		  int nbActivities, activitiesMap *am,
-		  std::string path2bdd, std::string meansFile,
+		  IMbdd& bdd,
 		  MatrixC& trainMC, MatrixC& testMC
 		  );
+void bow_normalization(const IMbdd& bdd,
+		       struct svm_problem& svmProblem);
 #endif

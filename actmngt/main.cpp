@@ -30,12 +30,12 @@ int main(int argc, char* argv[]){
     }
     char* bddName = argv[2];
     k = atoi(argv[3]);
-    testBdd(bddName, k, 100);    
+    testBdd(bddName, k, 1);    
   }
   else if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
-    if(argc == 4){
-      int scale_num = 2;
-      std::string desc = argv[3];
+    if(argc == 5){
+      int scale_num = atoi(argv[3]);
+      std::string desc = argv[4];
       refreshBdd(argv[2],scale_num,desc);
     }
     else{
@@ -156,8 +156,8 @@ void help(){
   
   std::cout << "Rafraichir une base de données" << std::endl;
   std::cout << "(supression de toutes les données sauf les vidéos et réextraction des STIPs)" << std::endl;
-  std::cout << "\t ./naomngt refresh <bdd_name> <descriptor type>" << std::endl;
-	
+  std::cout << "\t ./naomngt refresh <bdd_name> <nr_scale> <descriptor_type> " << std::endl;
+  
   std::cout << "Descriptor type:" << std::endl;
   std::cout << "\t hoghof : HOG and HOF" << std::endl;
   std::cout << "\t mbh : MBHx and MBHy" << std::endl;

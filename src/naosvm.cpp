@@ -748,31 +748,30 @@ void get_gaussian_parameters(int k,
     stand_devia[i] = sqrt(var);  
   }
 }
-void save_gaussian_parameters(std::string path2bdd,
-			      int k,
+void save_gaussian_parameters(const IMbdd& bdd,
 			      double* means,
 			      double* stand_devia){
   // Save the gaussian parameters
-  std::string path2mean = path2bdd + "/gauss_mean.txt";
-  std::string path2stand = path2bdd + "/gauss_stand.txt";
-  std::ofstream outmean(path2mean.c_str());
-  std::ofstream outstand(path2stand.c_str());
-  for(int i=0; i<k; i++){
+  std::string meansPath(bdd.getFolder() + "/" + bdd.getMeansFile());
+  std::string standPath(bdd.getFolder() + "/" + bdd.getStandardDeviationFile());
+  std::ofstream outmean(meansPath.c_str());
+  std::ofstream outstand(standPath.c_str());
+  std::cout << meansPath << " " << standPath << std::endl;
+  for(int i=0 ; i<bdd.getK() ; i++){
     outmean<<means[i]<<std::endl;
     outstand<<stand_devia[i]<<std::endl;
   }
 }
 
-void load_gaussian_parameters(std::string path2bdd,
-			      int k,
+void load_gaussian_parameters(const IMbdd& bdd, 
 			      double* means,
 			      double* stand_devia){
-  std::string path2mean = path2bdd + "/gauss_mean.txt";
-  std::string path2stand = path2bdd + "/gauss_stand.txt";
-  std::ifstream inmean(path2mean.c_str());
-  std::ifstream instand(path2stand.c_str());
-  
-  for(int i=0; i<k; i++){
+  std::string meansPath(bdd.getFolder() + "/" + bdd.getMeansFile());
+  std::string standPath(bdd.getFolder() + "/" + bdd.getStandardDeviationFile());
+  std::ifstream inmean(meansPath.c_str());
+  std::ifstream instand(standPath.c_str());
+  std::cout << meansPath << " " << standPath << std::endl;
+  for(int i=0; i<bdd.getK() ; i++){
     inmean >> (means)[i];
     instand >> (stand_devia)[i];
   }
