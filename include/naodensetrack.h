@@ -135,6 +135,6 @@ int extract_feature_points(std::string video,
 			   std::string descriptor,
 			   int dim,
 			   int maxPts,
-			   KMdata* dataPts);
+			   KMdata& dataPts);
 
 #endif /*DENSETRACK_H_*/

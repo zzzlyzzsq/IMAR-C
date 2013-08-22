@@ -27,11 +27,11 @@ class IMbdd{
   std::string standardDeviationFile;
   
   // SVM
-    std::string model;
+  std::string model;
   
  public:
   IMbdd(){};
-  IMbdd(std::string bddName);
+  IMbdd(std::string bddName, std::string folder);
   ~IMbdd(){};
   void write_bdd_configuration(std::string pFolder, std::string pFilename);
   void load_bdd_configuration(std::string pFolder, std::string pFilename);

@@ -61,7 +61,7 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
   //int dim = getDim(desc);
   
   // Loading the bdd
-  IMbdd bdd(bddName);
+  IMbdd bdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // Saving its parameters
@@ -108,7 +108,7 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
     
     nPts = extract_feature_points(videoInput,
 				  scale_num, descriptor, dim,
-				  maxPts, &dataPts);		
+				  maxPts, dataPts);		
     if(nPts != 0){
       dataPts.setNPts(nPts);
       exportSTIPs(fpOutput, dim,dataPts);
@@ -277,7 +277,7 @@ void addBdd(std::string bddName, int scale_num, std::string descriptor){
   out.close();
   
   // Saving parameters
-  IMbdd bdd = IMbdd(bddName);
+  IMbdd bdd = IMbdd(bddName,path2bdd);
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       getDim(descriptor));
@@ -344,7 +344,7 @@ void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
   int dim = getDim(descriptor);
   
   // Saving the new new descriptor with its dimension
-  IMbdd bdd = IMbdd(bddName);
+  IMbdd bdd = IMbdd(bddName,path2bdd);
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       dim);
@@ -403,11 +403,10 @@ void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
         string videoInput(avipath + "/" + file);
         string stipOutput(stipspath + "/" + label + "-" + idFile + ".fp");
 	int nPts;
-	cout << videoInput << std::endl;
-	
+	std::cout << videoInput << std::endl;
 	nPts = extract_feature_points(videoInput,
 				      scale_num, descriptor, dim,
-				      maxPts, &dataPts);		
+				      maxPts, dataPts);		
 	if(nPts != 0){
 	  dataPts.setNPts(nPts);
 	  exportSTIPs(stipOutput, dim, dataPts);
@@ -436,7 +435,7 @@ void predictActivity(std::string videoPath,
   std::string path2bdd("bdd/" + bddName);   
   
   // Loading parameters
-  IMbdd bdd(bddName);
+  IMbdd bdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   int scale_num = bdd.getScaleNum();
   std::string descriptor = bdd.getDescriptor();
@@ -451,7 +450,7 @@ void predictActivity(std::string videoPath,
   int nPts = 0;
   nPts = extract_feature_points(videoPath,
 				scale_num, descriptor, dim,
-				maxPts, &dataPts);		
+				maxPts, dataPts);		
   if(nPts == 0){
     std::cerr << "No activity detected !" << std::endl;
     exit(EXIT_FAILURE);
@@ -919,15 +918,13 @@ void trainBdd(std::string bddName, int k){
   // Loading the DenseTrack settings
 
   // Loading BDD
-  IMbdd bdd = IMbdd(bddName);
+  IMbdd bdd = IMbdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // Saving KMeans settings
   bdd.changeKMSettings("specifical",
 		       k,
 		       "training.means");
-  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
-  
   // Loading feature points settings
   std::string descriptor = bdd.getDescriptor();
 
@@ -961,6 +958,8 @@ void trainBdd(std::string bddName, int k){
   delete [] am;
   trainMC.calculFrequence();
   trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
+  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+  
   testMC.calculFrequence();
   testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
   
@@ -985,7 +984,7 @@ void testBdd(std::string bddName,
   
   //  std::cout << path2bdd << std::endl;
   // Loading BDD
-  IMbdd bdd = IMbdd(bddName);
+  IMbdd bdd = IMbdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // Saving KMeans settings

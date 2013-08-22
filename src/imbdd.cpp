@@ -159,8 +159,9 @@ void IMbdd::changeNormalizationSettings(std::string normalization,
 void IMbdd::changeSVMSettings(std::string normalization){
   this->normalization = normalization;
 }
-IMbdd::IMbdd(std::string bddName){
+IMbdd::IMbdd(std::string bddName, std::string folder){
   this->bddName = bddName;
+  this->folder = folder;
   
   // DenseTrack
   this->scale_num = -1;

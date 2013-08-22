@@ -202,13 +202,14 @@ void HofComp(IplImage* flow, DescMat* descMat, DescInfo descInfo){
 void MbhComp(IplImage* flow, DescMat* descMatX, DescMat* descMatY, DescInfo descInfo){
   int width = descMatX->width;
   int height = descMatX->height;
+
   IplImage* flowX = cvCreateImage(cvSize(width,height), IPL_DEPTH_32F, 1);
   IplImage* flowY = cvCreateImage(cvSize(width,height), IPL_DEPTH_32F, 1);
   IplImage* flowXdX = cvCreateImage(cvSize(width,height), IPL_DEPTH_32F, 1);
   IplImage* flowXdY = cvCreateImage(cvSize(width,height), IPL_DEPTH_32F, 1);
   IplImage* flowYdX = cvCreateImage(cvSize(width,height), IPL_DEPTH_32F, 1);
   IplImage* flowYdY = cvCreateImage(cvSize(width,height), IPL_DEPTH_32F, 1);
-  
+
   // extract the x and y components of the flow
   for(int i = 0; i < height; i++) {
     const float* f = (const float*)(flow->imageData + flow->widthStep*i);
@@ -219,7 +220,7 @@ void MbhComp(IplImage* flow, DescMat* descMatX, DescMat* descMatY, DescInfo desc
       fY[j] = 100*f[2*j+1];
     }
   }
-  
+
   cvSobel(flowX, flowXdX, 1, 0, 1);
   cvSobel(flowX, flowXdY, 0, 1, 1);
   cvSobel(flowY, flowYdX, 1, 0, 1);
@@ -495,7 +496,7 @@ int extract_feature_points(std::string video,
 			   std::string descriptor,
 			   int dim,
 			   int maxPts,
-			   KMdata* dataPts){
+			   KMdata& dataPts){
   int frameNum = 0;
   TrackerInfo tracker;
   DescInfo hogInfo;
@@ -532,9 +533,9 @@ int extract_feature_points(std::string video,
   const float max_dis = 20;
    
   // parameters for multi-scale
-  //int scale_num = 1;  
+  //int scale_num = 0; (in [1,8])
   const float scale_stride = sqrt(2);
-
+  
   //arg_parse(argc, argv);
   
   //std::cerr << "start_frame: " << start_frame << " end_frame: " << end_frame << " track_length: " << track_length << std::endl;
@@ -653,29 +654,42 @@ int extract_feature_points(std::string video,
 		  
 	  int width = grey_temp->width;
 	  int height = grey_temp->height;
-	  // compute the integral histograms
-	  // DescMat* hogMat = InitDescMat(height, width, hogInfo.nBins);
-	  // HogComp(prev_grey_temp, hogMat, hogInfo);
-		  
-	  // DescMat* hofMat = InitDescMat(height, width, hofInfo.nBins);
-	  // HofComp(flow, hofMat, hofInfo);
-		  
-	  DescMat* mbhMatX = InitDescMat(height, width, mbhInfo.nBins);
-	  DescMat* mbhMatY = InitDescMat(height, width, mbhInfo.nBins);
-	  MbhComp(flow, mbhMatX, mbhMatY, mbhInfo);
-		  
+	  
+	  // Computing histograms
+	  DescMat* hogMat = NULL;
+	  DescMat* hofMat = NULL;
+	  DescMat* mbhMatX = NULL;
+	  DescMat* mbhMatY = NULL;
+	  if(descriptor.compare("hoghof") == 0 || descriptor.compare("all") == 0){
+	    hogMat = InitDescMat(height, width, hogInfo.nBins);
+	    HogComp(prev_grey_temp, hogMat, hogInfo);
+	    
+	    hofMat = InitDescMat(height, width, hofInfo.nBins);
+	    HofComp(flow, hofMat, hofInfo);
+	  }
+	  if(descriptor.compare("mbh") == 0 || descriptor.compare("all") == 0){
+	    mbhMatX = InitDescMat(height, width, mbhInfo.nBins);
+	    mbhMatY = InitDescMat(height, width, mbhInfo.nBins);
+	    MbhComp(flow, mbhMatX, mbhMatY, mbhInfo);
+	  }
+	  
 	  i = 0;
 	  for (std::list<Track>::iterator iTrack = tracks.begin(); iTrack != tracks.end(); ++i) {
 	    if( status[i] == 1 ) { // if the feature point is successfully tracked
 	      PointDesc& pointDesc = iTrack->pointDescs.back();
 	      CvPoint2D32f prev_point = points_in[i];
 	      // get the descriptors for the feature point
-	      CvScalar rect = getRect(prev_point, cvSize(width, height), mbhInfo);
-	      //pointDesc.hog = getDesc(hogMat, rect, hogInfo, epsilon);
-	      //pointDesc.hof = getDesc(hofMat, rect, hofInfo, epsilon);
-	      pointDesc.mbhX = getDesc(mbhMatX, rect, mbhInfo, epsilon);
-	      pointDesc.mbhY = getDesc(mbhMatY, rect, mbhInfo, epsilon);
-		
+	      CvScalar rect;
+	      if(descriptor.compare("hoghof") == 0 || descriptor.compare("all") == 0){
+		rect = getRect(prev_point, cvSize(width, height), hogInfo);
+		pointDesc.hog = getDesc(hogMat, rect, hogInfo, epsilon);
+		pointDesc.hof = getDesc(hofMat, rect, hofInfo, epsilon);
+	      }
+	      if(descriptor.compare("mbh") == 0 || descriptor.compare("all") == 0){
+		rect = getRect(prev_point, cvSize(width, height), mbhInfo);
+		pointDesc.mbhX = getDesc(mbhMatX, rect, mbhInfo, epsilon);
+		pointDesc.mbhY = getDesc(mbhMatY, rect, mbhInfo, epsilon);
+	      }
 	      PointDesc point(hogInfo, hofInfo, mbhInfo, points_out[i]);
 	      iTrack->addPointDesc(point);
 		      
@@ -705,10 +719,15 @@ int extract_feature_points(std::string video,
 	    else // remove the track, if we lose feature point
 	      iTrack = tracks.erase(iTrack);
 	  }
-	  //ReleDescMat(hogMat);
-	  //ReleDescMat(hofMat);
-	  ReleDescMat(mbhMatX);
-	  ReleDescMat(mbhMatY);
+	  // Releasing memory
+	  if(descriptor.compare("hoghof") == 0 || descriptor.compare("all") == 0){
+	    ReleDescMat(hogMat);
+	    ReleDescMat(hofMat);
+	  }
+	  if(descriptor.compare("mbh") == 0 || descriptor.compare("all") == 0){
+	    ReleDescMat(mbhMatX);
+	    ReleDescMat(mbhMatY);
+	  }
 	  cvReleaseImage( &prev_grey_temp );
 	  cvReleaseImage( &grey_temp );
 	  cvReleaseImage( &flow );
@@ -721,7 +740,7 @@ int extract_feature_points(std::string video,
 	      std::vector<CvPoint2D32f> trajectory(tracker.trackLength+1);
 	      std::list<PointDesc>& descs = iTrack->pointDescs;
 	      std::list<PointDesc>::iterator iDesc = descs.begin();
-		      
+	      
 	      for (int count = 0; count <= tracker.trackLength; ++iDesc, ++count) {
 		trajectory[count].x = iDesc->point.x*fscales[ixyScale];
 		trajectory[count].y = iDesc->point.y*fscales[ixyScale];
@@ -739,6 +758,7 @@ int extract_feature_points(std::string video,
 				
 		int d = 0; // to fill dataPts 
 		
+		// COMPUTE HOG HOG
 		if(descriptor.compare("hoghof") == 0 || descriptor.compare("all") == 0){
 		  iDesc = descs.begin();
 		  int t_stride = cvFloor(tracker.trackLength/hogInfo.ntCells);
@@ -748,8 +768,8 @@ int extract_feature_points(std::string video,
 		    for( int m = 0; m < hogInfo.dim; m++ )
 		      vec[m] += iDesc->hog[m];
 		    for( int m = 0; m < hogInfo.dim; m++ ){
-		      //printf("%f\t", vec[m]/float(t_stride));
-		      (*dataPts)[nPts][d] = vec[m]/float(t_stride);
+		      // printf("%f\t", vec[m]/float(t_stride));
+		      dataPts[nPts][d] = vec[m]/float(t_stride);
 		      d++;
 		    }
 		  }
@@ -763,27 +783,27 @@ int extract_feature_points(std::string video,
 			vec[m] += iDesc->hof[m];
 		    for( int m = 0; m < hofInfo.dim; m++ ){
 		      //printf("%f\t", vec[m]/float(t_stride));
-		      (*dataPts)[nPts][d] = vec[m]/float(t_stride);
+		      dataPts[nPts][d] = vec[m]/float(t_stride);
 		      d++;
 		    }
 		  }
 		}
 		
-		iDesc = descs.begin();
-		int t_stride = cvFloor(tracker.trackLength/mbhInfo.ntCells);
-		for( int n = 0; n < mbhInfo.ntCells; n++ ) {
-		  std::vector<float> vec(mbhInfo.dim);
-		  for( int t = 0; t < t_stride; t++, iDesc++ )
-		    for( int m = 0; m < mbhInfo.dim; m++ )
-		      vec[m] += iDesc->mbhX[m];
-				  
-		  for( int m = 0; m < mbhInfo.dim; m++ ){
-		    (*dataPts)[nPts][d] = vec[m]/float(t_stride);
-		    d++;
-		  }
-		}
-		
+		// COMPUTE MBHX AND MBHY
 		if(descriptor.compare("mbh") == 0 || descriptor.compare("all") == 0){
+		  iDesc = descs.begin();
+		  int t_stride = cvFloor(tracker.trackLength/mbhInfo.ntCells);
+		  for( int n = 0; n < mbhInfo.ntCells; n++ ) {
+		    std::vector<float> vec(mbhInfo.dim);
+		    for( int t = 0; t < t_stride; t++, iDesc++ )
+		      for( int m = 0; m < mbhInfo.dim; m++ )
+			vec[m] += iDesc->mbhX[m];
+		    for( int m = 0; m < mbhInfo.dim; m++ ){
+		      dataPts[nPts][d] = vec[m]/float(t_stride);
+		      d++;
+		    }
+		  }
+		  
 		  iDesc = descs.begin();
 		  t_stride = cvFloor(tracker.trackLength/mbhInfo.ntCells);
 		  for( int n = 0; n < mbhInfo.ntCells; n++ ) {
@@ -793,17 +813,18 @@ int extract_feature_points(std::string video,
 			vec[m] += iDesc->mbhY[m];
 		    
 		    for( int m = 0; m < mbhInfo.dim; m++ ){
-		      (*dataPts)[nPts][d] = vec[m]/float(t_stride);
+		      dataPts[nPts][d] = vec[m]/float(t_stride);
 		      d++;
 		    }
 		  }
 		}
 		
-	      nPts++;
+		// Following vector
+		nPts++;
+	      }
+	      iTrack = tracks.erase(iTrack);
 	    }
-	    iTrack = tracks.erase(iTrack);
-	  }
-	  else
+	    else
 	      iTrack++;
 	  }
 	}
