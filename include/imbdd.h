@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include "tinyxml.h"
 
 class IMbdd{
@@ -27,7 +28,8 @@ class IMbdd{
   std::string standardDeviationFile;
   
   // SVM
-  std::string model;
+  int nr_class;
+  std::vector<std::string> modelFiles;
   
  public:
   IMbdd(){};
@@ -50,7 +52,8 @@ class IMbdd{
   std::string getNormalization() const {return normalization;};
   std::string getMeansFile() const {return meansFile;};
   std::string getStandardDeviationFile() const {return standardDeviationFile;};
-  std::string getModel() const {return model;};
+  int getNrClass() const {return nr_class;};
+  std::vector<std::string> getModelFiles() const {return modelFiles;};
   
   void changeDenseTrackSettings(int scale_num,
 				std::string descriptor,
@@ -61,7 +64,8 @@ class IMbdd{
   void changeNormalizationSettings(std::string normalization,
 				   std::string meansFile,
 				   std::string standardDeviationFile);  
-  void changeSVMSettings(std::string model);
+  void changeSVMSettings(int nr_class,
+			 std::vector<std::string> modelFiles);
 };
 
 #endif // _IMBDD_H_

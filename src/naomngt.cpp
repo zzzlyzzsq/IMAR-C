@@ -443,7 +443,7 @@ void predictActivity(std::string videoPath,
   int k = bdd.getK();
   int maxPts = bdd.getMaxPts();
   
-  double p = getTrainProbability(path2bdd);
+  //double p = getTrainProbability(path2bdd);
   
   // Computing feature points
   KMdata dataPts(dim,maxPts);
@@ -455,12 +455,14 @@ void predictActivity(std::string videoPath,
     std::cerr << "No activity detected !" << std::endl;
     exit(EXIT_FAILURE);
   }
+  std::cout << nPts << " vectors extracted..." << std::endl;
   dataPts.setNPts(nPts);
   dataPts.buildKcTree();
   
   KMfilterCenters ctrs(k, dataPts);  
-  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
-    
+  importCenters(bdd.getFolder() + "/" + bdd.getKMeansFile(), dim, k, &ctrs);
+  std::cout << "KMeans centers imported..." << std::endl;
+  
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
   
@@ -472,41 +474,36 @@ void predictActivity(std::string videoPath,
   // simple, gaussian, both, nothing
   if(bdd.getNormalization().compare("") != 0)
     bow_normalization(bdd,svmProblem);
+  std::cout << "Bag of words normalized..." << std::endl;
   
-  std::string path2model (path2bdd + "/" + bdd.getModel());
-  struct svm_model* pSVMModel = svm_load_model(path2model.c_str());
-  
-  int nr_class = svm_get_nr_class(pSVMModel);
-  int nr_couples = nr_class*(nr_class-1)/2;
-  
-  double* dec_values = (double*) malloc(nr_couples * sizeof(double));
-  int label = svm_predict_values(pSVMModel,
-				 svmProblem.x[0],
-				 dec_values);
-  // Computing probabilities
-  double* probabilities = new double[nbActivities];
-  int* votes = new int[nbActivities];
-  svm_vote(nbActivities, votes, dec_values);
-  double sum=0;
-  for(int i=0 ; i<nbActivities ; i++){
-    probabilities[i] = pow(p*(1-p),nbActivities-votes[i]);
-    sum += probabilities[i];
+  struct svm_model** pSVMModels = new svm_model*[nbActivities];
+  std::vector<std::string> modelFiles(bdd.getModelFiles());
+  int i=0;
+  for (std::vector<std::string>::iterator it = modelFiles.begin() ; it != modelFiles.end() ; ++it){
+    pSVMModels[i]= svm_load_model((*it).c_str());
+    i++;
   }
-  for(int i=0 ; i<nbActivities ; i++){
-    probabilities[i] /= (double) sum;
-    std::cout << "Label: " << pSVMModel->label[i];
-    std::cout << "(" << probabilities[i] << ")" << std::endl;
+  std::cout << "SVM models imported..." << std::endl;
+  double probs[nbActivities];
+  double label = svm_predict_ovr_probs(pSVMModels,
+				       svmProblem.x[0],
+				       nbActivities,
+				       probs,
+				       2);
+  std::cerr<<"Probs: ";
+  for(int j=0 ; j<nbActivities ; j++){
+    std::cout << setw(2) << setiosflags(ios::fixed) << probs[j]*100<<" "; 
   }
-  delete probabilities;
-  delete votes;
   
-  free(dec_values);
   destroy_svm_problem(svmProblem);
   int index = searchMapIndex(label, am, nbActivities);
   std::cout << "Activity predicted: ";
   std::cout << am[index].activity << "(" << am[index].label << ")";
   std::cout << std::endl;
-  svm_free_and_destroy_model(&pSVMModel);
+  
+  for(int m=0 ; m<nbActivities ; m++){
+    svm_free_and_destroy_model(&pSVMModels[m]);
+  }
 }
 
 #ifdef TRANSFER_TO_ROBOT_NAO
@@ -531,6 +528,7 @@ void predictActivity(std::string videoPath,
  *
  */
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password){
+  /*
   netbuf* nControl = NULL;
   
   if(FtpConnect(robotIP.c_str(), &nControl) != 1){
@@ -542,39 +540,37 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
     exit(EXIT_FAILURE);
   }
   
-  std::string path2bdd("bdd/" + bddName);
+  std::string localFolder(bdd.getFolder());
   std::string remoteFolder("/data/activity_recognition");
   
-  std::string meansFile(path2bdd + "/" + "training.means");
-  std::string rMeansFile(remoteFolder + "/" + "training.means");
+  std::string localFile(localFolder + "/" + bdd.getKMeansFile());
+  std::string remoteFile(remoteFolder + "/" + bdd.getKMeansFile());
+  FtpPut(localFile.c_str(),remoteFile.c_str(),FTPLIB_ASCII,nControl); // must be equal to 1
   
-  std::string svmFile(path2bdd + "/" + "svm.model");
-  std::string rSvmFile(remoteFolder + "/" + "svm.model");
+  // Mapping label <-> activity
+  localFile = localFolder + "/" + bdd.getMappingFile();
+  remoteFile = remoteFolder + "/" + bdd.getMappingFile();
+  FtpPut(localFile.c_str(),remoteFile.c_str(),FTPLIB_ASCII,nControl); // must be equal to 1
   
-  std::string mappingFile(path2bdd + "/" + "mapping.txt");
-  std::string rMappingFile(remoteFolder + "/" + "mapping.txt");
+  // KMEANS
+  // KMeans centers
+  localFile = localFolder + "/" + bdd.getKMeansFile();
+  remoteFile = remoteFolder + "/" + bdd.getMappingFile();
+  std::string remoteFile(remoteFolder + "/" + bdd.getKMeansFile());
   
-  std::string descFile(path2bdd + "/" + "desc.txt");
-  std::string rDescFile(remoteFolder + "/" + "desc.txt");
-  
-  std::string kmeansFile(path2bdd + "/" + "kmeans.txt");
-  std::string rKMeansFile(remoteFolder + "/" + "kmeans.txt");
+  // NORMALIZATION
+  // Means
+  localFile = localFolder + "/" + bdd.getMeansFile();
+  remoteFile = remoteFolder + "/" + bdd.getMeansFile();
+  FtpPut(localFile.c_str(),remoteFile.c_str(),FTPLIB_ASCII,nControl); // must be equal to 1
+  // Standard Deviation
+  localFile = localFolder + "/" + bdd.getStandradDeviationFile();
+  remoteFile = remoteFolder + "/" + bdd.getStandardDeviationFile();
+  FtpPut(localFile.c_str(),remoteFile.c_str(),FTPLIB_ASCII,nControl); // must be equal to 1
 
-  std::string meansNormalizationFile(path2bdd + "/" + "");
-  std::string rMeansNormalizationFile(remoteFolder+ "/" + "");
   
   
-  
-  if(FtpPut(meansFile.c_str(),rMeansFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
-     FtpPut(svmFile.c_str(),rSvmFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
-     FtpPut(mappingFile.c_str(),rMappingFile.c_str(),FTPLIB_ASCII,nControl) != 1 ||
-     FtpPut(descFile.c_str(),rDescFile.c_str(),FTPLIB_ASCII,nControl) != 1 || 
-     FtpPut(kmeansFile.c_str(),rKMeansFile.c_str(),FTPLIB_ASCII,nControl) != 1
-     ){
-    perror("Impossible to write on the robot!\n");
-    return exit(EXIT_FAILURE);
-  }
-  FtpQuit(nControl); 
+  FtpQuit(nControl); */
 }
 #endif // TRANSFER_TO_ROBOT_NAO
 
@@ -1183,7 +1179,8 @@ void km_svm_train(int nrVideosByActivities,
   struct svm_parameter svmParameter;
   get_svm_parameter(k,svmParameter);
   struct svm_model** svmModel = svm_train_ovr(&svmTrainProblem,&svmParameter);
-    
+
+  std::vector <std::string> modelFiles;
   for(int i=0; i<nbActivities; i++){
     std::string fileToSaveModel = path2bdd;
     std::stringstream ss;
@@ -1191,8 +1188,10 @@ void km_svm_train(int nrVideosByActivities,
     fileToSaveModel = fileToSaveModel + "/svm_ovr_" + ss.str() + ".model";
     std::cout << "Saving the SVM model..."<<i<< std::endl;
     svm_save_model(fileToSaveModel.c_str(),svmModel[i]);
+    modelFiles.push_back(fileToSaveModel);
   }
-  
+  bdd.changeSVMSettings(nbActivities,
+			modelFiles);
   /* Calculate the confusion matrix & the probability estimation */
   
   std::cerr<<"Training Data"<<std::endl;
@@ -1205,9 +1204,9 @@ void km_svm_train(int nrVideosByActivities,
     double lab_in = py[i];
     double lab_out = svm_predict_ovr_probs(svmModel,px[i],nbActivities,probs,2);
     trainMC.addTransfer(lab_in,lab_out);
-    std::cerr<<"Probs: ";
-    for(int j=0; j<pnum; j++){
-      std::cerr<<setw(5)<<probs[j]<<" "; 
+    std::cout <<"Probs: ";
+    for(int j=0; j<nbActivities; j++){
+      std::cout << setw(5) << setiosflags(ios::fixed) << probs[j]<<" "; 
     }
     std::cerr<<std::endl;
     delete [] probs;
@@ -1223,8 +1222,8 @@ void km_svm_train(int nrVideosByActivities,
     double lab_in = py[i];
     double lab_out = svm_predict_ovr_probs(svmModel,px[i],nbActivities,probs,2);
     std::cerr<<"Probs: ";
-    for(int j=0; j<pnum; j++){
-      std::cerr<<setprecision(2)<<probs[j]<<" "; 
+    for(int j=0 ; j<nbActivities ; j++){
+      std::cout << setw(5) << setiosflags(ios::fixed) << probs[j]<<" "; 
     }
     std::cerr<<std::endl;
     testMC.addTransfer(lab_in,lab_out);
