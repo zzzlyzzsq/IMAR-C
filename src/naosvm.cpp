@@ -1016,6 +1016,17 @@ double svm_predict_ovr_probs(svm_model** models, const svm_node* x,int nbr_class
   return label;
 }
 
+//print ovr label:prob
+void svm_ovr_print(double *labels, double *probs, int nbr_class){
+  using namespace std;
+  cerr<<"Ovr labels and probabilities:"<<endl;
+  for(int i=0;i<nbr_class;i++){
+    cerr<<setiosflags(ios::fixed)<<labels[i]<<":"<<probs[i]<<" ";
+  }
+  cerr<<endl;
+  return;
+}
+
 void get_svm_parameter(int k,struct svm_parameter &svmParameter){
   // SVM PARAMETER
   svmParameter.svm_type = C_SVC;
