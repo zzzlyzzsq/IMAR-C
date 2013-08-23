@@ -66,6 +66,19 @@ void IMbdd::write_bdd_configuration(std::string pFolder,
   TiXmlElement* svm = new TiXmlElement("SVM");  
   root->LinkEndChild(svm);  
   
+  TiXmlElement* nrClass = new TiXmlElement("Class");
+  nrClass->SetAttribute("nr",this->nr_class);
+  svm->LinkEndChild(nrClass);
+  
+  TiXmlElement* models = new TiXmlElement("Models");
+  TiXmlElement* model;
+  svm->LinkEndChild(models);
+  for (std::vector<std::string>::iterator it = this->modelFiles.begin() ; it != modelFiles.end(); ++it){
+    model = new TiXmlElement("Model");
+    model->SetAttribute("path",(*it).c_str());
+    models->LinkEndChild(model);
+  }
+  
   //dump_to_stdout( &doc );
   std::string savePath(pFolder + "/" + pFilename);
   doc.SaveFile(savePath.c_str());  
@@ -116,9 +129,12 @@ void IMbdd::load_bdd_configuration(std::string pFolder, std::string pFilename){
   this->standardDeviationFile = pElem->Attribute("path");
   
   // SVM
-  /*pElem = hRoot.FirstChildElement("SVM").FirstChild("Normalization").Element();
-    this->normalization = pElem->Attribute("type");*/
-}
+  pElem = hRoot.FirstChild("SVM").FirstChild("Class").Element(); 
+  pElem->QueryIntAttribute("nr",&this->nr_class);
+  pElem = hRoot.FirstChild("SVM").FirstChild("Models").FirstChild().Element(); 
+  for( pElem; pElem; pElem=pElem->NextSiblingElement())
+    this->modelFiles.push_back(pElem->Attribute("path"));
+		    }
 void IMbdd::show_bdd_configuration(){
   std::cout << "BDD: " << bddName << " (in "<< folder << ")" << std::endl;
   std::cout << "# DenseTrack" << std::endl;
@@ -156,8 +172,10 @@ void IMbdd::changeNormalizationSettings(std::string normalization,
   this->meansFile = meansFile;
   this->standardDeviationFile = standardDeviationFile;
 }
-void IMbdd::changeSVMSettings(std::string normalization){
-  this->normalization = normalization;
+void IMbdd::changeSVMSettings(int nr_class,
+			      std::vector<std::string> modelFiles){
+  this->nr_class = nr_class;
+  this->modelFiles = modelFiles;
 }
 IMbdd::IMbdd(std::string bddName, std::string folder){
   this->bddName = bddName;
@@ -180,5 +198,5 @@ IMbdd::IMbdd(std::string bddName, std::string folder){
   this->standardDeviationFile = "";
   
   // SVM
-  this->normalization = "";
+  this->nr_class = -1;
 }
