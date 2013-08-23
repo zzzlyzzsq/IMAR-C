@@ -228,6 +228,7 @@ private:
 	const double coef0;
 
 	static double dot(const svm_node *px, const svm_node *py);
+  static double kt(const svm_node *px, const svm_node *py);
 	double kernel_linear(int i, int j) const
 	{
 		return dot(x[i],x[j]);
@@ -244,6 +245,10 @@ private:
 	{
 		return tanh(gamma*dot(x[i],x[j])+coef0);
 	}
+  double kernel_kt(int i, int j) const
+  {
+    return kt(x[i],x[j]);
+  }
 	double kernel_precomputed(int i, int j) const
 	{
 		return x[i][(int)(x[j][0].value)].value;
@@ -268,6 +273,8 @@ Kernel::Kernel(int l, svm_node * const * x_, const svm_parameter& param)
 		case SIGMOID:
 			kernel_function = &Kernel::kernel_sigmoid;
 			break;
+    case CHIS:
+      kernel_function = &Kernel::kernel_kt;
 		case PRECOMPUTED:
 			kernel_function = &Kernel::kernel_precomputed;
 			break;
@@ -299,6 +306,27 @@ double Kernel::dot(const svm_node *px, const svm_node *py)
 		if(px->index == py->index)
 		{
 			sum += px->value * py->value;
+			++px;
+			++py;
+		}
+		else
+		{
+			if(px->index > py->index)
+				++py;
+			else
+				++px;
+		}			
+	}
+	return sum;
+}
+
+double Kernel::kt(const svm_node *px, const svm_node *py){
+	double sum = 0;
+	while(px->index != -1 && py->index != -1)
+	{
+		if(px->index == py->index)
+		{
+			sum += px->value * py->value / (px->value + py->value);
 			++px;
 			++py;
 		}
@@ -365,6 +393,8 @@ double Kernel::k_function(const svm_node *x, const svm_node *y,
 		}
 		case SIGMOID:
 			return tanh(param.gamma*dot(x,y)+param.coef0);
+    case CHIS:
+      return kt(x,y);
 		case PRECOMPUTED:  //x: test (validation), y: SV
 			return x[(int)(y->value)].value;
 		default:
@@ -3039,6 +3069,7 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 	   kernel_type != POLY &&
 	   kernel_type != RBF &&
 	   kernel_type != SIGMOID &&
+     kernel_type != CHIS&&
 	   kernel_type != PRECOMPUTED)
 		return "unknown kernel type";
 

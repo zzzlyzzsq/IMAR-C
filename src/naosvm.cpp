@@ -1030,7 +1030,7 @@ void svm_ovr_print(double *labels, double *probs, int nbr_class){
 void get_svm_parameter(int k,struct svm_parameter &svmParameter){
   // SVM PARAMETER
   svmParameter.svm_type = C_SVC;
-  svmParameter.kernel_type = RBF;
+  svmParameter.kernel_type = CHIS;
   //  svm.degree
   svmParameter.gamma = 1.0/k;
   // double coef0;
