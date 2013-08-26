@@ -61,7 +61,7 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
   //int dim = getDim(desc);
   
   // Loading the bdd
-  IMbdd bdd(bddName,path2bdd);
+  IMbdd bdd(bddName,path2bdd,"mapping.txt","reject");
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // Saving its parameters
@@ -277,7 +277,7 @@ void addBdd(std::string bddName, int scale_num, std::string descriptor){
   out.close();
   
   // Saving parameters
-  IMbdd bdd = IMbdd(bddName,path2bdd);
+  IMbdd bdd = IMbdd(bddName,path2bdd,"mapping.txt","reject");
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       getDim(descriptor));
@@ -338,21 +338,21 @@ void emptyFolder(std::string folder){
  * \param[in] dim The STIPs dimension.
  * \param[in] maxPts The maximum number of STIPs we can extract.
  */
-void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
+void im_refresh_bdd(std::string bddName,
+		    int scale_num,
+		    std::string descriptor){
   std::string path2bdd("bdd/" + bddName);
   
   int dim = getDim(descriptor);
-  
   // Saving the new new descriptor with its dimension
-  IMbdd bdd = IMbdd(bddName,path2bdd);
+  IMbdd bdd = IMbdd(bddName,path2bdd,"mapping.txt","reject");
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       dim);
   bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
-  
   int maxPts = bdd.getMaxPts();
   
-  // Supression des fichiers concatenate.stips, concatenate.bow, svm.model et training.means
+  // Deleting testing files and training files 
   DIR* repBDD = opendir(path2bdd.c_str());
   if (repBDD == NULL){
     std::cerr << "Impossible top open the BDD directory"<< std::endl;
@@ -362,34 +362,56 @@ void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
   while ( (ent = readdir(repBDD)) != NULL){
     std::string file = ent->d_name;
     std::string f = path2bdd + "/" + file;
-    if((file.compare("concatenate.fp.test") == 0) ||
-       (file.compare("concatenate.fp.train") == 0) ||
-       (file.compare("concatenate.bow") == 0) ||
-       (file.compare("svm.model") == 0) ||
-       (file.compare("training.means") == 0))
+    if((file.compare("concatenate.fp.test") == 0) || (file.compare("concatenate.fp.train") == 0) ||
+       (file.compare("concatenate.bow.test") == 0) || (file.compare("concatenate.bow.train") == 0) || 
+       (file.compare("files.test") == 0) || (file.compare("files.train") == 0))
       remove(f.c_str());
   }
   closedir(repBDD);
   
-  // Supression des fichier .bow et .stip de chaque activité
-  activitiesMap *am;
-  int nbActivities = mapActivities(path2bdd,&am);
-  // Deleting feature points
-  for(int i = 0 ; i< nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/fp");
-    string cmd("rm " + rep + "/*"); 
-    system(cmd.c_str());
-  }  
+  std::vector<std::string> people = bdd.getPeople();
+  // Deleting feature points of each activities 
+  for(std::vector<std::string>::iterator person = people.begin() ; person != people.end() ; ++person){
+    std::string personFolder(path2bdd + "/" + *person);
+    refresh_folder(personFolder, scale_num, dim, maxPts);
+  }
+}
+
+/**
+ * \fn void im_refresh_folder(std::string folder, std::vector<std::string> activities, int scale_num, int dim, int maxPts)
+ * \brief Deletes all files excepted videos and extracts STIPs again.
+ *
+ * \param[in] folder the path to the folder containing videos.
+ * \param[in] activities the vector containing all the activities.
+ * \param[in] scale_num the number of scales used for the feature points extraction.
+ * \param[in] dim the dimension of the feature points.
+ * \param[in] maxPts the maximum number of feature points we can extract.
+ */
+im_refresh_folder(std::string folder, std::vector<std::string> activities,
+		  int scale_num, int dim, int maxPts){
+  // Deleting all features points
+  for(std::vector<std::string>::iterator activity = activities.begin() ; activity != activities.end() ; ++activity){
+    string rep(folder + "/" + *activity + "/fp");
+    DIR * repertoire = opendir(rep.c_str());
+    if (repertoire == NULL){
+      std::cerr << "Impossible to open the fp folder for deletion!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    struct dirent *ent;
+    while ( (ent = readdir(repertoire)) != NULL){
+      if(strcmp(ent->d_name,".") != 0 && strcmp(ent->d_name,"..") != 0)
+	remove(ent->d_name);
+    }
+    closedir(repertoire);
+  } 
   
-  // Extracting STIPs for each videos
-  for(int i = 0 ; i< nbActivities ; i++){
-    std::string label = inttostring(am[i].label);
-    std::string avipath(path2bdd + "/" + label + "/avi");
-    std::string stipspath(path2bdd + "/" +  label + "/fp");
+  // Extracting feature points for each videos
+  for(std::vector<std::string>::iterator activity = activities.begin() ; activity != activities.end() ; ++activity){
+    std::string avipath(folder + "/" + *activity + "/avi");
+    std::string FPpath(folder + "/" +  *activity + "/fp");
     DIR * repertoire = opendir(avipath.c_str());
     if (repertoire == NULL){
-      std::cerr << "Impossible to open the BDDs directory!" << std::endl;
+      std::cerr << "Impossible to open the avi folder for extraction!" << std::endl;
       exit(EXIT_FAILURE);
     }
     struct dirent * ent;
@@ -398,12 +420,11 @@ void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
       std::string file = ent->d_name;
       if(file.compare(".") != 0 && file.compare("..") != 0){
 	string idFile = inttostring(j);
-        // Extract STIPs from the videos and save them in the repertory /path/to/bdd/label/
+        // Extract feature points from the videos and save them in the repertory /path/to/folder/activity/fp
         KMdata dataPts(dim,maxPts);
         string videoInput(avipath + "/" + file);
-        string stipOutput(stipspath + "/" + label + "-" + idFile + ".fp");
+        string stipOutput(FPpath + "/" + *activity + "-" + idFile + ".fp");
 	int nPts;
-	std::cout << videoInput << std::endl;
 	nPts = extract_feature_points(videoInput,
 				      scale_num, descriptor, dim,
 				      maxPts, dataPts);		
@@ -415,9 +436,8 @@ void refreshBdd(std::string bddName, int scale_num, std::string descriptor){
       }
     }
     closedir(repertoire);
-    // The extraction of the videos STIPs of the activity i terminated.
+    // The extraction of the videos feature points of the activity is terminated.
   }
-  delete []am;
 }
 
 /**
@@ -435,7 +455,7 @@ void predictActivity(std::string videoPath,
   std::string path2bdd("bdd/" + bddName);   
   
   // Loading parameters
-  IMbdd bdd(bddName,path2bdd);
+  IMbdd bdd();
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   int scale_num = bdd.getScaleNum();
   std::string descriptor = bdd.getDescriptor();
@@ -573,6 +593,55 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
   FtpQuit(nControl); */
 }
 #endif // TRANSFER_TO_ROBOT_NAO
+void im_concatenate_bdd_feature_points(std::string path2bdd,
+				       std::vector<std::string> people,
+				       std::vector<std::string> activities){
+  for(std::vector<std::string>::iterator person = people.begin() ; person != people.end() ; ++person)
+    im_concatenate_folder_feature_points(path2bdd + "/" + *person, activities);
+}
+void im_concatenate_folder_feature_points(std::string folder,
+					  std::vector<std::string> activities){
+  // First we delete the file if it exists
+  for(std::vector<std::string>::iterator activity = activities.begin() ; activity != activities.end() ; ++activity){
+    std::string rep(folder + "/" + *activity);
+    std::string path2concatenate(rep + "/concatenate." + *activity + ".fp");
+    // We open the directory folder/label
+    DIR * folder = opendir(rep.c_str());
+    if (folder == NULL){
+      std::cerr << "Impossible to open the folder for deletion!"<< std::endl;
+      exit(EXIT_FAILURE);
+    }
+    struct dirent *ent;
+    while ( (ent = readdir(repBDD)) != NULL){
+      std::string file = ent->d_name;
+      if(file.compare("concatenate."+*activity".fp")== 0) remove(path2concatenate);
+    }
+    closedir(repBDD);
+  }
+  
+  // Then we concatenate the feature points
+  for(std::vector<std::string>::iterator activity = activities.begin() ; activity != activities.end() ; ++activity){
+    string rep(folder + "/" + *activity + "/fp");
+    DIR * folder = opendir(rep.c_str());
+    if (folder == NULL){
+      std::cerr << "Impossible to open the feature points folder for concatenation!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    ofstream out(folder + "/" + *activity + "/concatenate." + *activity + ".fp");
+    struct dirent * ent;
+    while ( (ent = readdir(repertoire)) != NULL){
+      std::string file = ent->d_name;
+      if(file.compare(".") != 0 && file.compare("..") != 0){
+	std::string path2fp(rep + "/" + file);
+	ifstream in(path2fp.c_str());
+        while (getline(in, line)) {
+	  out << line << std::endl;
+        }
+      }
+    }
+    closedir(repertoire);
+  }
+}					
 
 void concatenate_features_points(int nbActivities,
 				 activitiesMap *am,
@@ -745,73 +814,92 @@ void concatenate_features_points_per_activities(int nbActivities,
     outTest << *it << std::endl;  
 }
 
-int create_specifics_training_means(IMbdd bdd,
-				    int subK,
-				    int nr_class,
-				    activitiesMap* am
-				    //std::vector <std::string> rejects,
-				    ){
+int im_create_specifics_training_means(IMbdd bdd,
+				       int subK,
+				       std::string leave=""
+				       //std::vector <std::string> rejects,
+				       ){
   std::string path2bdd(bdd.getFolder());
   int dim = bdd.getDim();
   int maxPts = bdd.getMaxPts();
   
+  std::vector <std::string> activities = bdd.getActivities();
+  int nr_class = activities.size();
+  
   // The total number of centers
   int k = nr_class*subK;
-  
   std::cout << "k=" << k << std::endl;
-  double ***vDataPts = (double ***) malloc(nr_class*sizeof(double**));
-  if(!vDataPts){
-    std::cerr << "Memory allocation error: vDataPts" << std::endl;
-    exit(EXIT_FAILURE);
-  }
+  
+  double ***vDataPts = new double**[nr_class];
   int nrFP[nr_class]; // number of feature points for each class
-  for(int i=0 ; i<nr_class ; i++){
-    std::string label(inttostring(am[i].label));
-    std::string rep(path2bdd + "/" + label); // FP = feature points
-    DIR * repertoire = opendir(rep.c_str());
-    if (!repertoire){
-      std::cerr << "Impossible to open the feature points directory!" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    // Searching the file concatenate.label.fp.train
-    struct dirent * ent = readdir(repertoire);
-    std::string file(ent->d_name);
-    while (ent &&
-	   (file.compare("concatenate." + label + ".fp.train")) != 0){
-      ent = readdir(repertoire);
-      file = ent->d_name;
-    }
-    if(!ent){
-      std::cerr << "No file concatenate.label.fp.train" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    std::string path2FP(rep + "/" + file);
-    KMdata kmData(dim,maxPts);
-    nrFP[i] = 0;
-    // Importing the feature points
-    if((nrFP[i] = importSTIPs(path2FP,dim,maxPts,&kmData)) != 0){
-      vDataPts[i] = (double**) malloc(nrFP[i]*sizeof(double*));
-      if(!vDataPts[i]){
-	std::cerr << "Memory allocation error while importing features points" << std::endl;
-	exit(EXIT_FAILURE);
-      }
-      // Saving them in vDataPts
-      for(int n=0 ; n<nrFP[i] ; n++){
-	vDataPts[i][n] = (double*) malloc(dim*sizeof(double));
-	if(!vDataPts[i][n]){
-	  std::cerr << "Memory allocation error" << std::endl;
+  int currentActivity = 0;
+  for(std::vector<std::string>::iterator activity = activities.begin() ; activity != activities.end() ; ++activity){
+    nrFP[currentActivity] = 0;
+    int nrFPpP[people.size()]; // number of feature points per person
+    double*** activityDataPts = new double**[people.size()];
+    int currentPerson = 0;
+    for(std::vector<std::string>::iterator person = people.begin() ; person != people.end() ; ++person){
+      nrFPpP[currentPerson] = 0;
+      if((*person).compare(leave) != 0){
+	std::string rep(path2bdd + "/" + *person + "/" + *activity);
+	DIR * repertoire = opendir(rep.c_str());
+	if (!repertoire){
+	  std::cerr << "Impossible to open the feature points directory!" << std::endl;
 	  exit(EXIT_FAILURE);
 	}
-	for(int d=0 ; d<dim ; d++){
-	  vDataPts[i][n][d] = kmData[n][d];
+	
+	// Checking that the file concatenate.<activity>.fp exists
+	struct dirent * ent = readdir(repertoire);
+	std::string file(ent->d_name);
+	while (ent && (file.compare("concatenate." + *activity + ".fp")) != 0){
+	  ent = readdir(repertoire);
+	  file = ent->d_name;
 	}
+	if(!ent){
+	  std::cerr << "No file concatenate.<activity>.fp" << std::endl;
+	  exit(EXIT_FAILURE);
+	}
+	
+	// Importing the feature points
+	std::string path2FP(rep + "/" + file);
+	KMdata kmData(dim,maxPts);
+	nrFPpP[currentPerson] += importSTIPs(path2FP,dim,maxPts,&kmData);
+	if(nrFPpP[currentPerson] != 0){
+	  activityDataPts[currentPerson] = new double*[nrFPpP[currentPerson]];
+	  for(int n=0 ; n<nrFPpP[currentPerson] ; n++){
+	    activityDataPts[currentPerson][n] = new double [dim];
+	    for(int d=0 ; d<dim ; d++){
+	      activityDataPts[currentPerson][n][d] = kmData[n][d];
+	    }
+	  }
+	} // else the current person does not participate in this activity
+	nrFP[currentActivity] += nrFPpP[currentPerson];
+      } // else we make a leave one out with this person
+      currentPerson++;
+    } // ++person
+
+    // Saving people in vDataPts
+    vDataPts[currentActivity] = new double*[nrFP[currentActivity]];
+    int index=0;
+    for(int p=0 ; p<people.size() ; p++){
+      for(int fp=0 ; fp<FPpP[p] ; fp++){
+	vDataPts[currentActivity][index] = new double[dim];
+	for(int d=0 ; d<dim ; d++){
+	  vDataPts[currentActivity][index][d] = activityDataPts[p][fp][d];
+	}
+	index++;
       }
+    } // index must be equal to nrFP[currentActivity] - 1
+    
+    // Deleting activityDataPts
+    for(int p=0 ; p<people.size() ; p++){
+      for(int fp=0; fp<FPpP[p] ; fp++)
+	delete[] activityDataPts[p][fp];
+      delete[] activityDataPts[p];
     }
-    else{ // ie. nrFP[i] == 0
-      std::cerr << "A class does not contain features points!" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-  } // all the feature points are saved in vDataPts[activity][vectors(dim)]
+    delete[] activityDataPts;
+    currentActivity++;
+  } // ++activity
   
   // Total number of feature points
   int ttFP = 0;
@@ -820,17 +908,9 @@ int create_specifics_training_means(IMbdd bdd,
   }
   
   // Memory allocation of the centers
-  double** vCtrs = (double**) malloc(k*sizeof(double*));
-  if(!vCtrs){
-    std::cerr << "Ctrs memory allocation error" << std::endl;
-    exit(EXIT_FAILURE);
-  }
+  double** vCtrs = new double*[k];
   for(int i=0 ; i<k ; i++){
-    vCtrs[i] = (double*) malloc(dim*sizeof(double));
-    if(!vCtrs[i]){
-      std::cerr << "Ctrs[i] memory allocation error" << std::endl;
-      exit(EXIT_FAILURE);
-    }
+    vCtrs[i] = new double[dim];
   }
   
   // Doing the KMeans algorithm for each activities
@@ -868,15 +948,15 @@ int create_specifics_training_means(IMbdd bdd,
       nPts++;
     }
   }
+  // Releasing vDataPts
   for(int i=0 ; i<nr_class ; i++){
-    for(int n=0 ; n<nrFP[i] ; n++){
-      free(vDataPts[i][n]);
-    }
-    free(vDataPts[i]);
+    for(int n=0 ; n<nrFP[i] ; n++)
+      delete [] vDataPts[i][n];
+    delete [] vDataPts[i];
   }
-  free(vDataPts);
-  dataPts.buildKcTree();
+  delete[] vDataPts;
   
+  dataPts.buildKcTree();
   // Returning the true centers
   KMfilterCenters ctrs(k,dataPts);
   for(int n=0 ; n<k ; n++){
@@ -884,10 +964,11 @@ int create_specifics_training_means(IMbdd bdd,
       ctrs[n][d] = vCtrs[n][d];
     }
   }
-  for(int i=0 ; i<k ; i++){
-    free(vCtrs[i]);
-  }
-  free(vCtrs);
+  
+  // Releasing vCtrs
+  for(int i=0 ; i<k ; i++)
+    delete [] vCtrs[i];
+  delete[]vCtrs;
   
   exportCenters(bdd.getFolder() + "/" + bdd.getKMeansFile(),
 		dim, k, ctrs);
