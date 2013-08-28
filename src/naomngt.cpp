@@ -438,6 +438,10 @@ im_refresh_folder(std::string folder, std::vector<std::string> activities,
     closedir(repertoire);
     // The extraction of the videos feature points of the activity is terminated.
   }
+  
+  im_concatenate_bdd_feature_points(bdd.getFolder(),
+				    bdd.getPeople(),
+				    bdd.getActivities());
 }
 
 /**
@@ -593,12 +597,35 @@ void transferBdd(std::string bddName, std::string login, std::string robotIP, st
   FtpQuit(nControl); */
 }
 #endif // TRANSFER_TO_ROBOT_NAO
+/*void im_concatenate_bdd_bow(std::string path2bdd,
+			    std::vector<std::string> people,
+			    std::vector<std::string> activities){
+  for(std::vector<std::string>::iterator person = people.begin() ;
+      person != people.end() ;
+      ++person){
+    std::cout << "BOWs of the person " << *person << "." << std::endl;
+    im_concatenate_folder_feature_points(path2bdd + "/" + *person, activities);  
+  }
+}
+void im_concatenate_folder_bow(std::string folder,
+			       std::vector<std::string> activities){
+  ofstream out(folder + "/concatenate.bow");
+
+    }
+  }
+  }*/
+  
+// Concatenate the feature points in each folder
 void im_concatenate_bdd_feature_points(std::string path2bdd,
 				       std::vector<std::string> people,
 				       std::vector<std::string> activities){
-  for(std::vector<std::string>::iterator person = people.begin() ; person != people.end() ; ++person)
-    im_concatenate_folder_feature_points(path2bdd + "/" + *person, activities);
+  for(std::vector<std::string>::iterator person = people.begin() ;
+      person != people.end() ;
+      ++person)
+    im_concatenate_folder_feature_points(path2bdd + "/" + *person, activities);  
 }
+
+// Concatenate the feature points of each activities of a folder
 void im_concatenate_folder_feature_points(std::string folder,
 					  std::vector<std::string> activities){
   // First we delete the file if it exists
@@ -619,205 +646,36 @@ void im_concatenate_folder_feature_points(std::string folder,
     closedir(repBDD);
   }
   
-  // Then we concatenate the feature points
-  for(std::vector<std::string>::iterator activity = activities.begin() ; activity != activities.end() ; ++activity){
+  // Then we concatenate the feature points per activities (for KMeans)
+  for(std::vector<std::string>::iterator activity = activities.begin() ;
+      activity != activities.end() ;
+      ++activity){
     string rep(folder + "/" + *activity + "/fp");
     DIR * folder = opendir(rep.c_str());
     if (folder == NULL){
       std::cerr << "Impossible to open the feature points folder for concatenation!" << std::endl;
       exit(EXIT_FAILURE);
     }
-    ofstream out(folder + "/" + *activity + "/concatenate." + *activity + ".fp");
+    ofstream activityOut(folder + "/" + *activity + "/concatenate." + *activity + ".fp");
     struct dirent * ent;
     while ( (ent = readdir(repertoire)) != NULL){
       std::string file = ent->d_name;
       if(file.compare(".") != 0 && file.compare("..") != 0){
 	std::string path2fp(rep + "/" + file);
 	ifstream in(path2fp.c_str());
-        while (getline(in, line)) {
-	  out << line << std::endl;
-        }
+        while (getline(in, line)){
+	  activityOut << line << std::endl;
+	}
       }
     }
     closedir(repertoire);
   }
 }					
 
-void concatenate_features_points(int nbActivities,
-				 activitiesMap *am,
-				 std::string path2bdd,
-				 int nrVideosByActivities,
-				 std::vector <std::string>& trainingFiles,
-				 std::vector <std::string>& testingFiles){
-  // First we calculate (randomly) the feature points per activities
-  concatenate_features_points_per_activities(nbActivities,
-					     am,
-					     path2bdd,
-					     nrVideosByActivities,
-					     trainingFiles,
-					     testingFiles);
-  
-  std::cout << "Creating files concatenate.fp.train and concatenate.fp.test" << std::endl;
-  // first we delete them if they exist
-  std::string path2CTrain(path2bdd + "/" + "concatenate.fp.train");
-  std::string path2CTest(path2bdd + "/" + "concatenate.fp.test");
-  DIR * repBDD = opendir(path2bdd.c_str());
-  if (repBDD == NULL){
-    std::cerr << "Impossible to open the BDD directory"<< std::endl;
-    exit(EXIT_FAILURE);
-  }
-  struct dirent *ent;
-  while ( (ent = readdir(repBDD)) != NULL){
-    std::string file = ent->d_name;
-    if(file.compare("concatenate.fp.test") == 0 ){
-      remove(path2CTest.c_str());
-    }
-    if(file.compare("concatenate.fp.train") == 0 ){
-      remove(path2CTrain.c_str());
-    }
-  }
-  closedir(repBDD);
-  
-  for(int i = 0 ; i< nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label);
-    // int nrVideos = nbOfFiles(rep);
-    DIR * repertoire = opendir(rep.c_str());
-    if (repertoire == NULL){
-      std::cerr << "Impossible to open the feature points directory!" << std::endl;
-    }
-    else{
-      struct dirent * ent;
-      while ( (ent = readdir(repertoire)) != NULL){
-	std::string file = ent->d_name;
-	std::string cmd;
-	if(file.compare("concatenate." + label + ".fp.train") == 0){
-	  cmd = "cat " + path2bdd + "/" + label + "/" + file;
-	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.fp.train";
-	  system(cmd.c_str());
-	}
-	if(file.compare("concatenate." + label + ".fp.test" ) == 0){
-	  cmd = "cat " + path2bdd + "/" + label + "/" + file;
-	  cmd = cmd + " >> " + path2bdd + "/" + "concatenate.fp.test";
-	  system(cmd.c_str());
-	}
-      }
-      closedir(repertoire);
-    }
-  }
-}
-void concatenate_features_points_per_activities(int nbActivities,
-						activitiesMap *am,
-						std::string path2bdd,
-						int nrVideosByActivities,
-						std::vector <std::string>& trainingFiles,
-						std::vector <std::string>& testingFiles){
-  srand(time(NULL)); // initialisation of rand
-  
-  std::cout << "Creating files concatenate.label.fp.train";
-  std::cout << " and concatenate.label.fp.test for each activities" << std::endl;
-  
-  // first we delete them if they exist
-  for(int i=0 ; i<nbActivities ; i++){
-    std::string label(inttostring(am[i].label));
-    std::string rep(path2bdd + "/" + label);
-    std::string path2CTrain(rep + "/concatenate." + label + ".fp.train");
-    std::string path2CTest(rep +"/concatenate." + label + ".fp.test");
-
-    // We open the directory folder/label
-    DIR * repBDD = opendir(rep.c_str());
-    if (repBDD == NULL){
-      std::cerr << "Impossible to open the BDD directory"<< std::endl;
-      exit(EXIT_FAILURE);
-    }
-    struct dirent *ent;
-    while ( (ent = readdir(repBDD)) != NULL){
-      std::string file = ent->d_name;
-      if(file.compare("concatenate." + label + ".fp.test") == 0 ){
-	remove(path2CTest.c_str());
-      }
-      if(file.compare("concatenate." + label + ".fp.train") == 0 ){
-	remove(path2CTrain.c_str());
-      }
-    }
-    closedir(repBDD);
-  }
-  for(int i = 0 ; i< nbActivities ; i++){
-    string label = inttostring(am[i].label);
-    string rep(path2bdd + "/" + label + "/fp");
-    int nrVideos = nbOfFiles(rep);
-    
-    int randomVector[nrVideosByActivities];
-    for(int s=0; s<nrVideosByActivities;s++){
-      int r = (int) rand()%(nrVideos);
-      int index = 0;
-      while(index<s && randomVector[index] != r){
-	index++;
-      }
-      if(s==0 || randomVector[index] != r)
-	randomVector[s] = r;
-      else{
-	s--;
-      }
-    }
-    
-    DIR * repertoire = opendir(rep.c_str());
-    if (repertoire == NULL){
-      std::cerr << "Impossible to open the feature points directory!" << std::endl;
-    }
-    else{
-      struct dirent * ent;
-      int count=0;
-      int trainCount=0;
-      while ( (ent = readdir(repertoire)) != NULL){
-	std::string file = ent->d_name;
-	if(file.compare(".") != 0 && file.compare("..") != 0){
-	  bool goodCount = false;
-	  int s=0;
-	  // We search if the file corresponds to the random tirage
-	  while(s<nrVideosByActivities && !goodCount){
-	    if(randomVector[s] == count){
-	      goodCount = true;
-	    }
-	    s++;
-	  }
-	  std::string cmd;
-	  // If it corresponds, we add the feature points in the the training file
-	  if(trainCount < nrVideosByActivities && goodCount){
-	    trainingFiles.push_back(file);
-	    cmd = "cat " + path2bdd + "/" + label + "/fp/" + file;
-	    cmd = cmd + " >> " + path2bdd + "/" + label + "/concatenate." + label + ".fp.train";
-	    system(cmd.c_str());
-	    trainCount++;
-	  }
-	  else{ // If not, we save the feature points in the testing file
-	    testingFiles.push_back(file);
-	    cmd = "cat " + path2bdd + "/" + label + "/fp/" + file;
-	    cmd = cmd + " >> " + path2bdd + "/" + label + "/concatenate." + label + ".fp.test";
-	    system(cmd.c_str());
-	  }
-	  count++;
-	}
-      }
-      closedir(repertoire);
-    }
-  }
-  
-  // Saving trainingFiles and testingFiles in the folder
-  std::string path2TrainingFile(path2bdd + "/files.train");
-  std::string path2TestingFile(path2bdd + "/files.test");
-  ofstream outTrain(path2TrainingFile.c_str(), ios::out);
-  for (std::vector<string>::iterator it = trainingFiles.begin() ; it != trainingFiles.end(); ++it)
-    outTrain << *it << std::endl;  
-  ofstream outTest(path2TestingFile.c_str(), ios::out);
-  for (std::vector<string>::iterator it = testingFiles.begin() ; it != testingFiles.end(); ++it)
-    outTest << *it << std::endl;  
-}
-
 int im_create_specifics_training_means(IMbdd bdd,
 				       int subK,
-				       std::string leave=""
-				       //std::vector <std::string> rejects,
+				       const std::vector<std::string>& trainingPeople 
+				       //std::vector <std::string> rejects
 				       ){
   std::string path2bdd(bdd.getFolder());
   int dim = bdd.getDim();
@@ -826,6 +684,8 @@ int im_create_specifics_training_means(IMbdd bdd,
   std::vector <std::string> activities = bdd.getActivities();
   int nr_class = activities.size();
   
+  int nr_people = trainingPeople.size();
+  
   // The total number of centers
   int k = nr_class*subK;
   std::cout << "k=" << k << std::endl;
@@ -833,14 +693,21 @@ int im_create_specifics_training_means(IMbdd bdd,
   double ***vDataPts = new double**[nr_class];
   int nrFP[nr_class]; // number of feature points for each class
   int currentActivity = 0;
-  for(std::vector<std::string>::iterator activity = activities.begin() ; activity != activities.end() ; ++activity){
+  // For each activity
+  for(std::vector<std::string>::iterator activity = activities.begin() ;
+      activity != activities.end() ;
+      ++activity){
     nrFP[currentActivity] = 0;
-    int nrFPpP[people.size()]; // number of feature points per person
-    double*** activityDataPts = new double**[people.size()];
+    
+    // We concatenate all the people (but not the "leave people"
+    int nrFPpP[nr_people]; // number of feature points per person
+    double*** activityDataPts = new double**[nr_people];
     int currentPerson = 0;
-    for(std::vector<std::string>::iterator person = people.begin() ; person != people.end() ; ++person){
-      nrFPpP[currentPerson] = 0;
+    for(std::vector<std::string>::iterator person = trainingPeople.begin() ;
+	person != trainingPeople.end() ;
+	++person){
       if((*person).compare(leave) != 0){
+	nrFPpP[currentPerson] = 0;
 	std::string rep(path2bdd + "/" + *person + "/" + *activity);
 	DIR * repertoire = opendir(rep.c_str());
 	if (!repertoire){
@@ -863,25 +730,24 @@ int im_create_specifics_training_means(IMbdd bdd,
 	// Importing the feature points
 	std::string path2FP(rep + "/" + file);
 	KMdata kmData(dim,maxPts);
-	nrFPpP[currentPerson] += importSTIPs(path2FP,dim,maxPts,&kmData);
+	nrFPpP[currentPerson] = importSTIPs(path2FP, dim, maxPts, &kmData);
 	if(nrFPpP[currentPerson] != 0){
 	  activityDataPts[currentPerson] = new double*[nrFPpP[currentPerson]];
-	  for(int n=0 ; n<nrFPpP[currentPerson] ; n++){
+	  for(int n = 0 ; n<nrFPpP[currentPerson] ; n++){
 	    activityDataPts[currentPerson][n] = new double [dim];
-	    for(int d=0 ; d<dim ; d++){
+	    for(int d = 0 ; d<dim ; d++)
 	      activityDataPts[currentPerson][n][d] = kmData[n][d];
-	    }
 	  }
 	} // else the current person does not participate in this activity
 	nrFP[currentActivity] += nrFPpP[currentPerson];
+	currentPerson++;
       } // else we make a leave one out with this person
-      currentPerson++;
     } // ++person
-
+    
     // Saving people in vDataPts
     vDataPts[currentActivity] = new double*[nrFP[currentActivity]];
     int index=0;
-    for(int p=0 ; p<people.size() ; p++){
+    for(int p=0 ; p<nr_people ; p++){
       for(int fp=0 ; fp<FPpP[p] ; fp++){
 	vDataPts[currentActivity][index] = new double[dim];
 	for(int d=0 ; d<dim ; d++){
@@ -892,8 +758,8 @@ int im_create_specifics_training_means(IMbdd bdd,
     } // index must be equal to nrFP[currentActivity] - 1
     
     // Deleting activityDataPts
-    for(int p=0 ; p<people.size() ; p++){
-      for(int fp=0; fp<FPpP[p] ; fp++)
+    for(int p=0 ; p<nr_people ; p++){
+      for(int fp=0 ; fp < FPpP[p] ; fp++)
 	delete[] activityDataPts[p][fp];
       delete[] activityDataPts[p];
     }
@@ -903,8 +769,8 @@ int im_create_specifics_training_means(IMbdd bdd,
   
   // Total number of feature points
   int ttFP = 0;
-  for(int i=0 ; i<nr_class ; i++){
-    ttFP += nrFP[i];
+  for(int a=0 ; a<nr_class ; a++){
+    ttFP += nrFP[a];
   }
   
   // Memory allocation of the centers
@@ -985,7 +851,7 @@ int im_create_specifics_training_means(IMbdd bdd,
  * \param[in] maxPts The maximum number of points we want to compute.
  * \param[in] k The number of cluster (means).
  */
-void trainBdd(std::string bddName, int k){
+void im_train_bdd(std::string bddName, int k){
   std::string path2bdd("bdd/" + bddName);
   std::string KMeansFile(path2bdd + "/" + "training.means");
   
@@ -993,52 +859,39 @@ void trainBdd(std::string bddName, int k){
   //int desc = getDescID(path2bdd);
   //int dim = getDim(desc);
   // Loading the DenseTrack settings
-
+  
   // Loading BDD
   IMbdd bdd = IMbdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+  
+  // Loading activities
+  std::vector<std::string> activities = bdd.getActivities();
+  int nrActivities = activities.size();
+  int labels[nr_activities];
+  int index = 0;
+  for(std::vector<std::string>::iterator activity = activities.begin();
+      activity != activities.end();
+      ++activity)
+    labels[index] = index + 1;
+  if(k%nbActivities != 0){
+    std::cerr << "k is not divisible by nrActivities !" << std::endl;
+    exit(EXIT_FAILURE);
+  }
   
   // Saving KMeans settings
   bdd.changeKMSettings("specifical",
 		       k,
 		       "training.means");
-  // Loading feature points settings
-  std::string descriptor = bdd.getDescriptor();
-
-  // ouverture du fichier d'équivalence label <-> activités
-  activitiesMap *am;
-  int nbActivities = mapActivities(path2bdd,&am);
-  int labels[nbActivities];
-  for(int i=0 ; i<nbActivities ; i++){
-    labels[i] = am[i].label;
-  }
+  im_create_specifics_training_means(bdd, trainingPeople);
   
-  // Creation of the file concatenate.stip
-  // and the files concatenate.train.stip
-  // and concatenate.test.stip per activities
-  int nrVideosByActivities = 10; // as an option
-  int minNrVideo = 8;
-  if(nrVideosByActivities > minNrVideo - 1){
-    nrVideosByActivities = minNrVideo - 1;
-  }
-  std::cout << "Using " << nrVideosByActivities;
-  std::cout << " videos per activity for the training phase." << std::endl;
-  
+  // SVM train
   MatrixC trainMC = MatrixC(nbActivities,labels);
-  MatrixC testMC = MatrixC(nbActivities,labels);
-  
-  km_svm_train(nrVideosByActivities,
-	       nbActivities, am,
-	       bdd,
-	       trainMC, testMC
-	       );
-  delete [] am;
+  im_svm_train(bdd, trainingPeople, trainMC);
   trainMC.calculFrequence();
-  trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
-  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
-  testMC.calculFrequence();
-  testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
+  trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
+  
+  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   std::cout << "#######################################" << std::endl;
   std::cout << "######## RESUME OF THE TEST ###########" << std::endl;
@@ -1053,9 +906,9 @@ void trainBdd(std::string bddName, int k){
   std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
 }
 
-void testBdd(std::string bddName, 
-	     int k, 
-	     int nrTests){
+void im_leave_one_out(std::string bddName, 
+		      int k, 
+		      int nrTests){
   std::string path2bdd("bdd/" + bddName);
   std::string KMeansFile(path2bdd + "/" + "training.means");
   
@@ -1094,12 +947,86 @@ void testBdd(std::string bddName,
   MatrixC trainMC = MatrixC(nbActivities,labels);
   MatrixC testMC = MatrixC(nbActivities,labels);
   
+  // Leave One Person Out 
+  for(std::vector<std::string>::iterator person = people.begin();
+      person != people.end();
+      ++person)
+    km_svm_train(bdd, (*person), trainMC, testMC);
+  
+  trainMC.calculFrequence();
+  trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
+  trainMC.output();
+  testMC.calculFrequence();
+  testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
+  testMC.output();
+    
+  std::cout << "#######################################" << std::endl;
+  std::cout << "######## RESUME OF THE TEST ###########" << std::endl;
+  std::cout << "#######################################" << std::endl;
+  std::cout << "Number of tests: " << nrTests << std::endl;
+  std::cout << "Descriptor ID: " << descriptor << std::endl;
+  std::cout << "Number of means: " << k << std::endl;
+  std::cout << "Train recognition rate:" << std::endl;
+  std::cout << "\t tau_train=" << trainMC.recognitionRate*100 << "%" << std::endl;
+  std::cout << "\t total number of train BOWs=" << trainMC.nrTest << std::endl;
+  std::cout << "Test recognition rate:" << std::endl;
+  std::cout << "\t tau_test=" << testMC.recognitionRate*100 << "%" << std::endl;
+  std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
+}
+void testBdd(std::string bddName, 
+	     int k, 
+	     int nrTests){
+  std::string path2bdd("bdd/" + bddName);
+  std::string KMeansFile(path2bdd + "/" + "training.means");
+  
+  //  std::cout << path2bdd << std::endl;
+  // Loading BDD
+  IMbdd bdd = IMbdd(bddName,path2bdd);
+  bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+  
+  // Saving KMeans settings
+  bdd.changeKMSettings("specifical",
+		       k,
+		       "training.means");
+  
+  // Loading feature points settings
+  std::string descriptor = bdd.getDescriptor();
+  
+  // ouverture du fichier d'équivalence label <-> activités
+  activitiesMap *am;
+  int nbActivities = mapActivities(path2bdd,&am);
+  int labels[nbActivities];
+  for(int i=0 ; i<nbActivities ; i++){
+    labels[i] = am[i].label;
+  }
+  
+  // Creation of the file concatenate.stip
+  // and the files concatenate.train.stip
+  // and concatenate.test.stip per activities
+  int nrVideosByActivities = 10; // as an option
+  int minNrVideo = 8;
+  if(nrVideosByActivities > minNrVideo - 1){
+    nrVideosByActivities = minNrVideo - 1;
+  }
+  std::cout << "Using " << nrVideosByActivities;
+  std::cout << " videos per activity for the training phase." << std::endl;
+  
+  
+
+  
+  
+  
+  MatrixC trainMC = MatrixC(nbActivities,labels);
+  MatrixC testMC = MatrixC(nbActivities,labels);
+  
+  
   for(int t=0 ; t<nrTests ; t++){
+    im_create_specifics_training_means(bdd, trainingPeople);
     km_svm_train(nrVideosByActivities,
 		 nbActivities, am,
 		 bdd,
-		 trainMC, testMC
-		 );
+		 trainMC, testMC);
+    // ICI
   }
   trainMC.calculFrequence();
   trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
@@ -1121,112 +1048,212 @@ void testBdd(std::string bddName,
   std::cout << "\t tau_test=" << testMC.recognitionRate*100 << "%" << std::endl;
   std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
 }
-void km_svm_train(int nrVideosByActivities,
-		  int nbActivities, activitiesMap *am,
-		  IMbdd& bdd,
-		  MatrixC& trainMC, MatrixC& testMC
-		  ){
-  std::vector <std::string> trainingFiles;
-  std::vector <std::string> testingFiles;
-  concatenate_features_points(nbActivities,
-			      am,
-			      bdd.getFolder(),
-			      nrVideosByActivities,
-			      trainingFiles,
-			      testingFiles);
-  int k = bdd.getK();
-  // Creating the file training.means
-  // It will only use concatenate files
-  std::cout << "Computing KMeans..." << std::endl;
-  /* createTrainingMeans(path2bdd + "/" + "concatenate.fp.train",
-     dim,
-     maxPts,
-     k,
-     meansFile);*/
-  int subK = k/nbActivities;
-  if(k%nbActivities != 0){
-    std::cerr << "k is not divisible by nbActivities !" << std::endl;
+
+void im_training_leave_one_out(const IMbdd& bdd,
+			       const std::vector<std::string>& trainingPeople,
+			       const std::map <std::string, struct svm_problem>& peopleBOW,
+			       int& minC, int& maxC,
+			       int& minG, int& maxG,
+			       struct svm_parameter& svmParameter){
+  if(trainingPeople.size() < 2){
+    std::cerr << "Impossible to make a leave-one-out-cross-validation with less than 2 people!" << std::endl;
     exit(EXIT_FAILURE);
   }
-  create_specifics_training_means(bdd,
-				  subK,
-				  nbActivities, am);
-    
-  std::cout << "Computing BOWs..." << std::endl;
-  // Finally we have to compute BOWs
-  struct svm_problem svmTrainProblem;
-  svmTrainProblem.l = 0;
-  svmTrainProblem.x = NULL;
-  svmTrainProblem.y = NULL;
-  struct svm_problem svmTestProblem;
-  svmTestProblem.l = 0;
-  svmTestProblem.x = NULL;
-  svmTestProblem.y = NULL;
-  
+  std::string path2bdd(bdd.getFolder());
+  int C, gamma;
+  int bestC, bestG;
+  double bestAccuracy = -1;
+  for(C=minC, C<=maxC ; C++){
+    for(gamma = minG ; gamma <= maxG ; gamma++){
+      svmParameter.C = pow(2,C);
+      svmParameter.gamma = pow(2,gamma);
+      double XValidationAccuracy;
+      int total_correct = 0;
+      int nrBOW = 0;
+      // For each couple (C,gamma) we do people.size() leave one outs
+      for(std::vector<std::string>::iterator person = trainingPeople.begin();
+	  person != trainingPeople.end();
+	  ++person){
+	// This person will be the testing person
+	
+	// We do the training with the others
+	struct svm_problem trainingProblem;
+	trainingProblem.l = 0;
+	trainingProblem.x = NULL;
+	trainingProblem.y = NULL;
+	for(std::vector<std::string>::iterator trainingPerson = trainingPeople.begin();
+	    trainingPerson != trainingPeople.end();
+	    ++ trainingPerson){
+	  // Training with the other person
+	  if(*trainingPerson.compare(*person) != 0){
+	    // For each person we train the rest and we test the person
+	    // Then compute the mean of the cross validation accuracy 
+	    addBOW(peopleBOW[*trainingPerson],trainingProblem);
+	  }
+	}
+	struct svm_model** svmModels = svm_train_ovr(&trainingProblem,&svmParameter);
+	destroy_svm_problem(trainingProblem);
+	
+	// Making test
+	for(int i=0 ; i<peopleBOW[*person].l ; i++){
+	  double* probs = new double[nbActivities];
+	  double lab_int = peopleBOW[*person].y[i];
+	  double lab_out = svm_predict_ovr_probs(svmModels,peopleBOW[*person].x[i],nbActivities,probs,2);
+	  delete []probs;
+	  if(lab_in == lab_out)
+	    total_correct++;
+	  nrBOW++;
+	}
+	destroy_svm_model(&svm_model);
+      } // leave one out
+      if((XValidationAccuracy = total_correct * 1.0 / nrBOW) > bestAccuracy){
+	bestAccuracy = XValidationAccuracy;
+	bestC = C;
+	bestG = gamma;
+      }
+    } // gamma loop 
+  } // C loop
+  svmParameter.C = pow(2,bestC);
+  svmParameter.gamma = pow(2,bestG);
+}
+
+void im_svm_train(IMbdd& bdd,
+		  const std::vector<std::string>& trainingPeople,
+		  matrixC& trainMC,
+		  const std::vector<std::string>& testingPeople = {""},
+		  matrixC& testMC){
   std::string path2bdd(bdd.getFolder());
   int dim = bdd.getDim();
+  int k = bdd.getK();
   int maxPts = bdd.getMaxPts();
-  for(int i = 0 ; i< nbActivities ; i++){
-    std::string label = inttostring(am[i].label);
-    std::string activity = am[i].activity;
-    std::cout << "BOW of the activity ";
-    std::cout<< activity << "(" << label << ")..." << std::endl;
-    
-    string rep(path2bdd + "/" + label + "/fp");
-    DIR * repertoire = opendir(rep.c_str());
-    if (!repertoire){
-      std::cerr << "Impossible to open the stips directory!" << std::endl;
-      exit(EXIT_FAILURE);
+  
+  // Computing Bag Of Words for each people
+  std::cout << "Computing BOWs..." << std::endl;
+  std::map<std::string, struct svm_problem> peopleBOW;
+  std::map<std::string, int> activitiesLabel;
+  im_compute_bdd_bow(bdd,peopleBOW); // all the BOW are saved in peopleBOW
+  im_normalize_bdd_bow(bdd,peopleBOW); // Don't forget to change the normalization before this step
+  
+  // Export ?? OR NOT export ???????? THAT IS THE QUESTION
+  // Exporting problem
+  //exportProblem(svmTrainProblem, path2bdd + "/concatenate.bow.train");
+  //if(testingPeople != {""}) 
+  //exportProblem(svmTestProblem, path2bdd + "/concatenate.bow.test");
+  
+  // * SVM *
+  // (One Versus the Rest (OVR))
+  // SVM parameters
+  struct svm_parameter svmParameter;
+  get_svm_parameter(k,svmParameter);
+  std::cout << "Searching the best C and the best Gamma..." << std::endl;
+  // We have to do a leave one out with the training data
+  // For the moment we use the same training centers to find Gamma and C
+  int minC = -5, maxC = 5;
+  int minG = -10, maxG = 3;
+  im_training_leave_one_out(bdd,
+			    trainingPeople, peopleBOW,
+			    minC, maxC, // ln(min/max C)
+			    minG, maxG, // ln(min/max G)
+			    svmParameter);
+  // N.B: when we export the model to the robot, peopleBOW index = trainingPeople
+  std::cout << "C = " << svmParameter.C << std::endl;
+  std::cout << "Gamma = " << svmParameter.G << std::endl;
+  
+  // Generating the SVM model
+  std::cout << "Generating the SVM model..." << std::endl;
+  struct svm_problem trainingProblem;
+  trainingProblem.l = 0;
+  trainingProblem.x = NULL;
+  trainingProblem.y = NULL;
+  for(std::vector<std::string>::iterator trainingPerson = trainingPeople.begin();
+      trainingPerson != trainingPeople.end();
+      ++ trainingPerson){
+    addBOW(peopleBOW[*trainingPerson],trainingProblem);
+  }
+  struct svm_model** svmModels = svm_train_ovr(&trainingProblem,&svmParameter);
+  
+  // Exporting
+  std::cout << "Saving the SVM model..." << std::endl;
+  std::vector <std::string> modelFiles;
+  for(int i=0; i<nbActivities; i++){
+    std::string fileToSaveModel = path2bdd;
+    std::stringstream ss;
+    ss << i;
+    fileToSaveModel = fileToSaveModel + "/svm_ovr_" + ss.str() + ".model";
+    svm_save_model(fileToSaveModel.c_str(),svmModels[i]);
+    modelFiles.push_back(fileToSaveModel);
+  }
+  bdd.changeSVMSettings(nbActivities,
+			modelFiles);
+  
+  
+  // Calculate the confusion matrix and the probability estimation
+  std::cout << "Filling confusion matrix" << std::endl;
+  im_fill_confusion_matrix(bdd,trainingProblem,svmModels, trainMC);
+  destroy_svm_problem(trainingProblem);
+  
+  if(testingPeople != {""}){
+    struct svm_problem testingProblem;
+    trainingProblem.l = 0;
+    trainingProblem.x = NULL;
+    trainingProblem.y = NULL;
+    for(std::vector<std::string>::iterator testingPerson = testingPeople.begin();
+	testingPerson != testingPeople.end();
+	++ testingPerson){
+      addBOW(peopleBOW[*testingPerson],testingProblem);
     }
-    struct dirent * ent;
-    while ( (ent = readdir(repertoire)) != NULL){
-      std::string file = ent->d_name;
-      if(file.compare(".") != 0 && file.compare("..") != 0){
-	std::string path2STIPs(path2bdd + "/" + label + "/fp/" + file);
-	
-	KMdata dataPts(dim,maxPts);
-	int nPts = importSTIPs(path2STIPs, dim, maxPts, &dataPts);
-	if(nPts != 0){
-	  dataPts.setNPts(nPts);
-	  dataPts.buildKcTree();
-	  
-	  KMfilterCenters ctrs(k, dataPts);  
-	  importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
-	  
-	  struct svm_problem svmBow = computeBOW(am[i].label,
-						 dataPts,
-						 ctrs);
-	  std::vector<std::string>::iterator inTrain =
-	    std::find(trainingFiles.begin(), trainingFiles.end(), file);
-	  std::vector<std::string>::iterator inTest =
-	    std::find(testingFiles.begin(), testingFiles.end(), file);
-	  if(inTrain != trainingFiles.end() && inTest != testingFiles.end()){
-	    std::cout << *inTrain << " and " << *inTest << std::endl;
-	    std::cerr << "Error: trainingFiles and testingFiles contain same files!" << std::endl;
-	    exit(EXIT_FAILURE);
-	  }
-	  if(inTrain != trainingFiles.end()){
-	    addBOW(svmBow,svmTrainProblem);
-	  }
-	  else if(inTest != testingFiles.end()){
-	    addBOW(svmBow,svmTestProblem);
-	  }
-	  else{
-	    std::cerr << "Error: the file does not exist!" << std::endl;
-	    exit(EXIT_FAILURE);
-	  }
-	  destroy_svm_problem(svmBow);	  
-	}
-      }
-    }
-    closedir(repertoire);
+    im_fill_confusion_matrix(bdd,testingProblem,svmModels, testMC);
+    destroy_svm_problem(testingProblem);
   }
   
+  // Releasing peopleBOW
+  for(std::vector<std::string>::iterator person = people.begin();
+      person != people.end();
+      ++ person){
+    destroy_svm_problem(peopleBOW[*person]);
+  }
   
-  //struct svm_problem svmProblem = importProblem(path2bdd + "/concatenate.bow", k);
-  // Now all Bag Of Words are saved in svmProblem
-  
-  // Normalization step
+  // Releasing OVR models
+  for(int i=0;i<nbActivities;i++){
+    svm_free_and_destroy_model(&svmModels[i]);}
+  delete [] svmModels;
+  svmModels = NULL;
+}
+void im_compute_bdd_bow(const IMbdd& bdd, 
+			const std::map <std::string, struct svm_problem>& peopleBOW){
+  std::vector<std::string> people = bdd.getPeople();
+  for(std::vector<std::string>::iterator person = people.begin();
+      person != people.end();
+      ++person){
+    int currentActivity = 1;
+    struct svm_problem svmPeopleBOW;
+    svmPeopleBOW.l = 0;
+    svmPeopleBOW.x = NULL;
+    svmPeopleBOW.y = NULL;
+    for(std::vector<std::string>::iterator activity = activities.begin();
+	activity != activities.end();
+	++activity){
+      string rep(path2bdd + "/" + *person + "/" + *activity);
+      std::string path2FPs(rep + "/concatenate." + *activity  + ".fp");
+      KMdata dataPts(dim,maxPts);
+      int nPts = importSTIPs(path2FPs, dim, maxPts, &dataPts);
+      if(nPts != 0){
+	dataPts.setNPts(nPts);
+	dataPts.buildKcTree();
+	KMfilterCenters ctrs(k, dataPts);  
+	importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
+	struct svm_problem svmBow = computeBOW(currentActivity,
+					       dataPts,
+					       ctrs);
+	addBOW(svmBow,svmPeopleBOW);
+	destroy_svm_problem(svmBow);	  
+      }
+      currentActivity++;
+    }
+    peopleBOW[*person] = svmPeopleBOW;
+  }
+}
+void im_normalize_bdd_bow(IMbdd bdd, std::map<std::string, struct svm_problem> peopleBOW){
   std::string normalization("gaussian"); // simple either gaussian either both either ""
   bdd.changeNormalizationSettings(normalization,
 				  "means.txt",
@@ -1248,79 +1275,7 @@ void km_svm_train(int nrVideosByActivities,
     bow_normalization(bdd,svmTrainProblem);
     bow_normalization(bdd,svmTestProblem);
   }
-  
-  // Exporting problem
-  exportProblem(svmTrainProblem, path2bdd + "/concatenate.bow.train");
-  exportProblem(svmTestProblem,path2bdd + "/concatenate.bow.test");
-  
-  std::cout << "Done!" << std::endl;
-  
-  // SVM model one versus the rest
-  std::cout << "Generating the SVM model..." << std::endl;
-  struct svm_parameter svmParameter;
-  get_svm_parameter(k,svmParameter);
-  struct svm_model** svmModel = svm_train_ovr(&svmTrainProblem,&svmParameter);
-
-  std::vector <std::string> modelFiles;
-  for(int i=0; i<nbActivities; i++){
-    std::string fileToSaveModel = path2bdd;
-    std::stringstream ss;
-    ss << i;
-    fileToSaveModel = fileToSaveModel + "/svm_ovr_" + ss.str() + ".model";
-    std::cout << "Saving the SVM model..."<<i<< std::endl;
-    svm_save_model(fileToSaveModel.c_str(),svmModel[i]);
-    modelFiles.push_back(fileToSaveModel);
-  }
-  bdd.changeSVMSettings(nbActivities,
-			modelFiles);
-  /* Calculate the confusion matrix & the probability estimation */
-  
-  std::cerr<<"Training Data"<<std::endl;
-  // 1- Training data
-  double* py = svmTrainProblem.y;
-  int pnum = svmTrainProblem.l;
-  struct svm_node** px = svmTrainProblem.x;
-  for(int i=0; i<pnum; i++){
-    double* probs = new double[nbActivities];
-    double lab_in = py[i];
-    double lab_out = svm_predict_ovr_probs(svmModel,px[i],nbActivities,probs,2);
-    trainMC.addTransfer(lab_in,lab_out);
-    std::cout <<"Probs: ";
-    for(int j=0; j<nbActivities; j++){
-      std::cout << setw(5) << setiosflags(ios::fixed) << probs[j]<<" "; 
-    }
-    std::cerr<<std::endl;
-    delete [] probs;
-  }
-
-  std::cerr<<"Testing Data"<<std::endl;
-  // 2- Testing data
-  py = svmTestProblem.y;
-  pnum = svmTestProblem.l;
-  px = svmTestProblem.x;
-  for(int i=0; i<pnum; i++){
-    double* probs = new double[nbActivities];
-    double lab_in = py[i];
-    double lab_out = svm_predict_ovr_probs(svmModel,px[i],nbActivities,probs,2);
-    std::cerr<<"Probs: ";
-    for(int j=0 ; j<nbActivities ; j++){
-      std::cout << setw(5) << setiosflags(ios::fixed) << probs[j]<<" "; 
-    }
-    std::cerr<<std::endl;
-    testMC.addTransfer(lab_in,lab_out);
-    delete [] probs;
-  }
-
-  // Modified for ovr
-  for(int i=0;i<nbActivities;i++){
-    svm_free_and_destroy_model(&svmModel[i]);
-  }
-  delete [] svmModel;
-  destroy_svm_problem(svmTrainProblem);
-  destroy_svm_problem(svmTestProblem);
-  svmModel = NULL;
 }
-
 void bow_normalization(const IMbdd& bdd, struct svm_problem& svmProblem){
   std::string normalization(bdd.getNormalization());
   if(normalization.compare("simple") == 0 || normalization.compare("both") == 0)
@@ -1335,5 +1290,25 @@ void bow_normalization(const IMbdd& bdd, struct svm_problem& svmProblem){
 			       means,
 			       stand_devia,
 			       svmProblem);
+  }
+}
+
+void im_fill_confusion_matrix(const IMbdd& bdd,
+			      const svm_problem& svmProblem,
+			      const svm_model[]& svmModels){
+  double* py = trainingProblem.y;
+  int pnum = trainingProblem.l;
+  struct svm_node** px = trainingProblem.x;
+  for(int i=0; i<pnum; i++){
+    double* probs = new double[nbActivities];
+    double lab_in = py[i];
+    double lab_out = svm_predict_ovr_probs(svmModels,px[i],nbActivities,probs,2);
+    trainMC.addTransfer(lab_in,lab_out);
+    std::cout <<"Probs: ";
+    for(int j=0; j<nbActivities; j++){
+      std::cout << setw(5) << setiosflags(ios::fixed) << probs[j]<<" "; 
+    }
+    std::cerr<<std::endl;
+    delete [] probs;
   }
 }
