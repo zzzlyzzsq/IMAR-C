@@ -30,13 +30,14 @@ int main(int argc, char* argv[]){
     }
     char* bddName = argv[2];
     k = atoi(argv[3]);
-    testBdd(bddName, k, 1);    
+    im_leave_one_out(bddName, 
+		     k);
   }
   else if(function.compare("refresh") == 0){ // delete all files but not videos and recompute stips
     if(argc == 5){
       int scale_num = atoi(argv[3]);
       std::string desc = argv[4];
-      refreshBdd(argv[2],scale_num,desc);
+      im_refresh_bdd(argv[2],scale_num,desc);
     }
     else{
       std::cerr << "Refresh: Bad arguments!" << std::endl;
@@ -97,7 +98,7 @@ int main(int argc, char* argv[]){
     }
     char* bddName = argv[2];
     k = atoi(argv[3]);
-    trainBdd(bddName, k);
+    im_train_bdd(bddName, k);
   }
   else if(function.compare("delete") == 0){ 
     std::string todelete(argv[2]);

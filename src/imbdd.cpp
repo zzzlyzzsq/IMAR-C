@@ -15,6 +15,18 @@ void IMbdd::write_bdd_configuration(std::string pFolder,
   bdd_comment->SetValue("Configuration of the BDD");  
   root->LinkEndChild(bdd_comment);  
   
+  // Data
+  TiXmlElement* data = new TiXmlElement("Data");
+  root->LinkEndChild(data);
+  
+  TiXmlElement* mapping = new TiXmlElement("Mapping");
+  mapping->SetAttribute("path",this->mappingFile.c_str());
+  data->LinkEndChild(mapping);
+  
+  TiXmlElement* reject = new TiXmlElement("Reject");
+  reject->SetAttribute("name",this->reject.c_str());
+  data->LinkEndChild(reject);
+  
   // DenseTrack
   TiXmlElement* fp = new TiXmlElement("DenseTrack");  
   root->LinkEndChild(fp);  
@@ -177,10 +189,14 @@ void IMbdd::changeSVMSettings(int nr_class,
   this->nr_class = nr_class;
   this->modelFiles = modelFiles;
 }
-IMbdd::IMbdd(std::string bddName, std::string folder){
+IMbdd::IMbdd(std::string bddName, std::string folder, std::string mappingFile, std::string reject){
   this->bddName = bddName;
   this->folder = folder;
   
+  // Data
+  this->mappingFile = mappingFile;
+  this->reject = reject;
+
   // DenseTrack
   this->scale_num = -1;
   this->descriptor = "";

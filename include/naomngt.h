@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <map>
 #include <algorithm> // tri dans l'odre croissant
 
 #include <ftplib.h> // ftp transfer
@@ -46,41 +47,49 @@ void deleteBdd(std::string bddName);
 void deleteActivity(std::string activityName, std::string bddName);
 
 void emptyFolder(std::string folder);
-void refreshBdd(std::string bddName, int scale_num, std::string descriptor);
+void im_refresh_bdd(std::string bddName,
+		    int scale_num,
+		    std::string descriptor);
+void im_refresh_folder(const IMbdd& bdd, std::string folder);
+
 void predictActivity(std::string videoPath, std::string bddName);
 
 #ifdef TRANSFER_TO_ROBOT_NAO
 void transferBdd(std::string bddName, std::string login, std::string robotIP, std::string password);
 #endif
 
+void im_concatenate_bdd_feature_points(std::string path2bdd,
+				       std::vector<std::string> people,
+				       std::vector<std::string> activities);
+void im_concatenate_folder_feature_points(std::string folder,
+					  std::vector<std::string> activities);
+int im_create_specifics_training_means(IMbdd bdd,
+				       const std::vector<std::string>& trainingPeople 
+				       //std::vector <std::string> rejects
+				       );
+void im_leave_one_out(std::string bddName, 
+		      int k);
+void im_training_leave_one_out(const IMbdd& bdd,
+			       const std::vector<std::string>& trainingPeople,
+			       const std::map <std::string, struct svm_problem>& peopleBOW,
+			       int& minC, int& maxC,
+			       int& minG, int& maxG,
+			       struct svm_parameter& svmParameter);
+void im_svm_train(IMbdd& bdd,
+		  const std::vector<std::string>& trainingPeople,
+		  MatrixC& trainMC,
+		  const std::vector<std::string>& testingPeople,
+		  MatrixC& testMC);
 
-void concatenate_features_points(int nbActivities,
-				 activitiesMap *am,
-				 std::string path2bdd,
-				 int nrVideosByActivities,
-				 std::vector <std::string>& trainingFiles,
-				 std::vector <std::string>& testingFiles);
-void concatenate_features_points_per_activities(int nbActivities,
-						activitiesMap *am,
-						std::string path2bdd,
-						int nrVideosByActivities,
-						std::vector <std::string>& trainingFiles,
-						std::vector <std::string>& testingFiles);
-void concatenate_bag_of_words(int nbActivities,
-			      activitiesMap *am,
-			      std::string path2bdd);
-int getMinNumVideo(int nbActivities, activitiesMap *am, std::string path2bdd);
-int create_specifics_training_means(IMbdd bdd,
-				    int subK,
-				    int nr_class,
-				    activitiesMap* am
-				    // std::vector <std::string> rejects,
-				    );
-void km_svm_train(int nrVideosByActivities,
-		  int nbActivities, activitiesMap *am,
-		  IMbdd& bdd,
-		  MatrixC& trainMC, MatrixC& testMC
-		  );
-void bow_normalization(const IMbdd& bdd,
-		       struct svm_problem& svmProblem);
+void im_train_bdd(std::string bddName, int k);
+void im_compute_bdd_bow(const IMbdd& bdd, 
+			std::map <std::string, struct svm_problem>& peopleBOW);
+void im_normalize_bdd_bow(const IMbdd& bdd,
+			  const std::vector<std::string>& trainingPeople,
+			  std::map<std::string, struct svm_problem>& peopleBOW);
+void bow_normalization(const IMbdd& bdd, struct svm_problem& svmProblem);
+void im_fill_confusion_matrix(const IMbdd& bdd,
+			      const svm_problem& svmProblem,
+			      struct svm_model** svmModels,
+			      MatrixC& MC);
 #endif

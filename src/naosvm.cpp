@@ -146,7 +146,7 @@ void exportProblem(struct svm_problem svmProblem, std::string file){
  */
 void exportProblemZero(struct svm_problem svmProblem, std::string file, int k){
   int l = svmProblem.l;  
-  ofstream bowFile(file.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvert
+  ofstream bowFile(file.c_str(), ios::out | ios::trunc);  // ouverture en écriture avec effacement du fichier ouvertp
   if(!bowFile){
    std::cerr << "Cannot open the file!" << std::endl;
    exit(EXIT_FAILURE);
@@ -174,7 +174,6 @@ void exportProblemZero(struct svm_problem svmProblem, std::string file, int k){
     idActivity++;
   }
 }
-
 /**
  * \fn struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters& ctrs)
  * \brief Converts the KMdata into a Bag Of Words histogram in the SVM format:
@@ -212,16 +211,15 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   svmProblem.l = l;
   svmProblem.y = (double*) malloc(svmProblem.l * sizeof(double));
   svmProblem.x = (struct svm_node **) malloc(svmProblem.l * sizeof(struct svm_node *));
-  
+    
   int idActivity = 0;
   while(idActivity < l){
     svmProblem.y[idActivity] = label;
     int notZero = 0;
     int center = 0;
     while(center < k){
-      if(bowHistogram[center] != 0){
-	notZero++;
-      }
+      if(bowHistogram[center] != 0)
+    	notZero++;
       center++;
     }
     int i = 0;
@@ -229,9 +227,9 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
     center = 0;
     while(center < k){
       if(bowHistogram[center] != .0){
-	svmProblem.x[idActivity][i].index = center + 1;
-	svmProblem.x[idActivity][i].value = bowHistogram[center];
-	i++;
+    	svmProblem.x[idActivity][i].index = center + 1;
+     	svmProblem.x[idActivity][i].value = bowHistogram[center];
+    	i++;
       }
       center++;
     }
@@ -434,7 +432,7 @@ struct svm_model* create_svm_model(int k, struct svm_problem svmProblem){
   /* For training only : */
   svmParameter.cache_size = 100; // in MB
   svmParameter.eps = 1e-3; // stopping criteria
-  svmParameter.C = 1;
+  svmParameter.C = 35; // default = 1
   
   // change the penalty for some classes
   svmParameter.nr_weight = 0;
