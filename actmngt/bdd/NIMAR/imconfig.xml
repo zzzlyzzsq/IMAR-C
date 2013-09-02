@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<BDD name="NIMAR" folder="bdd/NIMAR">
+    <!--Configuration of the BDD-->
+    <Data>
+        <Activities>
+            <Activitiy name="applaud" />
+            <Activitiy name="drink" />
+            <Activitiy name="openDoor" />
+            <Activitiy name="standUp" />
+            <Activitiy name="walk" />
+        </Activities>
+        <People>
+            <Person name="fabien" />
+            <Person name="huilong" />
+            <Person name="ivan" />
+        </People>
+        <Reject name="" />
+    </Data>
+    <DenseTrack>
+        <!--The feature points extractor-->
+        <Scale scale_num="2" />
+        <Descriptor type="hoghof" dim="204" />
+    </DenseTrack>
+    <KMeans algorithm="specifical">
+        <Centers>
+            <k nr="100" />
+            <file path="training.means" />
+        </Centers>
+    </KMeans>
+    <Normalization type="simple">
+        <Means path="means.txt" />
+        <StandardDeviation path="stand_devia.txt" />
+    </Normalization>
+    <SVM>
+        <Class nr="5" />
+        <Models>
+            <Model path="bdd/NIMAR/svm_ovr_0.model" />
+            <Model path="bdd/NIMAR/svm_ovr_1.model" />
+            <Model path="bdd/NIMAR/svm_ovr_2.model" />
+            <Model path="bdd/NIMAR/svm_ovr_3.model" />
+            <Model path="bdd/NIMAR/svm_ovr_4.model" />
+        </Models>
+    </SVM>
+</BDD>
