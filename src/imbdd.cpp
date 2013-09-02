@@ -19,9 +19,27 @@ void IMbdd::write_bdd_configuration(std::string pFolder,
   TiXmlElement* data = new TiXmlElement("Data");
   root->LinkEndChild(data);
   
-  TiXmlElement* mapping = new TiXmlElement("Mapping");
-  mapping->SetAttribute("path",this->mappingFile.c_str());
-  data->LinkEndChild(mapping);
+  TiXmlElement* activities = new TiXmlElement("Activities");
+  TiXmlElement* activity;
+  data->LinkEndChild(activities);
+  for (std::vector<std::string>::iterator it = this->activities.begin() ;
+       it != this->activities.end();
+       ++it){
+    activity = new TiXmlElement("Activitiy");
+    activity->SetAttribute("name",(*it).c_str());
+    activities->LinkEndChild(activity);
+  }
+  
+  TiXmlElement* people = new TiXmlElement("People");
+  TiXmlElement* person;
+  data->LinkEndChild(people);
+  for (std::vector<std::string>::iterator it = this->people.begin() ;
+       it != this->people.end();
+       ++it){
+    person = new TiXmlElement("Person");
+    person->SetAttribute("name",(*it).c_str());
+    people->LinkEndChild(person);
+  }
   
   TiXmlElement* reject = new TiXmlElement("Reject");
   reject->SetAttribute("name",this->reject.c_str());
@@ -116,7 +134,18 @@ void IMbdd::load_bdd_configuration(std::string pFolder, std::string pFilename){
   this->bddName = pElem->Attribute("name");
   this->folder = pElem->Attribute("folder");
   hRoot=TiXmlHandle(pElem);
-    
+  
+  // Data Setting
+  pElem = hRoot.FirstChild("Data").FirstChild("Activities").FirstChild().Element();
+  for(pElem; pElem; pElem=pElem->NextSiblingElement())
+    this->activities.push_back(pElem->Attribute("name"));
+  this->nrActivities = activities.size();
+  pElem = hRoot.FirstChild("Data").FirstChild("People").FirstChild().Element();
+  for(pElem; pElem; pElem=pElem->NextSiblingElement())
+    this->people.push_back(pElem->Attribute("name"));
+  pElem = hRoot.FirstChild("Data").FirstChild("Reject").Element();
+  this->reject = pElem->Attribute("name");
+  
   // DenseTrack
   pElem = hRoot.FirstChild("DenseTrack").FirstChild("Scale").Element();
   pElem->QueryIntAttribute("scale_num",&this->scale_num);
@@ -144,9 +173,9 @@ void IMbdd::load_bdd_configuration(std::string pFolder, std::string pFilename){
   pElem = hRoot.FirstChild("SVM").FirstChild("Class").Element(); 
   pElem->QueryIntAttribute("nr",&this->nr_class);
   pElem = hRoot.FirstChild("SVM").FirstChild("Models").FirstChild().Element(); 
-  for( pElem; pElem; pElem=pElem->NextSiblingElement())
+  for(pElem; pElem; pElem=pElem->NextSiblingElement())
     this->modelFiles.push_back(pElem->Attribute("path"));
-		    }
+}
 void IMbdd::show_bdd_configuration(){
   std::cout << "BDD: " << bddName << " (in "<< folder << ")" << std::endl;
   std::cout << "# DenseTrack" << std::endl;
@@ -163,6 +192,14 @@ void IMbdd::show_bdd_configuration(){
   std::cout << "# SVM" << std::endl;
 }
 void IMbdd::saveName(std::string bddName){this->bddName = bddName;};
+void IMbdd::changeDataSettings(std::vector<std::string> activities,
+			       std::vector<std::string> people,
+			       std::string reject){
+  this->activities = activities;
+  this->nrActivities = activities.size();
+  this->people = people;
+  this->reject = reject;
+}
 void IMbdd::changeDenseTrackSettings(int scale_num,
 				     std::string descriptor,
 				     int dim){
@@ -189,12 +226,11 @@ void IMbdd::changeSVMSettings(int nr_class,
   this->nr_class = nr_class;
   this->modelFiles = modelFiles;
 }
-IMbdd::IMbdd(std::string bddName, std::string folder, std::string mappingFile, std::string reject){
+IMbdd::IMbdd(std::string bddName, std::string folder){
   this->bddName = bddName;
   this->folder = folder;
   
   // Data
-  this->mappingFile = mappingFile;
   this->reject = reject;
 
   // DenseTrack

@@ -61,7 +61,7 @@ void addVideos(std::string bddName, std::string activity, int nbVideos, std::str
   //int dim = getDim(desc);
   
   // Loading the bdd
-  IMbdd bdd(bddName,path2bdd,"mapping.txt","reject");
+  IMbdd bdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // Saving its parameters
@@ -140,23 +140,14 @@ std::string inttostring(int int2str){
  * \param[in] activityName The name of the new activity.
  * \param[in] bddName The name of the BDD.
  */
-void addActivity(std::string activityName, std::string bddName){
+void addActivity(std::string activityName, std::string bddName){/*
   string path2bdd("bdd/" + bddName);
+  IMbdd bdd = IMbdd(bddName,path2bdd);
   
   // On récupère les données des activités préexistantes
-  activitiesMap *am;
-  int nbActivities = mapActivities(path2bdd,&am);
-  // On vérifie que la nouvelle activité n'existe pas 
-  int i = 0;
-  while(i < nbActivities){
-    if(am[i].activity.compare(activityName) == 0){
-      std::cerr << "L'activité existe déjà !" << std::endl;
-      delete []am;
-      exit(EXIT_FAILURE);
-    }
-    i++;
-  }
-  delete []am;
+  bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+  std::vector<
+  
   // Création du dossier spécifique à l'activité et de ses sous-dossiers
   int idActivity = nbActivities + 1;
   string strID = inttostring(idActivity);
@@ -176,7 +167,7 @@ void addActivity(std::string activityName, std::string bddName){
   }
   //  out.seekg(0, ios::end);
   out << idActivity << ":" << activityName << endl;
-  out.close();
+  out.close();*/
 }
 
 /**
@@ -186,7 +177,7 @@ void addActivity(std::string activityName, std::string bddName){
  * \param[in] activityName The name of the activity to delete.
  * \param[in] bddName The name of the BDD.
  */
-void deleteActivity(std::string activityName, std::string bddName){
+void deleteActivity(std::string activityName, std::string bddName){/*
   string path2bdd("bdd/" + bddName);
   
   // On récupère les données des activités préexistantes
@@ -234,7 +225,7 @@ void deleteActivity(std::string activityName, std::string bddName){
       out << am[i].label << ":" << am[i].activity << endl;
   }
   out.close();
-  delete []am;
+  delete []am;*/
 }
 
 /**
@@ -244,7 +235,7 @@ void deleteActivity(std::string activityName, std::string bddName){
  * \param[in] bddName The name of the BDD we want to create.
  * \param[in] descriptor The descriptor used for extracting the feature points
  */
-void addBdd(std::string bddName, int scale_num, std::string descriptor){
+void addBdd(std::string bddName, int scale_num, std::string descriptor){/*
   // On vérifie que la BDD n'existe pas
   DIR * repertoire = opendir("bdd");
   if (repertoire == NULL){
@@ -277,12 +268,17 @@ void addBdd(std::string bddName, int scale_num, std::string descriptor){
   out.close();
   
   // Saving parameters
-  IMbdd bdd = IMbdd(bddName,path2bdd,"mapping.txt","reject");
+  IMbdd bdd = IMbdd(bddName,path2bdd);
+  std::vector<std::string> activities;
+  std::vector<std::string> people;
+  bdd.changeDataSettings(activities,
+			 people,
+			 "reject");
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       getDim(descriptor));
   
-  bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
+			       bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");*/
 }
 /**
  * \fn void deleteBdd(std::string bddName)
@@ -342,10 +338,11 @@ void im_refresh_bdd(std::string bddName,
 		    int scale_num,
 		    std::string descriptor){
   std::string path2bdd("bdd/" + bddName);
+  IMbdd bdd = IMbdd(bddName,path2bdd);
+  bdd.load_bdd_configuration(path2bdd,"imconfig.xml");
   
-  int dim = getDim(descriptor);
   // Saving the new new descriptor with its dimension
-  IMbdd bdd = IMbdd(bddName,path2bdd,"mapping.txt","reject");
+  int dim = getDim(descriptor);
   bdd.changeDenseTrackSettings(scale_num,
 			       descriptor,
 			       dim);
@@ -400,6 +397,7 @@ void im_refresh_folder(const IMbdd& bdd, std::string folder){
       ++activity){
     string rep(folder + "/" + *activity + "/fp");
     DIR * repertoire = opendir(rep.c_str());
+    std::cout << rep << std::endl;
     if (repertoire == NULL){
       std::cerr << "Impossible to open the fp folder for deletion!" << std::endl;
       exit(EXIT_FAILURE);
@@ -468,8 +466,7 @@ void predictActivity(std::string videoPath,
   std::string path2bdd("bdd/" + bddName);   
   
   // Loading parameters
-  //IMbdd bdd();
-  IMbdd bdd;
+  IMbdd bdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   int scale_num = bdd.getScaleNum();
   std::string descriptor = bdd.getDescriptor();
@@ -499,6 +496,7 @@ void predictActivity(std::string videoPath,
   
   activitiesMap *am;
   int nbActivities = mapActivities(path2bdd,&am);
+  
   
   struct svm_problem svmProblem = computeBOW(0,
 					     dataPts,
@@ -855,7 +853,7 @@ void im_train_bdd(std::string bddName, int k){
   // Loading the DenseTrack settings
   
   // Loading BDD
-  IMbdd bdd; // = IMbdd(bddName,path2bdd);
+  IMbdd bdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // In im_train_bdd all the people are the training people !!
@@ -868,8 +866,10 @@ void im_train_bdd(std::string bddName, int k){
   int index = 0;
   for(std::vector<std::string>::iterator activity = activities.begin();
       activity != activities.end();
-      ++activity)
+      ++activity){
     labels[index] = index + 1;
+    index++;
+  }
   if(k%nrActivities != 0){
     std::cerr << "k is not divisible by nrActivities !" << std::endl;
     exit(EXIT_FAILURE);
@@ -885,62 +885,56 @@ void im_train_bdd(std::string bddName, int k){
   MatrixC trainMC = MatrixC(nrActivities,labels);
   std::vector<std::string> testingPeople;
   MatrixC testMC = MatrixC(nrActivities, labels);
-  im_svm_train(bdd,
-	       trainingPeople, trainMC,
-	       testingPeople, testMC);
+  double crossValidationAccuracy = im_svm_train(bdd,
+						trainingPeople, trainMC,
+						testingPeople, testMC);
   trainMC.calculFrequence();
   trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
   bdd.write_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
-  std::cout << "RESUME OF THE TEST" << std::endl;
+  std::cout << "Resume of the training phase:" << std::endl;
   bdd.show_bdd_configuration();
   std::cout << "Train recognition rate:" << std::endl;
+  std::cout << "\t cross validation accuracy=" << crossValidationAccuracy << std::endl;
   std::cout << "\t tau_train=" << trainMC.recognitionRate*100 << "%" << std::endl;
   std::cout << "\t total number of train BOWs=" << trainMC.nrTest << std::endl;
-  std::cout << "Test recognition rate:" << std::endl;
-  std::cout << "\t tau_test=" << testMC.recognitionRate*100 << "%" << std::endl;
-  std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
 }
 
-void im_leave_one_out(std::string bddName, int k){
+void im_leave_one_out(std::string bddName,
+		      int k){
   std::string path2bdd("bdd/" + bddName);
   std::string KMeansFile(path2bdd + "/" + "training.means");
   
   //  std::cout << path2bdd << std::endl;
   // Loading BDD
-  IMbdd bdd;
+  IMbdd bdd(bddName,path2bdd);
   bdd.load_bdd_configuration(path2bdd.c_str(),"imconfig.xml");
   
   // Saving KMeans settings
-  bdd.changeKMSettings("specifical",
-		       k,
-		       "training.means");
+  bdd.changeKMSettings("specifical", k, "training.means");
   
   // Loading feature points settings
   std::string descriptor = bdd.getDescriptor();
   
-  // ouverture du fichier d'équivalence label <-> activités
-  activitiesMap *am;
-  int nbActivities = mapActivities(path2bdd,&am);
-  int labels[nbActivities];
-  for(int i=0 ; i<nbActivities ; i++){
-    labels[i] = am[i].label;
+  // Loading activities
+  std::vector<std::string> activities = bdd.getActivities();
+  int nrActivities = activities.size();
+  int labels[nrActivities];
+  int index = 0;
+  for(std::vector<std::string>::iterator activity = activities.begin();
+      activity != activities.end();
+      ++activity){
+    labels[index] = index + 1;
+    index++;
+  }
+  if(k%nrActivities != 0){
+    std::cerr << "k is not divisible by nrActivities !" << std::endl;
+    exit(EXIT_FAILURE);
   }
   
-  // Creation of the file concatenate.stip
-  // and the files concatenate.train.stip
-  // and concatenate.test.stip per activities
-  int nrVideosByActivities = 10; // as an option
-  int minNrVideo = 8;
-  if(nrVideosByActivities > minNrVideo - 1){
-    nrVideosByActivities = minNrVideo - 1;
-  }
-  std::cout << "Using " << nrVideosByActivities;
-  std::cout << " videos per activity for the training phase." << std::endl;
-  
-  MatrixC trainMC = MatrixC(nbActivities,labels);
-  MatrixC testMC = MatrixC(nbActivities,labels);
-  
+  MatrixC trainMC = MatrixC(nrActivities,labels);
+  MatrixC testMC = MatrixC(nrActivities,labels);
+  double crossValidationAccuracy = 0;
   std::vector<std::string> people = bdd.getPeople();
   // Leave One Person Out 
   for(std::vector<std::string>::iterator person = people.begin() ;
@@ -956,18 +950,22 @@ void im_leave_one_out(std::string bddName, int k){
       if((*trainingPerson).compare(*person) != 0)
 	trainingPeople.push_back(*trainingPerson);
     }
+    std::cout << "Testing" << *person << std::endl;
     im_create_specifics_training_means(bdd, trainingPeople);
-    im_svm_train(bdd,
-		 trainingPeople, trainMC,
-		 testingPeople, testMC);
+    crossValidationAccuracy += im_svm_train(bdd,
+					    trainingPeople, trainMC,
+					    testingPeople, testMC);
+    std::cout << "Test " << *person << " ok!" << std::endl;
   }
+  crossValidationAccuracy /= people.size();
+  
   trainMC.calculFrequence();
   trainMC.exportMC(path2bdd,"training_confusion_matrix.txt");
   trainMC.output();
   testMC.calculFrequence();
   testMC.exportMC(path2bdd,"testing_confusion_matrix.txt");
   testMC.output();
-    
+  
   std::cout << "#######################################" << std::endl;
   std::cout << "######## RESUME OF THE TEST ###########" << std::endl;
   std::cout << "#######################################" << std::endl;
@@ -975,18 +973,19 @@ void im_leave_one_out(std::string bddName, int k){
   std::cout << "Descriptor ID: " << descriptor << std::endl;
   std::cout << "Number of means: " << k << std::endl;
   std::cout << "Train recognition rate:" << std::endl;
+  std::cout << "\t cross validation accuracy=" << crossValidationAccuracy << std::endl;
   std::cout << "\t tau_train=" << trainMC.recognitionRate*100 << "%" << std::endl;
   std::cout << "\t total number of train BOWs=" << trainMC.nrTest << std::endl;
   std::cout << "Test recognition rate:" << std::endl;
   std::cout << "\t tau_test=" << testMC.recognitionRate*100 << "%" << std::endl;
   std::cout << "\t total number of test BOWs=" << testMC.nrTest << std::endl;
 }
-void im_training_leave_one_out(const IMbdd& bdd,
-			       const std::vector<std::string>& trainingPeople,
-			       const std::map <std::string, struct svm_problem>& peopleBOW,
-			       int& minC, int& maxC,
-			       int& minG, int& maxG,
-			       struct svm_parameter& svmParameter){
+double im_training_leave_one_out(const IMbdd& bdd,
+				 const std::vector<std::string>& trainingPeople,
+				 const std::map <std::string, struct svm_problem>& peopleBOW,
+				 int& minC, int& maxC,
+				 int& minG, int& maxG,
+				 struct svm_parameter& svmParameter){
   if(trainingPeople.size() < 2){
     std::cerr << "Impossible to make a leave-one-out-cross-validation with less than 2 people!" << std::endl;
     exit(EXIT_FAILURE);
@@ -1021,7 +1020,10 @@ void im_training_leave_one_out(const IMbdd& bdd,
 	  if((*trainingPerson).compare(*person) != 0){
 	    // For each person we train the rest and we test the person
 	    // Then compute the mean of the cross validation accuracy 
-	    addBOW(peopleBOW.at(*trainingPerson),trainingProblem);
+	    for(int i=0 ; i < peopleBOW.at(*trainingPerson).l ; i++){
+	      struct svm_node* bow = peopleBOW.at(*trainingPerson).x[i];
+	      addBOW(bow, peopleBOW.at(*trainingPerson).y[i],trainingProblem);
+	    }
 	  }
 	}
 	struct svm_model** svmModels = svm_train_ovr(&trainingProblem,&svmParameter);
@@ -1053,13 +1055,15 @@ void im_training_leave_one_out(const IMbdd& bdd,
   } // C loop
   svmParameter.C = pow(2,bestC);
   svmParameter.gamma = pow(2,bestG);
+  
+  return bestAccuracy;
 }
 
-void im_svm_train(IMbdd& bdd,
-		  const std::vector<std::string>& trainingPeople,
-		  MatrixC& trainMC,
-		  const std::vector<std::string>& testingPeople,
-		  MatrixC& testMC){
+double im_svm_train(IMbdd& bdd,
+		    const std::vector<std::string>& trainingPeople,
+		    MatrixC& trainMC,
+		    const std::vector<std::string>& testingPeople,
+		    MatrixC& testMC){
   std::string path2bdd(bdd.getFolder());
   int k = bdd.getK();
   
@@ -1067,13 +1071,26 @@ void im_svm_train(IMbdd& bdd,
   std::cout << "Computing BOWs..." << std::endl;
   std::map<std::string, struct svm_problem> peopleBOW;
   std::map<std::string, int> activitiesLabel;
+  std::cout << "Computing the SVM problem (ie. BOW) of all the people..." << std::endl;
   im_compute_bdd_bow(bdd,peopleBOW); // all the BOW are saved in peopleBOW
   // Normalization: do not forget to change the normalization before this step
   //bdd.changeNormalizationSettings(normalization,
   //				      "means.txt",
   //"stand_devia.txt");
+  for(std::vector<std::string>::const_iterator trainingPerson = trainingPeople.begin();
+      trainingPerson != trainingPeople.end();
+      ++ trainingPerson){
+    for(int i=0 ; i<peopleBOW[*trainingPerson].l ; i++)
+      std::cout << peopleBOW[*trainingPerson].y[i] << std::endl;
+  }
+  
+  std::cout << "Normalizing the BOW..." << std::endl; 
+  bdd.changeNormalizationSettings("simple",
+				  "means.txt",
+				  "stand_devia.txt");
   im_normalize_bdd_bow(bdd,trainingPeople,peopleBOW); 
   
+  std::cout << "Not exporting the problem..." << std::endl;
   // Export ?? OR NOT export ???????? THAT IS THE QUESTION
   // Exporting problem
   //exportProblem(svmTrainProblem, path2bdd + "/concatenate.bow.train");
@@ -1090,14 +1107,13 @@ void im_svm_train(IMbdd& bdd,
   // For the moment we use the same training centers to find Gamma and C
   int minC = -5, maxC = 5;
   int minG = -10, maxG = 3;
-  im_training_leave_one_out(bdd,
-			    trainingPeople, peopleBOW,
-			    minC, maxC, // ln(min/max C)
-			    minG, maxG, // ln(min/max G)
-			    svmParameter);
+  double crossValidationAccuracy =
+    im_training_leave_one_out(bdd,
+			      trainingPeople, peopleBOW,
+			      minC, maxC, // ln(min/max C)
+			      minG, maxG, // ln(min/max G)
+			      svmParameter);
   // N.B: when we export the model to the robot, peopleBOW index = trainingPeople
-  std::cout << "C = " << svmParameter.C << std::endl;
-  std::cout << "Gamma = " << svmParameter.gamma << std::endl;
   
   // Generating the SVM model
   std::cout << "Generating the SVM model..." << std::endl;
@@ -1108,8 +1124,12 @@ void im_svm_train(IMbdd& bdd,
   for(std::vector<std::string>::const_iterator trainingPerson = trainingPeople.begin();
       trainingPerson != trainingPeople.end();
       ++ trainingPerson){
-    addBOW(peopleBOW[*trainingPerson],trainingProblem);
+    for(int i=0 ; i < peopleBOW.at(*trainingPerson).l ; i++){
+      struct svm_node* bow = peopleBOW.at(*trainingPerson).x[i];
+      addBOW(bow, peopleBOW.at(*trainingPerson).y[i],trainingProblem);
+    }
   }
+  
   struct svm_model** svmModels = svm_train_ovr(&trainingProblem,&svmParameter);
   
   // Exporting models
@@ -1128,11 +1148,12 @@ void im_svm_train(IMbdd& bdd,
 			modelFiles);
   
   // Calculate the confusion matrix and the probability estimation
-  std::cout << "Filling confusion matrix..." << std::endl;
+  std::cout << "Filling the training confusion matrix..." << std::endl;
   im_fill_confusion_matrix(bdd,trainingProblem,svmModels, trainMC);
   destroy_svm_problem(trainingProblem);
   
   if(testingPeople.size() > 0){
+    std::cerr << "Entering in Hell..." << std::endl;
     struct svm_problem testingProblem;
     trainingProblem.l = 0;
     trainingProblem.x = NULL;
@@ -1140,12 +1161,21 @@ void im_svm_train(IMbdd& bdd,
     for(std::vector<std::string>::const_iterator testingPerson = testingPeople.begin();
 	testingPerson != testingPeople.end();
 	++ testingPerson){
-      addBOW(peopleBOW[*testingPerson],testingProblem);
+      for(int i=0 ; i < peopleBOW.at(*testingPerson).l ; i++){
+	std::cerr << "HELlllll" << std::endl;
+	struct svm_node* bow = peopleBOW.at(*testingPerson).x[i];
+	std::cerr << peopleBOW.at(*testingPerson).y[i] << std::endl;
+	std::cerr << "YOOOO man" << std::endl;
+	addBOW(bow, peopleBOW.at(*testingPerson).y[i],testingProblem);
+	std::cerr << "Why ?!!!" << std::endl;
+      }
     }
+    std::cout << "Filling the testing confusion matrix..." << std::endl;
     im_fill_confusion_matrix(bdd,testingProblem,svmModels, testMC);
     destroy_svm_problem(testingProblem);
   }
   
+  std::cout << "Releasing peopleBOW" << std::endl;
   // Releasing peopleBOW
   std::vector<std::string> people = bdd.getPeople();
   for(std::vector<std::string>::iterator person = people.begin();
@@ -1159,6 +1189,8 @@ void im_svm_train(IMbdd& bdd,
     svm_free_and_destroy_model(&svmModels[i]);}
   delete [] svmModels;
   svmModels = NULL;
+  
+  return crossValidationAccuracy;
 }
 void im_compute_bdd_bow(const IMbdd& bdd, 
 			std::map <std::string, struct svm_problem>& peopleBOW){
@@ -1178,33 +1210,49 @@ void im_compute_bdd_bow(const IMbdd& bdd,
     svmPeopleBOW.l = 0;
     svmPeopleBOW.x = NULL;
     svmPeopleBOW.y = NULL;
+    std::cout << "Computing the svmProblem of " << *person << std::endl;
     for(std::vector<std::string>::iterator activity = activities.begin();
 	activity != activities.end();
 	++activity){
-      string rep(path2bdd + "/" + *person + "/" + *activity);
-      std::string path2FPs(rep + "/concatenate." + *activity  + ".fp");
-      KMdata dataPts(dim,maxPts);
-      int nPts = importSTIPs(path2FPs, dim, maxPts, &dataPts);
-      if(nPts != 0){
-	dataPts.setNPts(nPts);
-	dataPts.buildKcTree();
-	KMfilterCenters ctrs(k, dataPts);  
-	importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
-	struct svm_problem svmBow = computeBOW(currentActivity,
-					       dataPts,
-					       ctrs);
-	addBOW(svmBow,svmPeopleBOW);
-	destroy_svm_problem(svmBow);	  
+      string rep(path2bdd + "/" + *person + "/" + *activity + "/fp");
+      DIR * repertoire = opendir(rep.c_str());
+      if (!repertoire){
+	std::cerr << "Impossible to open the feature points directory!" << std::endl;
+	exit(EXIT_FAILURE);
       }
+      struct dirent * ent;
+      while ( (ent = readdir(repertoire)) != NULL){
+	std::string file = ent->d_name;
+	if(file.compare(".") != 0 && file.compare("..") != 0){
+	  std::string path2FPs(rep + "/" + file);
+	  KMdata dataPts(dim,maxPts);
+	  int nPts = importSTIPs(path2FPs, dim, maxPts, &dataPts);
+	  if(nPts != 0){
+	    dataPts.setNPts(nPts);
+	    dataPts.buildKcTree();
+	    
+	    KMfilterCenters ctrs(k, dataPts);
+	    importCenters(path2bdd + "/" + "training.means", dim, k, &ctrs);
+	    
+	    // Only one BOW
+	    struct svm_problem svmBow = computeBOW(currentActivity,
+						   dataPts,
+						   ctrs);
+	    addBOW(svmBow.x[0], svmBow.y[0], svmPeopleBOW);
+	    destroy_svm_problem(svmBow);	  
+	  }
+	}
+      }
+      closedir(repertoire);
       currentActivity++;
     }
-    peopleBOW.at(*person) = svmPeopleBOW;
+    peopleBOW.insert(std::make_pair<std::string, struct svm_problem>((*person), svmPeopleBOW));
   }
 }
 void im_normalize_bdd_bow(const IMbdd& bdd, const std::vector<std::string>& trainingPeople,
 			  std::map<std::string, struct svm_problem>& peopleBOW){
   int k = bdd.getK();
-  std::string normalization(bdd.getNormalization());
+  // Extract and export gaussian parameters
   struct svm_problem svmProblem;
   svmProblem.l = 0;
   svmProblem.x = NULL;
@@ -1212,25 +1260,31 @@ void im_normalize_bdd_bow(const IMbdd& bdd, const std::vector<std::string>& trai
   for(std::vector<std::string>::const_iterator person = trainingPeople.begin();
       person != trainingPeople.end();
       ++person){
-    addBOW(peopleBOW[*person],svmProblem);
+    for(int i=0 ; i<peopleBOW[*person].l ; i++){
+      svm_node *bow = peopleBOW[*person].x[i];
+      addBOW(bow, peopleBOW[*person].y[i],  svmProblem);
+    }
   }
-  
-  // Extract and export gaussian parameters
   double *means=NULL, *stand_devia=NULL;
   means = new double[k];
   stand_devia = new double[k];
+  std::cout << "Extracting gaussian parameters..." << std::endl;
   get_gaussian_parameters(k,
 			  svmProblem,
 			  means,
 			  stand_devia);
   destroy_svm_problem(svmProblem);
+  std::cout<<"Exporting gaussian parameters..." << std::endl;
   save_gaussian_parameters(bdd,
 			   means,
 			   stand_devia);
-  delete means;
-  delete stand_devia;
+  delete []means;
+  delete []stand_devia;
+  
   std::vector<std::string> people = bdd.getPeople();
+  std::string normalization(bdd.getNormalization());
   if(normalization.compare("") !=0){
+    std::cout << "Doing the " << normalization << " normalization..." << std::endl;
     for(std::vector<std::string>::iterator person = people.begin();
 	person != people.end();
 	++person){
@@ -1256,23 +1310,26 @@ void bow_normalization(const IMbdd& bdd, struct svm_problem& svmProblem){
 }
 
 void im_fill_confusion_matrix(const IMbdd& bdd,
-			      const svm_problem& svmProblem,
+			      const struct svm_problem& svmProblem,
 			      struct svm_model** svmModels,
 			      MatrixC& MC){
   int nrActivities = bdd.getActivities().size();
   double* py = svmProblem.y;
   int pnum = svmProblem.l;
   struct svm_node** px = svmProblem.x;
-  for(int i=0; i<pnum; i++){
+  for(int i=0 ; i<pnum ; i++){
     double* probs = new double[nrActivities];
     double lab_in = py[i];
-    double lab_out = svm_predict_ovr_probs(svmModels,px[i],nrActivities,probs,2);
+    double lab_out = svm_predict_ovr_probs(svmModels,px[i],nrActivities,
+					   probs,2);
+
+    std::cout << "in=" << lab_in << " out=" << lab_out << std::endl;
     MC.addTransfer(lab_in,lab_out);
-    std::cout <<"Probs: ";
+    std::cout << "Probs: ";
     for(int j=0; j<nrActivities; j++){
       std::cout << setw(5) << setiosflags(ios::fixed) << probs[j]<<" "; 
     }
-    std::cerr<<std::endl;
+    std::cout << std::endl;
     delete [] probs;
   }
 }

@@ -53,7 +53,8 @@ int svm_vote(int nrClass,
 	      );
 
 void destroy_svm_problem(struct svm_problem svmProblem);
-void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem);
+void addBOW(struct svm_node* bow, double label,
+	    struct svm_problem& svmProblem);
 
 //confusion matrix
 class MatrixC{

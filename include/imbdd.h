@@ -15,7 +15,6 @@ class IMbdd{
   int nrActivities;
   std::vector<std::string> activities;
   std::vector<std::string> people;
-  std::string mappingFile;
   std::string reject;
   
   // DenseTrack
@@ -39,8 +38,7 @@ class IMbdd{
   std::vector<std::string> modelFiles;
   
  public:
-  IMbdd(){};
-  IMbdd(std::string bddName, std::string folder, std::string mappingFile, std::string reject);
+  IMbdd(std::string bddName, std::string folder);
   ~IMbdd(){};
   void write_bdd_configuration(std::string pFolder, std::string pFilename);
   void load_bdd_configuration(std::string pFolder, std::string pFilename);
@@ -50,7 +48,6 @@ class IMbdd{
   std::string getFolder() const {return folder;};
   std::vector<std::string> getPeople() const {return people;};
   std::vector<std::string> getActivities() const {return activities;};
-  std::string getMappingFile() const {return mappingFile;};
   std::string getReject() const {return reject;};
   
   void saveName(std::string bddName);
@@ -66,7 +63,9 @@ class IMbdd{
   std::string getStandardDeviationFile() const {return standardDeviationFile;};
   int getNrClass() const {return nr_class;};
   std::vector<std::string> getModelFiles() const {return modelFiles;};
-  
+  void changeDataSettings(std::vector<std::string> activities,
+				 std::vector<std::string> people,
+				 std::string reject);
   void changeDenseTrackSettings(int scale_num,
 				std::string descriptor,
 				int dim);

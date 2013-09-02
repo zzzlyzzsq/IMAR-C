@@ -25,7 +25,6 @@ archives/*
 tmp/*
 actmngt/bdd/*
 actmngt/out/*
-lib/*
 
 # Documentation
 refman.pdf

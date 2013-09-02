@@ -186,7 +186,7 @@ void exportProblemZero(struct svm_problem svmProblem, std::string file, int k){
 struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters& ctrs){
   int k = ctrs.getK();
   int nPts = dataPts.getNPts();
-
+  
   // 1. Getting assignments 
   KMctrIdxArray closeCtr = new KMctrIdx[dataPts.getNPts()]; // dataPts = 1 label
   double* sqDist = new double[dataPts.getNPts()];
@@ -207,11 +207,10 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
   
   // 5. Exporting the BOW in the structure svmProblem
   struct svm_problem svmProblem;
-  int l = 1;
+  int l=1;
   svmProblem.l = l;
   svmProblem.y = (double*) malloc(svmProblem.l * sizeof(double));
   svmProblem.x = (struct svm_node **) malloc(svmProblem.l * sizeof(struct svm_node *));
-    
   int idActivity = 0;
   while(idActivity < l){
     svmProblem.y[idActivity] = label;
@@ -238,7 +237,7 @@ struct svm_problem computeBOW(int label, const KMdata& dataPts, KMfilterCenters&
     idActivity++;
   }
   delete[] bowHistogram;
-
+  
   return svmProblem; 
 }
 
@@ -673,8 +672,11 @@ void destroy_svm_problem(struct svm_problem svmProblem){
   //svmProblem.x = NULL;
 }
 
-void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem){
+// Add only one BOW
+void addBOW(struct svm_node* bow, double label,
+	    struct svm_problem& svmProblem){
   if(svmProblem.y==NULL || svmProblem.x==NULL){
+    cerr << "Huilong" << endl;
     svmProblem.y=(double*)malloc(sizeof(double));
     svmProblem.x=(struct svm_node**)malloc(sizeof(struct svm_node*));
     if(svmProblem.y==NULL || svmProblem.x==NULL){
@@ -683,6 +685,7 @@ void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem){
     }
   }
   else{
+    cerr << "Huilong" << endl;
     double *tmpy=(double*)realloc(svmProblem.y,(svmProblem.l+1)*sizeof(double));
     struct svm_node** tmpx=(struct svm_node**)realloc(svmProblem.x,(svmProblem.l+1)*sizeof(struct svm_node*));
     if(tmpy==NULL || tmpx==NULL){
@@ -692,9 +695,12 @@ void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem){
     svmProblem.y = tmpy;
     svmProblem.x = tmpx;
   }
-  svmProblem.y[svmProblem.l] = svmBow.y[0];
+  cerr << "Fabien" << endl;
+  svmProblem.y[svmProblem.l] = label;
+  cerr << "YATTA" << endl;
   int d=0;
-  while(svmBow.x[0][d].index != -1){
+  cerr << "Jaqueline" << endl;
+  while(bow[d].index != -1){
     if(d==0&&(svmProblem.x[svmProblem.l]=(struct svm_node*) malloc(2*sizeof(struct svm_node))) == NULL){
       std::cerr << "Malloc error of svmProblem.x[svmProblem.l]!" << std::endl;
       exit(EXIT_FAILURE);
@@ -705,8 +711,8 @@ void addBOW(const struct svm_problem& svmBow, struct svm_problem& svmProblem){
       std::cerr << "Re-Malloc error of svmProblem.x[svmProblem.l]!" << std::endl;
       exit(EXIT_FAILURE);
     }
-    svmProblem.x[svmProblem.l][d].index = svmBow.x[0][d].index;
-    svmProblem.x[svmProblem.l][d].value = svmBow.x[0][d].value;
+    svmProblem.x[svmProblem.l][d].index = bow[d].index;
+    svmProblem.x[svmProblem.l][d].value = bow[d].value;
     d++;
   }
   svmProblem.x[svmProblem.l][d].index = -1;
@@ -944,7 +950,7 @@ svm_model **svm_train_ovr(const svm_problem *prob, svm_parameter *param){
   int l = prob->l;
   svm_model **model = new svm_model*[nr_class];
   if(nr_class == 1){
-    std::cerr<<"Training data in only one class.Aborting!"<<std::endl;
+    std::cerr<<"Training data in only one class. Aborting!"<<std::endl;
     exit(EXIT_FAILURE);
   }
   double *temp_y = new double[l];

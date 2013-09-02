@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <utility> // make_pair
 #include <map>
 #include <algorithm> // tri dans l'odre croissant
 
@@ -69,17 +70,17 @@ int im_create_specifics_training_means(IMbdd bdd,
 				       );
 void im_leave_one_out(std::string bddName, 
 		      int k);
-void im_training_leave_one_out(const IMbdd& bdd,
-			       const std::vector<std::string>& trainingPeople,
-			       const std::map <std::string, struct svm_problem>& peopleBOW,
-			       int& minC, int& maxC,
-			       int& minG, int& maxG,
-			       struct svm_parameter& svmParameter);
-void im_svm_train(IMbdd& bdd,
-		  const std::vector<std::string>& trainingPeople,
-		  MatrixC& trainMC,
-		  const std::vector<std::string>& testingPeople,
-		  MatrixC& testMC);
+double im_training_leave_one_out(const IMbdd& bdd,
+				 const std::vector<std::string>& trainingPeople,
+				 const std::map <std::string, struct svm_problem>& peopleBOW,
+				 int& minC, int& maxC,
+				 int& minG, int& maxG,
+				 struct svm_parameter& svmParameter);
+double im_svm_train(IMbdd& bdd,
+		    const std::vector<std::string>& trainingPeople,
+		    MatrixC& trainMC,
+		    const std::vector<std::string>& testingPeople,
+		    MatrixC& testMC);
 
 void im_train_bdd(std::string bddName, int k);
 void im_compute_bdd_bow(const IMbdd& bdd, 
